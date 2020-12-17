@@ -724,11 +724,12 @@ CREATE TABLE IF NOT EXISTS `asset_items` (
   `name` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'nama barang',
   `item_series` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'isi kategori ada di file categories.php',
   `category_id` int(11) DEFAULT NULL,
+  `class_id` int(11) DEFAULT NULL,
   `type_id` int(11) DEFAULT NULL,
-  `uom` varchar(12) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'unit of measurement. misal: kg, unit, pcs, galon, box dsb.',
-  `price` int(11) NOT NULL,
-  `supplier` int(11) NOT NULL,
-  `minimal_stock` int(11) NOT NULL,
+  `uom` varchar(12) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'unit of measurement. misal: kg, unit, pcs, galon, box dsb.',
+  `price` int(11) DEFAULT NULL,
+  `supplier` int(11) DEFAULT NULL,
+  `minimal_stock` int(11) DEFAULT NULL,
   `notes` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `specification` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `picture` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -749,15 +750,41 @@ CREATE TABLE IF NOT EXISTS `asset_items` (
   `updated_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `item_code` (`item_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table cypher4.asset_items: ~3 rows (approximately)
 /*!40000 ALTER TABLE `asset_items` DISABLE KEYS */;
-INSERT INTO `asset_items` (`id`, `item_code`, `name`, `item_series`, `category_id`, `type_id`, `uom`, `price`, `supplier`, `minimal_stock`, `notes`, `specification`, `picture`, `last_wh`, `serial_number`, `location`, `purchase_date`, `bast`, `holder`, `condition`, `penalty`, `company_id`, `created_at`, `created_by`, `deleted_at`, `deleted_by`, `updated_at`, `updated_by`) VALUES
-	(3, 'PEN001', 'PENSIL 2B', 'PEN', 4, 2, 'ea', 1000, 0, 10, 'notes', 'spec', NULL, NULL, '001', NULL, NULL, NULL, NULL, NULL, NULL, 1, '2020-11-12 02:20:20', NULL, NULL, NULL, '2020-11-12 02:20:20', NULL),
-	(4, 'PEN002', 'BALLPOINT FASTER HITAM 2', 'PEN', 4, 1, 'ea', 1000, 1, 1, '1', '2', NULL, NULL, 'PEN002', NULL, NULL, NULL, NULL, NULL, NULL, 1, '2020-11-12 04:05:16', NULL, NULL, NULL, '2020-11-13 06:54:38', NULL),
-	(5, 'DWT 02', 'Deep Wheel Track 02', '002', 2, 1, 'kg', 1000, 1, 10, 'asdasd', 'asdasdasd', 'DWT 02-2020_11_23.png', NULL, '002', NULL, NULL, NULL, NULL, NULL, NULL, 17, '2020-11-23 04:36:01', NULL, NULL, NULL, '2020-11-23 04:36:01', NULL);
+INSERT INTO `asset_items` (`id`, `item_code`, `name`, `item_series`, `category_id`, `class_id`, `type_id`, `uom`, `price`, `supplier`, `minimal_stock`, `notes`, `specification`, `picture`, `last_wh`, `serial_number`, `location`, `purchase_date`, `bast`, `holder`, `condition`, `penalty`, `company_id`, `created_at`, `created_by`, `deleted_at`, `deleted_by`, `updated_at`, `updated_by`) VALUES
+	(3, 'ATKPEN001', 'PENSIL 2B', 'PEN', 4, NULL, 2, 'ea', 1000, 0, 10, 'notes', 'spec', NULL, NULL, '001', NULL, NULL, NULL, NULL, NULL, NULL, 1, '2020-11-12 02:20:20', NULL, NULL, NULL, '2020-11-12 02:20:20', NULL),
+	(4, 'PEN002', 'BALLPOINT FASTER HITAM 2', 'PEN', 4, NULL, 1, 'ea', 1000, 1, 1, '1', '2', NULL, NULL, 'PEN002', NULL, NULL, NULL, NULL, NULL, NULL, 1, '2020-11-12 04:05:16', NULL, NULL, NULL, '2020-11-13 06:54:38', NULL),
+	(5, 'DWT 02', 'Deep Wheel Track 02', '002', 2, NULL, 1, 'kg', 1000, 1, 10, 'asdasd', 'asdasdasd', 'DWT 02-2020_11_23.png', NULL, '002', NULL, NULL, NULL, NULL, NULL, NULL, 17, '2020-11-23 04:36:01', NULL, NULL, NULL, '2020-11-23 04:36:01', NULL),
+	(6, 'ATKPEN002', 'Pensil ajaib', 'FABER CASTLE', 4, 1, 2, 'ea', NULL, NULL, 2, 'sd', 's', NULL, NULL, '98374928374', NULL, NULL, NULL, NULL, NULL, NULL, 1, '2020-12-17 11:57:28', NULL, NULL, NULL, '2020-12-17 11:57:28', NULL),
+	(7, 'ATKPEN003', 'Pensil ajaib2', 'FASTER', 4, 1, 2, 'ea', NULL, NULL, 2, 'sada', 'asda', NULL, NULL, 'SN3423-7867', NULL, NULL, NULL, NULL, NULL, NULL, 1, '2020-12-17 11:59:41', NULL, NULL, NULL, '2020-12-17 11:59:41', NULL),
+	(8, 'VEHWMC001', 'Traktor', 'SHIMANO', 3, 2, 2, 'unit', NULL, NULL, 10, 'sss', 'ss', NULL, NULL, 'SH8732873', NULL, NULL, NULL, NULL, NULL, NULL, 1, '2020-12-17 12:38:26', NULL, NULL, NULL, '2020-12-17 12:38:26', NULL);
 /*!40000 ALTER TABLE `asset_items` ENABLE KEYS */;
+
+-- Dumping structure for table cypher4.asset_items_classification
+CREATE TABLE IF NOT EXISTS `asset_items_classification` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_category` int(11) DEFAULT NULL,
+  `classification_name` varchar(50) DEFAULT NULL,
+  `classification_code` varchar(3) DEFAULT NULL,
+  `created_by` varchar(50) DEFAULT NULL,
+  `updated_by` varchar(50) DEFAULT NULL,
+  `deleted_by` varchar(50) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+
+-- Dumping data for table cypher4.asset_items_classification: ~1 rows (approximately)
+/*!40000 ALTER TABLE `asset_items_classification` DISABLE KEYS */;
+INSERT INTO `asset_items_classification` (`id`, `id_category`, `classification_name`, `classification_code`, `created_by`, `updated_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`, `company_id`) VALUES
+	(1, 4, 'Pensil 2b', 'PEN', 'cypher', 'cypher', NULL, '2020-12-17 09:35:25', '2020-12-17 09:42:54', NULL, 1),
+	(2, 3, 'WORK MACHINE', 'WMC', 'cypher', NULL, NULL, '2020-12-17 12:27:47', '2020-12-17 12:27:47', NULL, 1);
+/*!40000 ALTER TABLE `asset_items_classification` ENABLE KEYS */;
 
 -- Dumping structure for table cypher4.asset_items_update
 CREATE TABLE IF NOT EXISTS `asset_items_update` (
@@ -881,7 +908,7 @@ CREATE TABLE IF NOT EXISTS `asset_po` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table cypher4.asset_po: ~2 rows (approximately)
+-- Dumping data for table cypher4.asset_po: ~3 rows (approximately)
 /*!40000 ALTER TABLE `asset_po` DISABLE KEYS */;
 INSERT INTO `asset_po` (`id`, `supplier_id`, `po_type`, `alt_suppliers`, `po_num`, `po_date`, `project`, `division`, `reference`, `deliver_to`, `deliver_time`, `currency`, `discount`, `dp`, `ppn`, `payment_term`, `terms`, `notes`, `request_by`, `appr_notes`, `approved_by`, `approved_time`, `rejected_by`, `rejected_time`, `rejected_notes`, `sent_time`, `msg_subject`, `msg_body`, `keynumber`, `justification`, `fr_note`, `gr_date`, `to_revise`, `updated_by`, `updated_at`, `created_by`, `created_at`, `deleted_at`, `deleted_by`, `company_id`) VALUES
 	(1, 4, 'ATK', NULL, '001/VGI/PO/XII/20', '2020-12-02', '1', 'Consultant', '001/VGI/PEV/XII/20', NULL, NULL, 'IDR', 0.00, 0, '["1"]', 'Cash On Delivery', NULL, NULL, 'cypher', NULL, 'cypher', '2020-12-02 14:55:51', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'asdsada', NULL, NULL, NULL, '2020-12-02 14:55:51', NULL, '2020-12-02 14:55:37', NULL, NULL, 1),
@@ -909,7 +936,7 @@ CREATE TABLE IF NOT EXISTS `asset_po_detail` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table cypher4.asset_po_detail: ~2 rows (approximately)
+-- Dumping data for table cypher4.asset_po_detail: ~3 rows (approximately)
 /*!40000 ALTER TABLE `asset_po_detail` DISABLE KEYS */;
 INSERT INTO `asset_po_detail` (`id`, `po_num`, `item_id`, `qty`, `v1`, `v2`, `v3`, `price`, `updated_by`, `updated_at`, `created_by`, `created_at`, `deleted_at`, `deleted_by`, `company_id`) VALUES
 	(1, 1, 'DWT 02', 10, NULL, NULL, NULL, 450000.00, NULL, '2020-12-02 14:55:37', NULL, '2020-12-02 14:55:37', NULL, NULL, NULL),
@@ -997,15 +1024,16 @@ CREATE TABLE IF NOT EXISTS `asset_pre` (
   `deleted_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `company_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table cypher4.asset_pre: ~2 rows (approximately)
+-- Dumping data for table cypher4.asset_pre: ~5 rows (approximately)
 /*!40000 ALTER TABLE `asset_pre` DISABLE KEYS */;
 INSERT INTO `asset_pre` (`id`, `fr_num`, `fr_date`, `fr_type`, `request_by`, `request_at`, `wh_ori`, `due_date`, `pre_num`, `pre_date`, `pev_num`, `pev_date`, `project`, `pev_type`, `division`, `fr_division_approved_by`, `fr_division_approved_at`, `fr_division_rejected_by`, `fr_division_rejected_at`, `pev_division_approved_by`, `pev_division_approved_at`, `fr_approved_by`, `fr_approved_at`, `pre_approved_by`, `pre_approved_at`, `pev_approved_by`, `pev_approved_at`, `fr_approved_notes`, `pre_approved_notes`, `pev_approved_notes`, `div_rejected_by`, `div_rejected_at`, `fr_rejected_by`, `fr_rejected_at`, `fr_rejected_notes`, `pre_rejected_by`, `pre_rejected_at`, `pre_rejected_notes`, `pev_rejected_by`, `pev_rejected_time`, `pev_rejected_notes`, `alt_suppliers`, `sent_time`, `msg_subject`, `msg_body`, `suppliers`, `selected_supplier`, `ppns`, `dps`, `bd`, `discs`, `tops`, `fr_notes`, `pre_notes`, `pev_notes`, `currencies`, `delivers`, `fr_delivers`, `deliver_times`, `fr_deliver_times`, `terms`, `keynumber`, `pc_by`, `pc_time`, `div_by`, `div_time`, `justification`, `attach1`, `attach2`, `attach3`, `updated_by`, `updated_at`, `created_by`, `created_at`, `deleted_at`, `deleted_by`, `company_id`) VALUES
 	(1, '001/VGI/FR/XII/20', '2020-12-02 00:00:00', 'ATK', 'cypher', '2020-12-02 00:00:00', NULL, '2020-12-31 00:00:00', '001/VGI/PRE/XII/20', '2020-12-02 00:00:00', '001/VGI/PEV/XII/20', '2020-12-02 14:55:37', '1', NULL, 'Consultant', 'cypher', '2020-12-02 14:50:09', NULL, NULL, 'cypher', '2020-12-02 14:51:22', 'cypher', '2020-12-02 14:50:13', 'cypher', '2020-12-02 14:50:22', 'cypher', '2020-12-02 14:55:37', 'asdsada', 'asdsada', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '["4","4",null]', NULL, '[["1"],["1"]]', '["0","0","0"]', '0', '["0","0","0"]', '["Cash On Delivery","Cash On Delivery",null]', 'asdsada', 'asdsada', '[null,null,null]', '["IDR","IDR","IDR"]', '[null,null,null]', NULL, '[null,null,null]', NULL, '[null,null,null]', NULL, 'cypher', '2020-12-02 14:51:18', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-12-02 14:55:37', NULL, '2020-12-02 14:50:04', NULL, NULL, 1),
 	(2, '002/VGI/FR/XII/20', '2020-12-02 00:00:00', 'MATERIAL', 'cypher', '2020-12-02 00:00:00', NULL, '2020-12-31 00:00:00', '002/VGI/PRE/XII/20', '2020-12-02 00:00:00', '002/VGI/PEV/XII/20', '2020-12-02 15:03:56', '1', NULL, 'Finance', 'cypher', '2020-12-02 14:56:21', NULL, NULL, 'cypher', '2020-12-02 15:03:51', 'cypher', '2020-12-02 14:56:24', 'cypher', '2020-12-02 14:56:29', 'cypher', '2020-12-02 15:03:56', 'asdasda', 'asdasda', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '["1","3",null]', NULL, '[["1"],["1"]]', '["0","0","0"]', '0', '["0","0","0"]', '["Cash On Delivery","Cash On Delivery",null]', 'asdasda', 'asdasda', '[null,null,null]', '["IDR","IDR","IDR"]', '[null,null,null]', 'delivered', '[null,null,null]', '2020-12-17 03:06:51', '[null,null,null]', NULL, 'cypher', '2020-12-02 14:57:03', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-12-17 03:06:51', NULL, '2020-12-02 14:56:18', NULL, NULL, 1),
 	(3, '003/VGI/FR/XII/20', '2020-12-17 00:00:00', 'ATK', 'cypher', '2020-12-17 00:00:00', NULL, '2020-12-17 00:00:00', '003/VGI/PRE/XII/20', '2020-12-17 00:00:00', '003/VGI/PEV/XII/20', '2020-12-17 03:23:55', '1', NULL, 'Asset', 'cypher', '2020-12-17 03:16:25', NULL, NULL, 'cypher', '2020-12-17 03:23:50', 'cypher', '2020-12-17 03:16:37', 'cypher', '2020-12-17 03:16:56', 'cypher', '2020-12-17 03:23:55', 'tes', 'tes', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '["1",null,null]', NULL, NULL, '["0","0","0"]', '0', '["0","0","0"]', '["Cash On Delivery",null,null]', 'tes', 'tes', '["<p>asda<\\/p>",null,null]', '["IDR","IDR","IDR"]', '["<p>dasda<\\/p>",null,null]', NULL, '["<p>adasda<\\/p>",null,null]', NULL, '["<p>asdasasdasd<\\/p>",null,null]', NULL, 'cypher', '2020-12-17 03:23:43', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-12-17 03:23:55', NULL, '2020-12-17 03:15:39', NULL, NULL, 1),
-	(4, '004/VGI/FR/XII/20', '2020-12-17 00:00:00', 'MATERIAL', 'cypher', '2020-12-17 00:00:00', NULL, '2020-12-18 00:00:00', '004/VGI/PRE/XII/20', '2020-12-17 00:00:00', '004/VGI/PEV/XII/20', NULL, '1', NULL, 'Asset', 'cypher', '2020-12-17 03:20:29', NULL, NULL, NULL, NULL, 'cypher', '2020-12-17 03:20:41', 'cypher', '2020-12-17 03:21:08', NULL, NULL, 'asdas', 'asdas', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0', NULL, NULL, 'asdas', 'asdas', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-12-17 03:21:08', NULL, '2020-12-17 03:17:58', NULL, NULL, 1);
+	(4, '004/VGI/FR/XII/20', '2020-12-17 00:00:00', 'MATERIAL', 'cypher', '2020-12-17 00:00:00', NULL, '2020-12-18 00:00:00', '004/VGI/PRE/XII/20', '2020-12-17 00:00:00', '004/VGI/PEV/XII/20', NULL, '1', NULL, 'Asset', 'cypher', '2020-12-17 03:20:29', NULL, NULL, NULL, NULL, 'cypher', '2020-12-17 03:20:41', 'cypher', '2020-12-17 03:21:08', NULL, NULL, 'asdas', 'asdas', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0', NULL, NULL, 'asdas', 'asdas', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-12-17 03:21:08', NULL, '2020-12-17 03:17:58', NULL, NULL, 1),
+	(5, '005/VGI/FR/XII/20', '2020-12-17 00:00:00', 'MATERIAL', 'cypher', '2020-12-17 00:00:00', NULL, '2020-12-21 00:00:00', '005/VGI/PRE/XII/20', '2020-12-17 00:00:00', '005/VGI/PEV/XII/20', NULL, '1', NULL, 'GA', 'cypher', '2020-12-17 07:10:47', NULL, NULL, NULL, NULL, 'cypher', '2020-12-17 07:11:06', 'cypher', '2020-12-17 07:11:27', NULL, NULL, 'asset appr', 'dir appr', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0', NULL, NULL, 'tester', 'dir appr', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-12-17 07:11:27', NULL, '2020-12-17 07:10:23', NULL, NULL, 1);
 /*!40000 ALTER TABLE `asset_pre` ENABLE KEYS */;
 
 -- Dumping structure for table cypher4.asset_pre_detail
@@ -1033,16 +1061,18 @@ CREATE TABLE IF NOT EXISTS `asset_pre_detail` (
   PRIMARY KEY (`id`),
   KEY `item_id` (`item_id`),
   KEY `pre_id` (`pre_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table cypher4.asset_pre_detail: ~2 rows (approximately)
+-- Dumping data for table cypher4.asset_pre_detail: ~7 rows (approximately)
 /*!40000 ALTER TABLE `asset_pre_detail` DISABLE KEYS */;
 INSERT INTO `asset_pre_detail` (`id`, `fr_id`, `pre_id`, `pre_num`, `pev_num`, `item_id`, `qty`, `delivered`, `qty_buy`, `qty_deliver`, `qty_req`, `qoh`, `qty_appr`, `qty_appr_pev`, `price`, `supp_idx`, `wh`, `created_at`, `updated_at`, `deleted_at`) VALUES
 	(1, 1, 1, '001/VGI/PRE/XII/20', '001/VGI/PEV/XII/20', 'DWT 02', 10, NULL, NULL, NULL, 10, NULL, 10, NULL, '["500000","450000","0"]', 1, NULL, '2020-12-02 14:50:04', '2020-12-02 14:52:50', NULL),
 	(2, 2, 2, '002/VGI/PRE/XII/20', '002/VGI/PEV/XII/20', 'PEN001', 100, 100, NULL, NULL, 100, NULL, 100, NULL, '["1000","11000","0"]', 0, NULL, '2020-12-02 14:56:18', '2020-12-17 03:06:51', NULL),
 	(3, 3, 3, '003/VGI/PRE/XII/20', '003/VGI/PEV/XII/20', 'PEN002', 2, 2, NULL, 2, 2, NULL, 2, NULL, '["10000","0","0"]', 0, NULL, '2020-12-17 03:15:39', '2020-12-17 03:23:36', NULL),
 	(4, 4, 4, '004/VGI/PRE/XII/20', '004/VGI/PEV/XII/20', 'PEN002', 22, 0, NULL, 0, 22, NULL, NULL, NULL, NULL, NULL, NULL, '2020-12-17 03:17:58', '2020-12-17 03:21:08', NULL),
-	(5, 4, 4, '004/VGI/PRE/XII/20', '004/VGI/PEV/XII/20', 'PEN002', NULL, 22, NULL, 22, 22, NULL, NULL, NULL, NULL, NULL, NULL, '2020-12-17 03:17:58', '2020-12-17 03:21:08', NULL);
+	(5, 4, 4, '004/VGI/PRE/XII/20', '004/VGI/PEV/XII/20', 'PEN002', NULL, 22, NULL, 22, 22, NULL, NULL, NULL, NULL, NULL, NULL, '2020-12-17 03:17:58', '2020-12-17 03:21:08', NULL),
+	(6, 5, 5, '005/VGI/PRE/XII/20', '005/VGI/PEV/XII/20', 'PEN001', 200, 200, NULL, 200, 200, NULL, 100, NULL, NULL, NULL, NULL, '2020-12-17 07:10:23', '2020-12-17 07:11:27', NULL),
+	(7, 5, 5, '005/VGI/PRE/XII/20', '005/VGI/PEV/XII/20', 'PEN001', 100, 100, NULL, 100, 100, NULL, 100, NULL, NULL, NULL, NULL, '2020-12-17 07:10:24', '2020-12-17 07:11:27', NULL);
 /*!40000 ALTER TABLE `asset_pre_detail` ENABLE KEYS */;
 
 -- Dumping structure for table cypher4.asset_qty_wh
@@ -1059,13 +1089,22 @@ CREATE TABLE IF NOT EXISTS `asset_qty_wh` (
   UNIQUE KEY `item_wh` (`wh_id`,`item_id`),
   KEY `item_id` (`item_id`),
   KEY `wh_id` (`wh_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table cypher4.asset_qty_wh: ~2 rows (approximately)
 /*!40000 ALTER TABLE `asset_qty_wh` DISABLE KEYS */;
 INSERT INTO `asset_qty_wh` (`id`, `item_id`, `wh_id`, `qty`, `created_at`, `updated_at`, `deleted_at`, `updater`) VALUES
 	(3, 4, 4, 10, '2020-11-12 04:05:16', '2020-11-13 06:53:28', NULL, NULL),
-	(4, 4, 5, 1, '2020-11-12 04:05:16', '2020-11-13 06:53:28', NULL, NULL);
+	(4, 4, 5, 1, '2020-11-12 04:05:16', '2020-11-13 06:53:28', NULL, NULL),
+	(5, 6, 4, 0, '2020-12-17 11:57:28', '2020-12-17 11:57:28', NULL, NULL),
+	(6, 6, 5, 0, '2020-12-17 11:57:28', '2020-12-17 11:57:28', NULL, NULL),
+	(7, 6, 6, 0, '2020-12-17 11:57:28', '2020-12-17 11:57:28', NULL, NULL),
+	(8, 7, 4, 0, '2020-12-17 11:59:41', '2020-12-17 11:59:41', NULL, NULL),
+	(9, 7, 5, 0, '2020-12-17 11:59:41', '2020-12-17 11:59:41', NULL, NULL),
+	(10, 7, 6, 0, '2020-12-17 11:59:41', '2020-12-17 11:59:41', NULL, NULL),
+	(11, 8, 4, 0, '2020-12-17 12:38:26', '2020-12-17 12:38:26', NULL, NULL),
+	(12, 8, 5, 0, '2020-12-17 12:38:26', '2020-12-17 12:38:26', NULL, NULL),
+	(13, 8, 6, 0, '2020-12-17 12:38:26', '2020-12-17 12:38:26', NULL, NULL);
 /*!40000 ALTER TABLE `asset_qty_wh` ENABLE KEYS */;
 
 -- Dumping structure for table cypher4.asset_sre
@@ -4127,6 +4166,10 @@ CREATE TABLE IF NOT EXISTS `marketing_projects` (
   `deleted_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `updated_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `equipment` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contract_file` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `photo` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `company_id` int(10) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `prj_code` (`prj_code`)
@@ -4134,14 +4177,14 @@ CREATE TABLE IF NOT EXISTS `marketing_projects` (
 
 -- Dumping data for table cypher4.marketing_projects: ~7 rows (approximately)
 /*!40000 ALTER TABLE `marketing_projects` DISABLE KEYS */;
-INSERT INTO `marketing_projects` (`id`, `prj_code`, `prj_name`, `id_client`, `value`, `agreement_number`, `agreement_title`, `prefix`, `address`, `currency`, `category`, `transport`, `taxi`, `rent`, `airtax`, `status`, `n_sim`, `start_time`, `end_time`, `ops_remark`, `ops_progress`, `ops_pic`, `mar_remark`, `mar_progress`, `mar_pic`, `ops_link`, `wo_attach`, `mar_link`, `to_category`, `view`, `view_subcost`, `actual_tax`, `list`, `del_list`, `created_at`, `created_by`, `deleted_at`, `deleted_by`, `updated_at`, `updated_by`, `company_id`) VALUES
-	(1, '1', 'GENERAL AFFAIR', NULL, 10000000, '1', '1', 'GA', 'VESSEL TOWER', 'IDR', 'cost', 0.00, 0.00, 0.00, 0.00, NULL, NULL, '2020-11-10', '2021-04-21', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-11-12 02:07:34', NULL, NULL, NULL, '2020-11-12 02:07:34', NULL, 1),
-	(2, '2', 'JASA SEWA ANGKUTAN UMUM', 1, 5000000, '1', '2', 'JSA', 'Jalan2', 'IDR', 'sales', 0.00, 0.00, 0.00, 0.00, NULL, NULL, '2020-11-05', '2025-12-12', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-11-12 02:47:39', NULL, NULL, NULL, '2020-11-12 02:47:39', NULL, 1),
-	(3, '3', 'dm', 2, 100000000, 'this is agreement', 'dasd', 'dm', 'Karangpawitan\r\nKawali', 'IDR', 'cost', 0.00, 0.00, 0.00, 0.00, NULL, NULL, '2020-11-17', '2022-11-23', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-11-23 06:56:09', NULL, NULL, NULL, '2020-11-23 06:56:09', NULL, 17),
-	(4, '4', 'lorem hey', 1, NULL, NULL, NULL, 'LH', NULL, NULL, 'cost', 0.00, 0.00, 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-11-23 15:11:41', NULL, NULL, NULL, '2020-11-23 15:11:41', NULL, 1),
-	(6, '5', 'hgasf', 1, NULL, NULL, NULL, 'HGA', NULL, NULL, 'cost', 0.00, 0.00, 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-11-25 04:04:44', NULL, NULL, NULL, '2020-11-25 04:04:44', NULL, 1),
-	(7, '6', 'heho', 2, NULL, NULL, NULL, 'HEH', NULL, NULL, 'cost', 0.00, 0.00, 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-11-30 07:03:33', NULL, NULL, NULL, '2020-11-30 07:03:33', NULL, 1),
-	(8, '7', 'dasdsadasd', 1, NULL, NULL, NULL, 'DAS', NULL, NULL, 'cost', 0.00, 0.00, 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-12-02 02:13:17', NULL, NULL, NULL, '2020-12-02 02:13:17', NULL, 1);
+INSERT INTO `marketing_projects` (`id`, `prj_code`, `prj_name`, `id_client`, `value`, `agreement_number`, `agreement_title`, `prefix`, `address`, `currency`, `category`, `transport`, `taxi`, `rent`, `airtax`, `status`, `n_sim`, `start_time`, `end_time`, `ops_remark`, `ops_progress`, `ops_pic`, `mar_remark`, `mar_progress`, `mar_pic`, `ops_link`, `wo_attach`, `mar_link`, `to_category`, `view`, `view_subcost`, `actual_tax`, `list`, `del_list`, `created_at`, `created_by`, `deleted_at`, `deleted_by`, `updated_at`, `updated_by`, `equipment`, `description`, `contract_file`, `photo`, `company_id`) VALUES
+	(1, '1', 'GENERAL AFFAIR', NULL, 10000000, '1', '1', 'GA', 'VESSEL TOWER', 'IDR', 'cost', 0.00, 0.00, 0.00, 0.00, NULL, NULL, '2020-11-10', '2021-04-21', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-11-12 02:07:34', NULL, NULL, NULL, '2020-11-12 02:07:34', NULL, NULL, NULL, NULL, NULL, 1),
+	(2, '2', 'JASA SEWA ANGKUTAN UMUM', 1, 5000000, '1', '2', 'JSA', 'Jalan2', 'IDR', 'sales', 0.00, 0.00, 0.00, 0.00, NULL, NULL, '2020-11-05', '2025-12-12', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-11-12 02:47:39', NULL, NULL, NULL, '2020-11-12 02:47:39', NULL, NULL, NULL, NULL, NULL, 1),
+	(3, '3', 'dm', 2, 100000000, 'this is agreement', 'dasd', 'dm', 'Karangpawitan\r\nKawali', 'IDR', 'cost', 0.00, 0.00, 0.00, 0.00, NULL, NULL, '2020-11-17', '2022-11-23', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-11-23 06:56:09', NULL, NULL, NULL, '2020-11-23 06:56:09', NULL, NULL, NULL, NULL, NULL, 17),
+	(4, '4', 'lorem hey', 1, NULL, NULL, NULL, 'LH', NULL, NULL, 'cost', 0.00, 0.00, 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-11-23 15:11:41', NULL, NULL, NULL, '2020-11-23 15:11:41', NULL, NULL, NULL, NULL, NULL, 1),
+	(6, '5', 'hgasf', 1, NULL, NULL, NULL, 'HGA', NULL, NULL, 'cost', 0.00, 0.00, 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-11-25 04:04:44', NULL, NULL, NULL, '2020-11-25 04:04:44', NULL, NULL, NULL, NULL, NULL, 1),
+	(7, '6', 'heho', 2, NULL, NULL, NULL, 'HEH', NULL, NULL, 'cost', 0.00, 0.00, 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-11-30 07:03:33', NULL, NULL, NULL, '2020-11-30 07:03:33', NULL, NULL, NULL, NULL, NULL, 1),
+	(8, '7', 'dasdsadasd', 1, NULL, NULL, NULL, 'DAS', NULL, NULL, 'cost', 0.00, 0.00, 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2020-12-02 02:13:17', NULL, NULL, NULL, '2020-12-02 02:13:17', NULL, NULL, NULL, NULL, NULL, 1);
 /*!40000 ALTER TABLE `marketing_projects` ENABLE KEYS */;
 
 -- Dumping structure for table cypher4.marketing_subcost_detail
@@ -4320,7 +4363,8 @@ INSERT INTO `mtg_mom` (`id_mom`, `id_main`, `content`, `pic`, `deadline`, `input
 CREATE TABLE IF NOT EXISTS `new_category` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_parent` int(11) NOT NULL DEFAULT 0,
-  `name` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `code` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
@@ -4328,15 +4372,16 @@ CREATE TABLE IF NOT EXISTS `new_category` (
   `updated_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `deleted_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table cypher4.new_category: ~4 rows (approximately)
+-- Dumping data for table cypher4.new_category: ~5 rows (approximately)
 /*!40000 ALTER TABLE `new_category` DISABLE KEYS */;
-INSERT INTO `new_category` (`id`, `id_parent`, `name`, `created_at`, `updated_at`, `deleted_at`, `created_by`, `updated_by`, `deleted_by`) VALUES
-	(1, 0, 'Consumable', '2020-10-02 02:39:20', '2020-10-02 02:39:25', '2020-10-02 02:39:25', NULL, NULL, NULL),
-	(2, 0, 'Transportation', '2020-10-05 08:07:50', '2020-10-05 08:07:50', NULL, NULL, NULL, NULL),
-	(3, 2, 'Vehicle', '2020-10-05 08:08:08', '2020-10-05 08:08:08', NULL, NULL, NULL, NULL),
-	(4, 0, 'ATK', '2020-11-12 02:18:30', '2020-11-12 02:18:30', NULL, NULL, NULL, NULL);
+INSERT INTO `new_category` (`id`, `id_parent`, `name`, `code`, `created_at`, `updated_at`, `deleted_at`, `created_by`, `updated_by`, `deleted_by`) VALUES
+	(1, 0, 'Consumable', NULL, '2020-10-02 02:39:20', '2020-10-02 02:39:25', '2020-10-02 02:39:25', NULL, NULL, NULL),
+	(2, 0, 'Transportation', 'TRA', '2020-10-05 08:07:50', '2020-12-17 09:57:53', NULL, NULL, NULL, NULL),
+	(3, 2, 'Vehicle', 'VEH', '2020-10-05 08:08:08', '2020-12-17 09:57:37', NULL, NULL, NULL, NULL),
+	(4, 0, 'ATK', 'ATK', '2020-11-12 02:18:30', '2020-12-17 09:57:26', NULL, NULL, NULL, NULL),
+	(5, 3, 'Mobil', 'MOB', '2020-12-17 09:56:11', '2020-12-17 09:57:11', NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `new_category` ENABLE KEYS */;
 
 -- Dumping structure for table cypher4.notification_rules
