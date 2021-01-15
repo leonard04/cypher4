@@ -25,6 +25,407 @@ class HrdEmployeeController extends Controller
         $this->middleware('auth');
     }
 
+    public function getEmpGet($type=null){
+        $divisions = Rms_divisions::where('id_company', Session::get('company_id'))
+            ->where('name','not like','%admin%')
+            ->get();
+        if ($type == null){
+            $employees = Hrd_employee::whereNull('expel')
+                ->where('emp_type', 1)
+                ->where('company_id', Session::get('company_id'))
+                ->get();
+        } else {
+            $employees = Hrd_employee::whereNull('expel')
+                ->where('emp_type', $type)
+                ->where('company_id', Session::get('company_id'))
+                ->get();
+        }
+
+        $divName = [];
+        foreach ($divisions as $key => $val){
+            $divName['name'][$val->id] = $val->name;
+        }
+
+        $emptypes = Hrd_employee_type::all();
+        $emp_type = [];
+        foreach ($emptypes as $key => $val){
+            $emp_type[$val->id] = $val->name;
+        }
+
+        $row = [];
+        $emp = [];
+
+        foreach ($employees as $key => $value){
+            $status = substr($value->emp_id,4,1);
+            $emp['no'] = ($key+1);
+            $emp['emp_name'] = "<a href='".route('employee.detail',['id'=>$value->id])."' class='btn btn-primary btn-sm'>".$value->emp_name."</a>";
+            $emp['emp_type'] = $emp_type[$value->emp_type];
+            $emp['emp_id'] = $value->emp_id;
+            $emp['emp_position'] = $value->emp_position;
+            $emp['division'] = (isset($divName['name'][$value->division])) ? $divName['name'][$value->division] : "";
+            if ($status != 'K' && $status != 'C'){
+                $emp['status'] = "<center><label class='text-center text-success'>Pegawai Tetap</label></center>";
+            } else {
+                if ($value->expire == null){
+                    $emp['status'] = "<center>
+                                            <button type='button' data-target=''#modalcontract-".$value->id."' data-toggle='modal' class='btn btn-sm btn-success'>
+                                                <i class='fa fa-plus icon-nm'></i> [add contract]
+                                            </button>
+                                        </center>
+
+                                        <div class='modal fade' id='modalcontract-".$value->id."' tabindex='-1' role='dialog' aria-labelledby='modalcontract-".$value->id."' aria-hidden='true'>
+                                            <div class='modal-dialog modal-dialog-centered modal-xl' role='document'>
+                                                <div class='modal-content'>
+                                                    <div class='modal-header'>
+                                                        <h5 class='modal-title' id='exampleModalLabel'>Add Contract</h5>
+                                                        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+                                                            <i aria-hidden='true' class='ki ki-close'></i>
+                                                        </button>
+                                                    </div>
+                                                    <form method='post' action='".route('employee.addcontract')."' enctype='multipart/form-data'>
+                                                        ".csrf_token()."
+                                                        <input type='hidden' name='id' value='".$value->id."'>
+                                                        <div class='modal-body'>
+                                                            <br>
+                                                            <h4>Upload a contract for {{$value->emp_name}}</h4><hr>
+                                                            <div class='row'>
+                                                                <div class='form col-md-12'>
+                                                                    <div class='form-group'>
+                                                                        <label>Document</label>
+                                                                        <input type='hidden' name='MAX_FILE_SIZE' value='200000' />
+                                                                        <input type='file' class='form-control' name='contract_file' id='contract_file' placeholder=''>
+                                                                    </div>
+                                                                    <div class='form-group'>
+                                                                        <label>This contract expires on</label>
+                                                                        <input type='date' class='form-control' name='date_exp' placeholder='' />
+                                                                    </div>
+                                                                    <div class='form-group'>
+                                                                        <label></label>
+                                                                        <label or='as' class='control-label'>
+                                                                            <input type='radio' name='opt' value='1' id='opt' checked />
+                                                                            Renew Contract
+                                                                        </label>
+                                                                        &nbsp;&nbsp;
+                                                                        <label for='int' class='control-label'>
+                                                                            <input type='radio' name='opt' value='2' id='opt' />
+                                                                            Permanent Employee
+                                                                        </label>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class='modal-footer'>
+                                                            <button type='button' class='btn btn-light-primary font-weight-bold' data-dismiss='modal'>Close</button>
+                                                            <button type='submit' name='submit' value='1' class='btn btn-primary font-weight-bold'>
+                                                                <i class='fa fa-check'></i>
+                                                                Add Contract</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        ";
+                } else {
+                    $date2 = date('Y-m-d', strtotime('-1 month', strtotime($value->expire)));
+                    $date1 = date('Y-m-d');
+
+                    $diff = abs(strtotime($date2) - strtotime($date1));
+                    $years = floor($diff / (365*60*60*24));
+                    $months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
+                    $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
+
+                    $emp['status'] = "<center>
+                                            <label class='text-danger font-weight-bolder'>exp: ".$value->expire."</label>
+                                            <a href='".route('download',$value->contract_file)."' class='btn btn-xs btn-icon btn-light-success' target='_blank'><i class='fa fa-download'></i></a>
+                                        </center> &nbsp;";
+                    if ($months <= 1){
+                        $emp['status'] .= "<center>
+                                                <button type='button' data-target='#modalrenewcontract-".$value->id."' data-toggle='modal' class='btn btn-sm btn-success'>
+                                                    <i class='fa fa-plus icon-nm'></i> [renew contract]
+                                                </button>
+                                            </center>
+
+                                            <div class='modal fade' id='modalrenewcontract-".$value->id."' tabindex='-1' role='dialog' aria-labelledby='modalrenewcontract-".$value->id."' aria-hidden='true'>
+                                                <div class='modal-dialog modal-dialog-centered modal-xl' role='document'>
+                                                    <div class='modal-content'>
+                                                        <div class='modal-header'>
+                                                            <h5 class='modal-title' id='exampleModalLabel'>Renew Contract</h5>
+                                                            <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+                                                                <i aria-hidden='true' class='ki ki-close'></i>
+                                                            </button>
+                                                        </div>
+                                                        <form method='post' action='".route('employee.addcontract')."' enctype='multipart/form-data'>
+                                                            <input type='hidden' name='_token' value='".csrf_token()."'>
+                                                            <input type='hidden' name='id' value='".$value->id."'>
+                                                            <div class='modal-body'>
+                                                                <br>
+                                                                <h4>Upload a contract for ".$value->emp_name."</h4><hr>
+                                                                <div class='row'>
+                                                                    <div class='form col-md-12'>
+                                                                        <div class='form-group'>
+                                                                            <label>Document</label>
+                                                                            <input type='hidden' name='MAX_FILE_SIZE' value='200000' />
+                                                                            <input type='file' class='form-control' name='contract_file' id='contract_file' placeholder=''>
+                                                                        </div>
+                                                                        <div class='form-group'>
+                                                                            <label>This contract expires on</label>
+                                                                            <input type='date' class='form-control' name='date_exp' placeholder='' />
+                                                                        </div>
+                                                                        <div class='form-group'>
+                                                                            <label></label>
+                                                                            <label or='as' class='control-label'>
+                                                                                <input type='radio' name='opt' value='1' id='opt' checked />
+                                                                                Renew Contract
+                                                                            </label>
+                                                                            &nbsp;&nbsp;
+                                                                            <label for='int' class='control-label'>
+                                                                                <input type='radio' name='opt' value='2' id='opt' />
+                                                                                Permanent Employee
+                                                                            </label>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class='modal-footer'>
+                                                                <button type='button' class='btn btn-light-primary font-weight-bold' data-dismiss='modal'>Close</button>
+                                                                <button type='submit' name='submit' value='1' class='btn btn-primary font-weight-bold'>
+                                                                    <i class='fa fa-check'></i>
+                                                                    Add Contract</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            ";
+                    }
+                }
+            }
+            $emp['cv'] = "<a href='".route('employee.detail',['id'=>$value->id])."' class='btn btn-success btn-sm'><i class='fa fa-cog icon-nm'></i> manage</a>";
+            $emp['document'] = "<a href='".route('employee.detail',['id'=>$value->id])."' class='btn btn-success btn-sm'><i class='fa fa-cog icon-nm'></i> manage</a>";
+            $emp['quit'] = "<a href='".route('employee.expel',['id' =>$value->id])."' class='btn btn-sm btn-danger' onclick='return confirm(\"Pegawai ini DIPECAT?\"); '><i class='fa fa-times icon-nm'></i> Fired</a>";
+            $emp['training_point'] = " <a href='' class='btn btn-light-dark btn-icon btn-sm'><i class='fa fa-eye text-white icon-nm'></i></a>";
+            $emp['action'] = "<form method='post' action='".route('employee.delete',['id'=>$value->id])."'>
+                                   <input type='hidden' name='_token' value='".csrf_token()."'>
+                                    <button type='submit' class='btn btn-sm btn-icon btn-default' onclick='return confirm(\"Hapus data pegawai?\");'>
+                                        <i class='fa fa-trash text-danger'></i>
+                                    </button>
+                              </form>";
+            $row[] = $emp;
+        }
+        $data = [
+            'data' => $row,
+        ];
+//        dd($data);
+        return json_encode($data);
+    }
+
+    public function getEmp(Request $request){
+//        dd($request);
+        $divisions = Rms_divisions::where('id_company', Session::get('company_id'))
+            ->where('name','not like','%admin%')
+            ->get();
+        if ($request->type == null){
+            $employees = Hrd_employee::whereNull('expel')
+                ->where('emp_type', 1)
+                ->where('company_id', Session::get('company_id'))
+                ->get();
+        } elseif ($request->type == 0){
+            $employees = Hrd_employee::whereNull('expel')
+                ->where('company_id', Session::get('company_id'))
+                ->get();
+        } else {
+            $employees = Hrd_employee::whereNull('expel')
+                ->where('emp_type', $request->type)
+                ->where('company_id', Session::get('company_id'))
+                ->get();
+        }
+
+        $divName = [];
+        foreach ($divisions as $key => $val){
+            $divName['name'][$val->id] = $val->name;
+        }
+
+        $emptypes = Hrd_employee_type::all();
+        $emp_type = [];
+        foreach ($emptypes as $key => $val){
+            $emp_type[$val->id] = $val->name;
+        }
+
+        $row = [];
+        $emp = [];
+
+        foreach ($employees as $key => $value){
+            $status = substr($value->emp_id,4,1);
+            $emp['no'] = ($key+1);
+            $emp['emp_name'] = "<a href='".route('employee.detail',['id'=>$value->id])."' class='btn btn-primary btn-sm'>".$value->emp_name."</a>";
+            $emp['emp_type'] = $emp_type[$value->emp_type];
+            $emp['emp_id'] = $value->emp_id;
+            $emp['emp_position'] = $value->emp_position;
+            $emp['division'] = (isset($divName['name'][$value->division])) ? $divName['name'][$value->division] : "";
+            if ($status != 'K' && $status != 'C'){
+                $emp['status'] = "<center><label class='text-center text-success'>Pegawai Tetap</label></center>";
+            } else {
+                if ($value->expire == null){
+                    $emp['status'] = "<center>
+                                            <button type='button' data-target=''#modalcontract-".$value->id."' data-toggle='modal' class='btn btn-sm btn-success'>
+                                                <i class='fa fa-plus icon-nm'></i> [add contract]
+                                            </button>
+                                        </center>
+
+                                        <div class='modal fade' id='modalcontract-".$value->id."' tabindex='-1' role='dialog' aria-labelledby='modalcontract-".$value->id."' aria-hidden='true'>
+                                            <div class='modal-dialog modal-dialog-centered modal-xl' role='document'>
+                                                <div class='modal-content'>
+                                                    <div class='modal-header'>
+                                                        <h5 class='modal-title' id='exampleModalLabel'>Add Contract</h5>
+                                                        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+                                                            <i aria-hidden='true' class='ki ki-close'></i>
+                                                        </button>
+                                                    </div>
+                                                    <form method='post' action='".route('employee.addcontract')."' enctype='multipart/form-data'>
+                                                        ".csrf_token()."
+                                                        <input type='hidden' name='id' value='".$value->id."'>
+                                                        <div class='modal-body'>
+                                                            <br>
+                                                            <h4>Upload a contract for {{$value->emp_name}}</h4><hr>
+                                                            <div class='row'>
+                                                                <div class='form col-md-12'>
+                                                                    <div class='form-group'>
+                                                                        <label>Document</label>
+                                                                        <input type='hidden' name='MAX_FILE_SIZE' value='200000' />
+                                                                        <input type='file' class='form-control' name='contract_file' id='contract_file' placeholder=''>
+                                                                    </div>
+                                                                    <div class='form-group'>
+                                                                        <label>This contract expires on</label>
+                                                                        <input type='date' class='form-control' name='date_exp' placeholder='' />
+                                                                    </div>
+                                                                    <div class='form-group'>
+                                                                        <label></label>
+                                                                        <label or='as' class='control-label'>
+                                                                            <input type='radio' name='opt' value='1' id='opt' checked />
+                                                                            Renew Contract
+                                                                        </label>
+                                                                        &nbsp;&nbsp;
+                                                                        <label for='int' class='control-label'>
+                                                                            <input type='radio' name='opt' value='2' id='opt' />
+                                                                            Permanent Employee
+                                                                        </label>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class='modal-footer'>
+                                                            <button type='button' class='btn btn-light-primary font-weight-bold' data-dismiss='modal'>Close</button>
+                                                            <button type='submit' name='submit' value='1' class='btn btn-primary font-weight-bold'>
+                                                                <i class='fa fa-check'></i>
+                                                                Add Contract</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        ";
+                } else {
+                    $date2 = date('Y-m-d', strtotime('-1 month', strtotime($value->expire)));
+                    $date1 = date('Y-m-d');
+
+                    $diff = abs(strtotime($date2) - strtotime($date1));
+                    $years = floor($diff / (365*60*60*24));
+                    $months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
+                    $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
+
+                    $emp['status'] = "<center>
+                                            <label class='text-danger font-weight-bolder'>exp: ".$value->expire."</label>
+                                            <a href='".route('download',$value->contract_file)."' class='btn btn-xs btn-icon btn-light-success' target='_blank'><i class='fa fa-download'></i></a>
+                                        </center> &nbsp;";
+                    if ($months <= 1){
+                        $emp['status'] .= "<center>
+                                                <button type='button' data-target='#modalrenewcontract-".$value->id."' data-toggle='modal' class='btn btn-sm btn-success'>
+                                                    <i class='fa fa-plus icon-nm'></i> [renew contract]
+                                                </button>
+                                            </center>
+
+                                            <div class='modal fade' id='modalrenewcontract-".$value->id."' tabindex='-1' role='dialog' aria-labelledby='modalrenewcontract-".$value->id."' aria-hidden='true'>
+                                                <div class='modal-dialog modal-dialog-centered modal-xl' role='document'>
+                                                    <div class='modal-content'>
+                                                        <div class='modal-header'>
+                                                            <h5 class='modal-title' id='exampleModalLabel'>Renew Contract</h5>
+                                                            <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+                                                                <i aria-hidden='true' class='ki ki-close'></i>
+                                                            </button>
+                                                        </div>
+                                                        <form method='post' action='".route('employee.addcontract')."' enctype='multipart/form-data'>
+                                                            <input type='hidden' name='_token' value='".csrf_token()."'>
+                                                            <input type='hidden' name='id' value='".$value->id."'>
+                                                            <div class='modal-body'>
+                                                                <br>
+                                                                <h4>Upload a contract for ".$value->emp_name."</h4><hr>
+                                                                <div class='row'>
+                                                                    <div class='form col-md-12'>
+                                                                        <div class='form-group'>
+                                                                            <label>Document</label>
+                                                                            <input type='hidden' name='MAX_FILE_SIZE' value='200000' />
+                                                                            <input type='file' class='form-control' name='contract_file' id='contract_file' placeholder=''>
+                                                                        </div>
+                                                                        <div class='form-group'>
+                                                                            <label>This contract expires on</label>
+                                                                            <input type='date' class='form-control' name='date_exp' placeholder='' />
+                                                                        </div>
+                                                                        <div class='form-group'>
+                                                                            <label></label>
+                                                                            <label or='as' class='control-label'>
+                                                                                <input type='radio' name='opt' value='1' id='opt' checked />
+                                                                                Renew Contract
+                                                                            </label>
+                                                                            &nbsp;&nbsp;
+                                                                            <label for='int' class='control-label'>
+                                                                                <input type='radio' name='opt' value='2' id='opt' />
+                                                                                Permanent Employee
+                                                                            </label>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class='modal-footer'>
+                                                                <button type='button' class='btn btn-light-primary font-weight-bold' data-dismiss='modal'>Close</button>
+                                                                <button type='submit' name='submit' value='1' class='btn btn-primary font-weight-bold'>
+                                                                    <i class='fa fa-check'></i>
+                                                                    Add Contract</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            ";
+                    }
+                }
+            }
+            $emp['cv'] = "<a href='".route('employee.detail',['id'=>$value->id])."' class='btn btn-success btn-sm'><i class='fa fa-cog icon-nm'></i> manage</a>";
+            $emp['document'] = "<a href='".route('employee.detail',['id'=>$value->id])."' class='btn btn-success btn-sm'><i class='fa fa-cog icon-nm'></i> manage</a>";
+            $emp['quit'] = "<a href='".route('employee.expel',['id' =>$value->id])."' class='btn btn-sm btn-danger' onclick='return confirm(\"Pegawai ini DIPECAT?\"); '><i class='fa fa-times icon-nm'></i> Fired</a>";
+            $emp['training_point'] = " <a href='' class='btn btn-light-dark btn-icon btn-sm'><i class='fa fa-eye text-white icon-nm'></i></a>";
+            $emp['action'] = "<form method='post' action='".route('employee.delete',['id'=>$value->id])."'>
+                                   <input type='hidden' name='_token' value='".csrf_token()."'>
+                                    <button type='submit' class='btn btn-sm btn-icon btn-default' onclick='return confirm(\"Hapus data pegawai?\");'>
+                                        <i class='fa fa-trash text-danger'></i>
+                                    </button>
+                              </form>";
+            $row[] = $emp;
+        }
+        $data = [
+            'data' => $row,
+        ];
+//        dd($data);
+        return json_encode($data);
+
+    }
     public function index(){
         $id_companies = array();
         if (Session::get('company_child') != null){
@@ -50,23 +451,31 @@ class HrdEmployeeController extends Controller
 
 //        dd($divName);
         $emptypes = Hrd_employee_type::all();
+        $emp_type = [];
+        foreach ($emptypes as $key => $val){
+            $emp_type[$val->id] = $val->name;
+        }
+
         return view('employee.index',[
             'employees' => $employees,
             'emptypes' => $emptypes,
             'divisions' => $divisions,
             'divName' => $divName,
+            'emp_type' => $emp_type,
         ]);
     }
 
     public function getIndexEmployeeLoan(){
-        $loan = DB::table('hrd_employee_loan')
-            ->select('hrd_employee_loan.*', 'employee.emp_name as emp_name')
-            ->join('hrd_employee as employee','employee.id','=','hrd_employee_loan.emp_id')
-            ->where('employee.company_id', \Session::get('company_id'))
-            ->whereNull('employee.expel')
-            ->whereNull('hrd_employee_loan.deleted_at')
-//            ->orderBy('date_given','DESC')
-            ->get();
+////        $loan = Hrd_employee_loan::where('company_id', Session::get('company_id'))->get();
+//        $loan = DB::table('hrd_employee_loan')
+//            ->select('hrd_employee_loan.*', 'employee.emp_name as emp_name')
+//            ->join('hrd_employee as employee','employee.id','=','hrd_employee_loan.emp_id')
+//            ->where('employee.company_id', \Session::get('company_id'))
+//            ->where('hrd_employee_loan.company_id', \Session::get('company_id'))
+//            ->whereNull('employee.expel')
+//            ->whereNull('hrd_employee_loan.deleted_at')
+////            ->orderBy('date_given','DESC')
+//            ->get();
 
         $loan_payment = Hrd_employee_loan_payment::orderBy('date_of_payment','DESC')
             ->whereNull('hrd_employee_loan_payment.deleted_at')
@@ -76,10 +485,31 @@ class HrdEmployeeController extends Controller
             ->whereNull('expel')
             ->whereNull('deleted_at')
             ->get();
+        $payment = array();
+        foreach ($loan_payment as $item){
+            $payment[$item->company_id][$item->loan_id][] = $item->amount;
+        }
+//        dd($employees);
+        $data_emp = array();
+        foreach ($employees as $item){
+            if (!empty($item->old_id)){
+                $data_emp[$item->old_id] = $item;
+                $id[] = $item->old_id;
+            } else {
+                $data_emp[$item->id] = $item;
+                $id[] = $item->id;
+            }
+        }
+
+        $loan = Hrd_employee_loan::where('company_id', \Session::get('company_id'))
+            ->whereIn('emp_id', $id)
+            ->get();
+
         return view('employee.loan',[
             'employees' => $employees,
             'loans' => $loan,
-            'payments' => $loan_payment,
+            'payments' => $payment,
+            'data_emp' => $data_emp,
         ]);
     }
     public function loandelete($id){
@@ -272,14 +702,26 @@ class HrdEmployeeController extends Controller
         $loan = Hrd_employee_loan::where('id',$id)
             ->whereNull('deleted_at')
             ->first();
-        $emp = Hrd_employee::select('emp_name')
-            ->where('id', $loan->emp_id)
-            ->where('company_id', \Session::get('company_id'))
-            ->whereNull('deleted_at')
-            ->first();
+
+        $emps = Hrd_employee::where('company_id', \Session::get('company_id'))
+            ->get();
+        $data_emp = array();
+        foreach ($emps as $item){
+            if (!empty($item->old_id)){
+                $data_emp[$item->old_id] = $item;
+            } else {
+                $data_emp[$item->id] = $item;
+            }
+        }
+
+        $emp = $data_emp[$loan->emp_id];
+
         $loan_balance = intval($loan->loan_amount);
 
-        $loan_payments = Hrd_employee_loan_payment::where('loan_id', $id)
+        $id_loan = (empty($loan->old_id)) ? $id : $loan->old_id;
+
+        $loan_payments = Hrd_employee_loan_payment::where('loan_id', $id_loan)
+            ->where('company_id', \Session::get('company_id'))
             ->whereNull('deleted_at')
             ->get();
 
@@ -313,6 +755,7 @@ class HrdEmployeeController extends Controller
         $loan_pay->receive_by = Auth::user()->username;
         $loan_pay->receive_time = date('Y-m-d H:i:s');
         $loan_pay->remark = 'insert by '.Auth::user()->username;
+        $loan_pay->company_id = \Session::get('company_id');
         $loan_pay->save();
 //        echo $request['bonus_id'];
 
@@ -446,6 +889,7 @@ class HrdEmployeeController extends Controller
             $employee_history->activity      = "in";
             $employee_history->act_date      = date("Y-m-d");
             $employee_history->act_by        = Auth::user()->username;
+            $employee_history->company_id    = \Session::get('company_id');
 
             $employee_history->save();
 
@@ -560,8 +1004,14 @@ class HrdEmployeeController extends Controller
         } else {
             array_push($id_companies, Session::get('company_id'));
         }
-        $getDetailData_history = Hrd_employee_history::where('emp_id',$id)->first();
         $getDetailData = Hrd_employee::where('id', $id)->first();
+        if (empty($getDetailData->old_id)){
+            $getDetailData_history = Hrd_employee_history::where('emp_id',$id)->first();
+        } else {
+            $getDetailData_history = Hrd_employee_history::where('emp_id',$getDetailData->old_id)
+                ->where('company_id', $getDetailData->company_id)
+                ->first();
+        }
 //        dd($getDetailData);
         $status = substr($getDetailData->emp_id,4,1);
         $divisions = Rms_divisions::whereIn('id_company', $id_companies)

@@ -7,12 +7,14 @@
                 <h3>Travel Order</h3><br>
 
             </div>
+            @actionStart('to', 'create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTo"><i class="fa fa-plus"></i>New Travel Order</button>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             <div class="col-md-4 col-sm-4">
@@ -39,7 +41,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                    @foreach($to as $key => $value)
+                @actionStart('to', 'read')
+                @foreach($to as $key => $value)
                         <tr>
                             <td>{{($key+1)}}</td>
                             <td class="text-center"><a href="{{route('to.edit',['id' => $value->id])}}" class="btn-link">{{$value->doc_num}}</a></td>
@@ -49,6 +52,7 @@
                             <td class="text-center">{{date('d F Y', strtotime($value->departure_dt))}}</td>
                             <td class="text-center">{{date('d F Y', strtotime($value->return_dt))}}</td>
                             @php
+                                /** @var TYPE_NAME $value */
                                 $meal = intval($value->duration) * intval($value->to_meal);
                                 $spending = intval($value->duration) * intval($value->to_spending);
                                 $overnight = intval($value->duration) * intval($value->to_overnight);
@@ -111,12 +115,15 @@
                                 @endif
                             </td>
                             <td class="text-center">
+                                @actionStart('to', 'delete')
                                 <a class="btn btn-danger btn-xs dttb" href="{{route('to.delete',['id'=> $value->id])}}" title="Delete" onclick="return confirm('Are you sure you want to delete?'); ">
                                     <i class="fa fa-trash"></i>
                                 </a>
+                                @actionEnd
                             </td>
                         </tr>
                     @endforeach
+                @actionEnd
                 </tbody>
             </table>
         </div>

@@ -51,7 +51,7 @@ class MarketingBpController extends Controller
     }
 
     public function addBP(Request $request){
-        $prj = Marketing_project::where('prj_code', $request['project'])->first();
+        $prj = Marketing_project::where('id', $request['project'])->first();
         $date = date('Y-m-d');
         $bp = new Marketing_bp();
         $bp->prj_code = $request['project'];
@@ -78,8 +78,8 @@ class MarketingBpController extends Controller
         $lastid = $bp->id;
 
         $details = [
-            ['id_detail'=> null,'id_main' => $lastid,'prj_code'=>$request['project'],'currency' =>'','item_name' => 'AMOUNT', 'request_amount' => null, 'actual_amount' => 0.0],
-            ['id_detail'=> null,'id_main' => $lastid,'prj_code'=>$request['project'],'currency' => '','item_name' => 'ADMINISTRATION', 'request_amount' => null, 'actual_amount' => 0.0],
+            ['id'=> null,'id_main' => $lastid,'prj_code'=>$request['project'],'currency' =>'','item_name' => 'AMOUNT', 'request_amount' => null, 'actual_amount' => 0.0],
+            ['id'=> null,'id_main' => $lastid,'prj_code'=>$request['project'],'currency' => '','item_name' => 'ADMINISTRATION', 'request_amount' => null, 'actual_amount' => 0.0],
         ];
         foreach ($details as $detail){
             Marketing_bp_detail::create($detail);

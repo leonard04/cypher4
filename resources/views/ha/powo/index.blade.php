@@ -52,6 +52,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                        @actionStart('powo_types', 'read')
                                             @foreach($pos as $key => $item)
                                                 <tr>
                                                     <td align="center">{{$key + 1}}</td>
@@ -60,10 +61,13 @@
                                                     </td>
                                                     <td align="center">
                                                         <button type="button" class="btn btn-xs btn-icon btn-primary" onclick="button_edit('{{$key}}', 'po')"><i class="fa fa-edit"></i></button>
+                                                        @actionStart('powo_types', 'delete')
                                                         <button type="button" class="btn btn-xs btn-icon btn-danger" onclick="button_delete_type('{{$item->id}}', 'po')"><i class="fa fa-trash"></i></button>
+                                                        @actionEnd
                                                     </td>
                                                 </tr>
                                             @endforeach
+                                        @actionEnd
                                         </tbody>
                                     </table>
                                 </div>
@@ -96,6 +100,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
+                                        @actionStart('powo_types', 'read')
                                         @foreach($wos as $key => $item)
                                             <tr>
                                                 <td align="center">{{$key + 1}}</td>
@@ -104,10 +109,13 @@
                                                 </td>
                                                 <td align="center">
                                                     <button type="button" class="btn btn-xs btn-icon btn-primary" onclick="button_edit('{{$key}}', 'wo')"><i class="fa fa-edit"></i></button>
+                                                    @actionStart('powo_types', 'delete')
                                                     <button type="button" class="btn btn-xs btn-icon btn-danger" onclick="button_delete_type('{{$item->id}}', 'wo')"><i class="fa fa-trash"></i></button>
+                                                    @actionEnd
                                                 </td>
                                             </tr>
                                         @endforeach
+                                        @actionEnd
                                         </tbody>
                                     </table>
                                 </div>
@@ -136,6 +144,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
+                                        @actionStart('powo_types', 'read')
                                         @php
                                             $num = 1;
                                         @endphp
@@ -147,7 +156,7 @@
                                                         <span class="label label-inline label-primary">{{$item->po_num}}</span>
                                                     </td>
                                                     <td align="center">
-                                                        <b>{{$vendor_name[$item->supplier_id]}}</b>
+                                                        <b>{{isset($vendor_name[$item->supplier_id]) ? $vendor_name[$item->supplier_id] : "N/A"}}</b>
                                                     </td>
                                                     <td align="center">
                                                         <span class="label label-inline label-warning">undefined</span>
@@ -158,6 +167,7 @@
                                                 </tr>
                                             @endif
                                         @endforeach
+                                        @actionEnd
                                         </tbody>
                                     </table>
                                 </div>
@@ -186,6 +196,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
+                                        @actionStart('powo_types', 'read')
                                         @php
                                             $num = 1;
                                         @endphp
@@ -197,7 +208,7 @@
                                                         <span class="label label-inline label-primary">{{$item->po_num}}</span>
                                                     </td>
                                                     <td align="center">
-                                                        <b>{{$vendor_name[$item->supplier_id]}}</b>
+                                                        <b>{{isset($vendor_name[$item->supplier_id]) ? $vendor_name[$item->supplier_id] : "N/A"}}</b>
                                                     </td>
                                                     <td align="center">
                                                         <span class="label label-inline label-success">{{strip_tags($item->po_type)}}</span>
@@ -208,6 +219,7 @@
                                                 </tr>
                                             @endif
                                         @endforeach
+                                        @actionEnd
                                         </tbody>
                                     </table>
                                 </div>
@@ -236,6 +248,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
+                                        @actionStart('powo_types', 'read')
                                         @php
                                             $num = 1;
                                         @endphp
@@ -247,7 +260,7 @@
                                                         <span class="label label-inline label-primary">{{$item->wo_num}}</span>
                                                     </td>
                                                     <td align="center">
-                                                        <b>{{$vendor_name[$item->supplier_id]}}</b>
+                                                        <b>{{isset($vendor_name[$item->supplier_id]) ? $vendor_name[$item->supplier_id] : "N/A"}}</b>
                                                     </td>
                                                     <td align="center">
                                                         <span class="label label-inline label-warning">undefined</span>
@@ -258,6 +271,7 @@
                                                 </tr>
                                             @endif
                                         @endforeach
+                                        @actionEnd
                                         </tbody>
                                     </table>
                                 </div>
@@ -286,6 +300,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
+                                        @actionStart('powo_types', 'read')
                                         @php
                                             $num = 1;
                                         @endphp
@@ -297,7 +312,7 @@
                                                         <span class="label label-inline label-primary">{{$item->wo_num}}</span>
                                                     </td>
                                                     <td align="center">
-                                                        <b>{{$vendor_name[$item->supplier_id]}}</b>
+                                                        <b>{{isset($vendor_name[$item->supplier_id]) ? $vendor_name[$item->supplier_id] : "N/A"}}</b>
                                                     </td>
                                                     <td align="center">
                                                         <span class="label label-inline label-success">{{strip_tags($item->wo_type)}}</span>
@@ -308,6 +323,7 @@
                                                 </tr>
                                             @endif
                                         @endforeach
+                                        @actionEnd
                                         </tbody>
                                     </table>
                                 </div>
@@ -379,9 +395,11 @@
                         <input type="hidden" name="id_type" id="id-type">
                         <input type="hidden" name="type" id="type">
                         <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
+                        @actionStart('powo_types', 'update')
                         <button type="submit" class="btn btn-primary font-weight-bold">
                             <i class="fa fa-check"></i>
                             Update</button>
+                        @actionEnd
                     </div>
                 </form>
             </div>
@@ -414,9 +432,11 @@
                         <input type="hidden" name="id_data" id="id-data">
                         <input type="hidden" name="type_data" id="type-data">
                         <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
+                        @actionStart('powo_types', 'update')
                         <button type="submit" class="btn btn-primary font-weight-bold">
                             <i class="fa fa-check"></i>
                             Update</button>
+                        @actionEnd
                     </div>
                 </form>
             </div>

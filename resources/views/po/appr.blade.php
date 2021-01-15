@@ -133,10 +133,10 @@
                             @if($item->po_num == $po->id)
                                 <tr>
                                     <td align="center">{{$key + 1}}</td>
-                                    <td>{{$item_name[$item->item_id]}}</td>
-                                    <td>{{$item_code[$item->item_id]}}</td>
+                                    <td>{{(isset($item_name[$item->item_id]))?$item_name[$item->item_id]:''}}</td>
+                                    <td>{{(isset($item_code[$item->item_id]))?$item_code[$item->item_id]:''}}</td>
                                     <td align="center">{{$item->qty}}</td>
-                                    <td align="center">{{$item_uom[$item->item_id]}}</td>
+                                    <td align="center">{{(isset($item_uom[$item->item_id]))?$item_uom[$item->item_id]:''}}</td>
                                     <td align="right">{{number_format($item->price, 2)}}</td>
                                     <td align="right">{{number_format($item->price * $item->qty, 2)}}</td>
                                     <?php

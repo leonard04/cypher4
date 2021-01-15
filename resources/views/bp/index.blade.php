@@ -5,12 +5,14 @@
             <div class="card-title">
                 <h3>Bid & Performance</h3>
             </div>
+            @actionStart('b_p','create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addItem"><i class="fa fa-plus"></i>Add New</button>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -32,6 +34,7 @@
                 </li>
             </ul>
             <div class="tab-content mt-5" id="myTabContent">
+                @actionStart('b_p','read')
                 <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="home-tab">
                     <div class="alert alert-info" role="alert">
                         <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;&nbsp;This page contains all bid  bonds and performance bonds that needs approval. You can also track each bond's progress and fund retrieval.
@@ -213,6 +216,7 @@
                         </table>
                     </div>
                 </div>
+                @actionEnd
             </div>
         </div>
     </div>

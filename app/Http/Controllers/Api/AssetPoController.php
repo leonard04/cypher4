@@ -50,7 +50,7 @@ class AssetPoController extends BaseController
             ->first();
 
         $po_detail = Asset_po_detail::leftJoin('asset_items as item','item.item_code','=','asset_po_detail.item_id')
-            ->select('asset_po_detail.*','item.name as item_name')
+            ->select('asset_po_detail.*','item.name as item_name','item.uom as item_uom')
             ->where('asset_po_detail.po_num', $id)
             ->get();
         $data = [

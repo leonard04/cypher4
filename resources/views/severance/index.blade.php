@@ -13,13 +13,6 @@
             </div>
         </div>
         <div class="card-body">
-            <div class="row">
-                <div class="col-md-5 col-sm-5">
-                    <div class="alert alert-primary">
-                        Report point results based on data in the report that is on the menu Miss & Near Miss.
-                    </div>
-                </div>
-            </div>
             <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
                 <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 100%;">
                     <thead>
@@ -47,6 +40,7 @@
                                     @endif
                                 </td>
                                 <td align="center">
+                                    <a href="javascript:window.frames['print_severance'].print()" class="btn btn-primary btn-icon btn-xs" onmouseover="button_print('{{$item->id}}')"><i class="fa fa-print"></i></a>
                                     <button class="btn btn-danger btn-icon btn-xs" onclick="button_delete('{{$item->id}}')"><i class="fa fa-trash"></i></button>
                                 </td>
                             </tr>
@@ -54,6 +48,7 @@
                     </tbody>
                 </table>
             </div>
+            <iframe src="" height="0" weight="0" id="print_severance" name="print_severance" frameborder="0"></iframe>
         </div>
     </div>
     <div class="modal fade" id="addSeverance" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addProject" aria-hidden="true">
@@ -77,7 +72,9 @@
                                         <select name="emp_id" class="form-control select2" id="emp">
                                             <option value="">EMPTY</option>
                                             @foreach($users as $user)
-                                                <option value="{{$user->id}}">{{$user->emp_name}}</option>
+                                                @if($user->expel == null)
+                                                    <option value="{{$user->id}}">{{$user->emp_name}}</option>
+                                                @endif
                                             @endforeach
                                         </select>
                                     </div>
@@ -409,6 +406,13 @@
             addition_calc_edit()
 
         }
+
+        function button_print(x) {
+            $("#print_severance").attr('src', "{{route('severance.print')}}/"+x)
+            $("#btn-print").trigger('click')
+            // window.frames['print_severance'].print()
+        }
+
 
         var total_sev = 0;
         var total_sev_edit = 0;

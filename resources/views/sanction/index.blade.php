@@ -3,7 +3,7 @@
     <div class="card card-custom gutter-b">
         <div class="card-header">
             <div class="card-title">
-                Sanction
+                Deduction
             </div>
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
@@ -21,8 +21,8 @@
                         <th nowrap="nowrap" class="text-center">ID#</th>
                         <th nowrap="nowrap" style="width: 20%">Name</th>
                         <th nowrap="nowrap" class="text-center" style="width: 20%">Notes</th>
-                        <th nowrap="nowrap" class="text-right">Sanction Amount</th>
-                        <th nowrap="nowrap" class="text-center">Sanction Date</th>
+                        <th nowrap="nowrap" class="text-right">Deduction Amount</th>
+                        <th nowrap="nowrap" class="text-center">Deduction Date</th>
                         <th nowrap="nowrap" class="text-center">BoD Approval</th>
                         <th nowrap="nowrap" class="text-center" data-priority=1>#</th>
                     </tr>
@@ -84,12 +84,12 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>Sanction Date</label>
-                                    <input type="date" class="form-control" name="date" placeholder="Sanction Date" />
+                                    <label>Deduction Date</label>
+                                    <input type="date" class="form-control" name="date" placeholder="Deduction Date" />
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Sanction Amount</label>
+                                    <label>Deduction Amount</label>
                                     <input type="number" class="form-control" name="amount" />
                                 </div>
                             </div>

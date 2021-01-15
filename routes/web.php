@@ -37,6 +37,8 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::post('/user/edit', 'UsersController@edit')->name('user.edit');
         Route::get('/user/{id}/privilege','UsersController@getUserPrivilege')->name('user.privilege');
         Route::post('/uprivilege/{id}/edit', 'UsersController@updatePrivilege')->name('user.uprivilege');
+        Route::get('/user/getuser/{id_company}','UsersController@getUsers')->name('user.getUsers');
+        Route::get('/user/getcompany_name','UsersController@getCompany')->name('user.getCompany');
 
         //Division
         // Route::get('/division', 'DivisionController@index')->name('division.index');
@@ -74,6 +76,8 @@ Route::group(['middleware' => 'checkConfig'], function () {
 
         /////hrd
         //employee
+        Route::get('/hrd/getEmployee_data','HrdEmployeeController@getEmpGet')->name('employee.getdata');
+        Route::post('/hrd/getEmployee_data_post','HrdEmployeeController@getEmp')->name('employee.getdata_post');
         Route::get('/hrd/employee', 'HrdEmployeeController@index')->name('employee.index');
         Route::get('/hrd/employee/expel/{id}', 'HrdEmployeeController@expelEmp')->name('employee.expel');
         Route::get('/hrd/employee/nik','HrdEmployeeController@nikFunction')->name('employee.nik');
@@ -112,8 +116,10 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::get('/hrd/payroll', 'HrdPayrollController@index')->name('payroll.index');
         Route::post('/hrd/payroll', 'HrdPayrollController@show')->name('payroll.show');
         Route::post('/hrd/payroll/export', 'HrdPayrollController@export')->name('payroll.export');
+        Route::get('/hrd/payroll/remarks-btl', 'HrdPayrollController@print_btl')->name('payroll.remarks_btl');
         Route::get('/hrd/payroll/print-btl', 'HrdPayrollController@print_btl')->name('payroll.print_btl');
         Route::post('/hrd/payroll/update', 'HrdPayrollController@update')->name('payroll.update');
+        Route::post('/hrd/payroll/remarks-save', 'HrdPayrollController@save_remarks')->name('payroll.remarks_save');
 
         //POINT
         Route::get('/hrd/point', 'HrdPointController@index')->name('point.index');
@@ -126,6 +132,7 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::get('/hrd/severance/delete/{id?}', 'HrdSeveranceController@delete')->name('severance.delete');
         Route::post('/hrd/severance/add', 'HrdSeveranceController@add')->name('severance.add');
         Route::post('/hrd/severance/approve', 'HrdSeveranceController@approve')->name('severance.approve');
+        Route::get('/hrd/severance/print/{id?}', 'HrdSeveranceController@print')->name('severance.print');
 
         //needsec
         Route::get('/hrd/payroll/needsec', 'HrdPayrollController@needsec')->name('payroll.needsec');
@@ -133,7 +140,15 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::get('/hrd/salarylist/needsec', 'SalaryListController@needsec')->name('salarylist.needsec');
         Route::post('/hrd/salarylist/needsec/submit', 'SalaryListController@submitNeedsec')->name('salarylist.submitNeedsec');
 
-        //training
+        // //training
+        // Route::get('/hrd/training','HrdTrainingController@index')->name('training.index');
+        // Route::post('/hrd/training/store', 'HrdTrainingController@store')->name('training.store');
+        // Route::post('/hrd/training/{id}/update','HrdTrainingController@update')->name('training.update');
+        // Route::post('/hrd/training/{id}/delete','HrdTrainingController@delete')->name('training.delete');
+        // Route::post('/hrd/training/{docid}/deletedoc','HrdTrainingController@deleteDoc')->name('training.deletedoc');
+        // Route::post('/hrd/training/{docid}/deletevid','HrdTrainingController@deleteVid')->name('training.deletevid');
+
+         //training
         Route::get('/hrd/training','HrdTrainingController@index')->name('training.index');
         Route::get('/hrd/training/detail/{id}','HrdTrainingController@getDetailTraining')->name('training.detail');
         Route::post('/hrd/training/store', 'HrdTrainingController@store')->name('training.store');
@@ -141,14 +156,17 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::post('/hrd/training/{id}/delete','HrdTrainingController@delete')->name('training.delete');
         Route::post('/hrd/training/{docid}/deletedoc','HrdTrainingController@deleteDoc')->name('training.deletedoc');
         Route::post('/hrd/training/{docid}/deletevid','HrdTrainingController@deleteVid')->name('training.deletevid');
+        Route::post('/hrd/training/saveScoreUsers','HrdTrainingController@saveScore')->name('training.saveScore');
+        Route::post('/hrd/training/addParticipants','HrdTrainingController@saveParticipant')->name('training.saveParticipant');
+        Route::get('/hrd/training/deleteParticipant/{id}','HrdTrainingController@deleteParticipant')->name('training.deleteparticipant');
 
         //training point
         Route::post('/hrd/settingpoint', 'HrdTrainingController@settingPoint')->name('settingpoint.store');
 
         //decree
-        Route::get('/hrd/decree','UtilDecreeController@index')->name('decree.index');
-        Route::post('/hrd/decree', 'UtilDecreeController@addDecree')->name('decree.store');
-        Route::get('/hrd/decree/delete/{id}','UtilDecreeController@delete')->name('decree.delete');
+        Route::get('/hrd/official-letter','UtilDecreeController@index')->name('decree.index');
+        Route::post('/hrd/official-letter', 'UtilDecreeController@addDecree')->name('decree.store');
+        Route::get('/hrd/official-letter/delete/{id}','UtilDecreeController@delete')->name('decree.delete');
 
         //policy
         Route::get('/hrd/policy','PolicyMainController@index')->name('policy.index');
@@ -233,8 +251,25 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::post('/marketing/projects/store','MarketingProjectsController@store')->name('marketing.project.store');
         Route::post('/marketing/projects/update','MarketingProjectsController@update')->name('marketing.project.update');
 
+        // prognosis
+        Route::get('/marketing/prognosis/create/{id}','MarketingPrognosisController@index')->name('marketing.prognosis.index');
+        Route::post('/marketing/prognosis/add','MarketingPrognosisController@add')->name('marketing.prognosis.add');
+        Route::get('/marketing/prognosis/delete/{id?}','MarketingPrognosisController@delete')->name('marketing.prognosis.delete');
+
+        // custom chart
+        Route::get('/chart/custom-chart', 'ChartCustomController@index')->name('chart.custom.index');
+        Route::get('/chart/custom-chart/view/{id?}', 'ChartCustomController@view')->name('chart.custom.view');
+        Route::get('/chart/custom-chart/find/{id?}', 'ChartCustomController@find')->name('chart.custom.find');
+        Route::get('/chart/custom-chart/delete/{id?}', 'ChartCustomController@delete')->name('chart.custom.delete');
+        Route::post('/chart/custom-chart/add', 'ChartCustomController@add')->name('chart.custom.add');
+        Route::post('/chart/custom-chart/update', 'ChartCustomController@update')->name('chart.custom.update');
+        Route::get('/chart/custom-chart/get/{id_chart?}', 'ChartCustomController@get_data')->name('chart.custom.get_data');
+
         ////General
         /// SO
+         Route::get('/general/sowaiting','AssetSreController@getSoWaiting')->name('so.waiting');
+        Route::get('/general/sobank','AssetSreController@getSoBank')->name('so.bank');
+        Route::get('/general/soreject','AssetSreController@getSoReject')->name('so.rejected');
         Route::get('/general/so', 'AssetSreController@so_index')->name('general.so');
         Route::post('/general/so/add', 'AssetSreController@so_add')->name('so.add');
         Route::get('/genera/so/appr/{id}', 'AssetSreController@so_appr')->name('so.appr');
@@ -299,17 +334,6 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::post('/finance/coa/find', 'FinanceCOAController@find')->name('coa.find');
         Route::post('/finance/coa/update', 'FinanceCOAController@update')->name('coa.update');
 
-//        // Items
-//        Route::get('/items', 'AssetItemsController@index')->name('items.index');
-//        Route::post('/items', 'AssetItemsController@addItem')->name('items.add');
-//        Route::post('/items/find', 'AssetItemsController@find_item')->name('items.find');
-//        Route::post('/items/edit', 'AssetItemsController@edit_item')->name('items.edit');
-//        Route::post('/items/delete', 'AssetItemsController@delete')->name('items.delete');
-//        Route::get('/items/revision', 'AssetItemsController@revision')->name('items.revision');
-//        Route::get('/items/revision/{id}', 'AssetItemsController@revision_detail')->name('items.revision_detail');
-//        Route::post('/items/revision/update', 'AssetItemsController@revision_update')->name('items.revision_update');
-//        Route::post('/items/revision/delete', 'AssetItemsController@revision_delete')->name('items.revision_delete');
-
         // VENDOR
         //VENDOR
         Route::get('/procurement/vendor','ProcurementVendorController@index')->name('vendor.index');
@@ -319,6 +343,9 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::get('/procurement/vendor/{id}/delete','ProcurementVendorController@delete')->name('vendor.delete');
 
         // FR
+         Route::get('/general/frwatings', 'AssetPreController@getFrWaiting')->name('fr.getFrWaiting');
+        Route::get('/general/frbanks', 'AssetPreController@getFrBank')->name('fr.getFrBank');
+        Route::get('/general/frrejects', 'AssetPreController@getFrReject')->name('fr.getFrReject');
         Route::get('/general/fr', 'AssetPreController@indexFr')->name('fr.index');
         Route::post('/general/fr/store','AssetPreController@addFr')->name('fr.add');
         Route::get('/general/fr/getProject/{cat}','AssetPreController@getProject')->name('fr.getProject');
@@ -348,19 +375,24 @@ Route::group(['middleware' => 'checkConfig'], function () {
 
         //meeting scheduler
 
-        Route::get('/forum/meetingscheduler','GeneralMeetingScheduler@index')->name('ms.index');
-        Route::get('/forum/meetingscheduler/{tanggal}','GeneralMeetingScheduler@getRoom')->name('ms.day');
-        Route::post('/forum/meetingscheduler/storeRoom','GeneralMeetingScheduler@newRoom')->name('ms.newroom');
-        Route::get('/forum/meetingscheduler/{tanggal}/book/{id_room}','GeneralMeetingScheduler@getNewBook')->name('ms.book');
-        Route::post('/forum/meetingscheduler/storeRv','GeneralMeetingScheduler@addReservation')->name('ms.addReservation');
-        Route::get('/forum/meetingscheduler/{tanggal}/room/{id_room}/event/{id_book}','GeneralMeetingScheduler@getEvent')->name('ms.event');
-        Route::post('/forum/meetingscheduler/storeEv','GeneralMeetingScheduler@storeEvent')->name('ms.addEvent');
-        Route::get('/forum/meetingscheduler/{tanggal}/absensi/{id_topic}','GeneralMeetingScheduler@getAbsensi')->name('ms.absen');
+        Route::get('/forum/meeting-scheduler','GeneralMeetingScheduler@index')->name('ms.index');
+        Route::get('/forum/meeting-scheduler/{tanggal}','GeneralMeetingScheduler@getRoom')->name('ms.day');
+        Route::post('/forum/meeting-scheduler/storeRoom','GeneralMeetingScheduler@newRoom')->name('ms.newroom');
+        Route::get('/forum/meeting-scheduler/{tanggal}/book/{id_room}','GeneralMeetingScheduler@getNewBook')->name('ms.book');
+        Route::post('/forum/meeting-scheduler/storeRv','GeneralMeetingScheduler@addReservation')->name('ms.addReservation');
+        Route::get('/forum/meeting-scheduler/{tanggal}/room/{id_room}/event/{id_book}','GeneralMeetingScheduler@getEvent')->name('ms.event');
+        Route::post('/forum/meeting-scheduler/storeEv','GeneralMeetingScheduler@storeEvent')->name('ms.addEvent');
+        Route::get('/forum/meeting-scheduler/{tanggal}/absensi/{id_topic}','GeneralMeetingScheduler@getAbsensi')->name('ms.absen');
 
         //balance sheet
         Route::get('/finance/balance-sheet','FinanceBalanceSheetController@index')->name('bs.index');
         Route::post('/finance/balance-sheet', 'FinanceBalanceSheetController@find')->name('bs.find');
         Route::post('/finance/balance-sheet/setting', 'FinanceBalanceSheetController@setting')->name('bs.setting');
+
+        //GL
+        Route::get('/accounting/general-ledger', 'AccountingGeneralLedgerController@index')->name('gl.index');
+        Route::post('/accounting/general-ledger/edit', 'AccountingGeneralLedgerController@edit')->name('gl.edit');
+        Route::post('/accounting/general-ledger', 'AccountingGeneralLedgerController@index')->name('gl.index');
 
         // PO
         Route::get('/general/po', 'AssetPoController@index')->name('po.index');
@@ -458,19 +490,42 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::get('/general/reimburse/{id}/delete','GeneralReimburse@delete')->name('reimburse.delete');
         Route::get('/general/reimburse/{id}/getDetRA/{who?}','GeneralReimburse@getDetRA')->name('reimburse.getDetRA');
         Route::post('/general/reimburse/RAppr', 'GeneralReimburse@RAppr')->name('reimburse.RAppr');
-//
-//        //category
-//        Route::get('/asset/category','AssetNewCategoryController@index')->name('category.index');
-//        Route::post('/asset/category/update','AssetNewCategoryController@update')->name('category.update');
-//        Route::post('/asset/category/store','AssetNewCategoryController@store')->name('category.store');
-//        Route::get('/asset/category/{id}/del','AssetNewCategoryController@delete')->name('category.del');
-//        Route::get('/asset/category/cari','AssetNewCategory@loadData')->name('category.cari');
+
+        // // Items
+        // Route::get('/asset/items/item_code','AssetItemsController@itemCodeFunction')->name('items.itemCodeFunction');
+        // Route::get('/asset/items/list', 'AssetItemsController@indexInventory')->name('items.inventory');
+        // Route::get('/asset/items/list/withcategory/{category?}', 'AssetItemsController@index')->name('items.index');
+        // Route::post('/asset/items', 'AssetItemsController@addItem')->name('items.add');
+        // Route::post('/asset/items/find', 'AssetItemsController@find_item')->name('items.find');
+        // Route::post('/asset/items/edit', 'AssetItemsController@edit_item')->name('items.edit');
+        // Route::post('/asset/items/delete', 'AssetItemsController@delete')->name('items.delete');
+        // Route::get('/asset/items/revision', 'AssetItemsController@revision')->name('items.revision');
+        // Route::get('/asset/items/revision/{id}', 'AssetItemsController@revision_detail')->name('items.revision_detail');
+        // Route::post('/asset/items/revision/update', 'AssetItemsController@revision_update')->name('items.revision_update');
+        // Route::post('/asset/items/revision/delete', 'AssetItemsController@revision_delete')->name('items.revision_delete');
+        // Route::get('/asset/items/list/warehouse/list/{id_wh}', 'AssetItemsController@getItemWh')->name('items.warehouses');
+        // Route::get('/asset/items/transaction/find/{id?}', 'AssetItemsController@find_transaction')->name('items.find_transaction');
+
+        // //category
+        // Route::get('/asset/items','AssetNewCategoryController@index')->name('category.index');
+        // Route::get('/asset/items/category','AssetNewCategoryController@getCategory')->name('category.get');
+        // Route::post('/asset/items/category/update','AssetNewCategoryController@update')->name('category.update');
+        // Route::post('/asset/items/category/store','AssetNewCategoryController@store')->name('category.store');
+        // Route::get('/asset/items/category/{id}/del','AssetNewCategoryController@delete')->name('category.del');
+        // Route::get('/asset/items/category/cari','AssetNewCategory@loadData')->name('category.cari');
+
+        // //Classification
+        // Route::get('/asset/items/classification/{category?}','AssetItemsClassificationController@index')->name('item_class.index');
+        // Route::get('/asset/items/classification/getclassification/{id}','AssetItemsClassificationController@getClassification')->name('item_class.getclass');
+        // Route::post('/asset/items/classification/store','AssetItemsClassificationController@store')->name('item_class.store');
+        // Route::post('/asset/items/classification/update','AssetItemsClassificationController@update')->name('item_class.update');
+        // Route::get('/asset/items/classification/delete/{id}','AssetItemsClassificationController@delete')->name('item_class.delete');
 
         // Items
         Route::get('/asset/items/item_code','AssetItemsController@itemCodeFunction')->name('items.itemCodeFunction');
-
         Route::get('/asset/items/list', 'AssetItemsController@indexInventory')->name('items.inventory');
-        Route::get('/asset/items/list/{category?}', 'AssetItemsController@index')->name('items.index');
+        Route::get('/asset/items/list/withcategory/{category?}/{classification?}', 'AssetItemsController@index')->name('items.index');
+        Route::get('/asset/items/list/class/{category?}','AssetItemsController@indexClassification')->name('items.class.index');
         Route::post('/asset/items', 'AssetItemsController@addItem')->name('items.add');
         Route::post('/asset/items/find', 'AssetItemsController@find_item')->name('items.find');
         Route::post('/asset/items/edit', 'AssetItemsController@edit_item')->name('items.edit');
@@ -479,6 +534,8 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::get('/asset/items/revision/{id}', 'AssetItemsController@revision_detail')->name('items.revision_detail');
         Route::post('/asset/items/revision/update', 'AssetItemsController@revision_update')->name('items.revision_update');
         Route::post('/asset/items/revision/delete', 'AssetItemsController@revision_delete')->name('items.revision_delete');
+        Route::get('/asset/items/list/warehouse/list/{id_wh}', 'AssetItemsController@getItemWh')->name('items.warehouses');
+        Route::get('/asset/items/transaction/find/{id?}', 'AssetItemsController@find_transaction')->name('items.find_transaction');
 
         //category
         Route::get('/asset/items','AssetNewCategoryController@index')->name('category.index');
@@ -490,10 +547,11 @@ Route::group(['middleware' => 'checkConfig'], function () {
 
         //Classification
         Route::get('/asset/items/classification/{category?}','AssetItemsClassificationController@index')->name('item_class.index');
-        Route::get('/asset/items/classification/getclassification/{id}','AssetItemsClassificationController@getClassification')->name('item_class.getclass');
+        Route::get('/asset/items/classification/getclassification/{id?}/{class_id?}','AssetItemsClassificationController@getClassification')->name('item_class.getclass');
         Route::post('/asset/items/classification/store','AssetItemsClassificationController@store')->name('item_class.store');
         Route::post('/asset/items/classification/update','AssetItemsClassificationController@update')->name('item_class.update');
         Route::get('/asset/items/classification/delete/{id}','AssetItemsClassificationController@delete')->name('item_class.delete');
+
 
         // INVOICE IN
         Route::get('/finance/invoice-in/', 'FinanceInvoiceIn@index')->name('inv_in.index');
@@ -522,10 +580,10 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::post('/finance/invoice-out/revise', 'FinanceAccountReceivable@revise')->name('ar.revise');
 
         //sanction
-        Route::get('/hrd/sanction','HrdSanctionController@index')->name('sanction.index');
-        Route::post('/hrd/sanction/store', 'HrdSanctionController@addDeduction')->name('sanction.store');
-        Route::post('/hrd/sanction/{id}/delete','HrdSanctionController@delete')->name('sanction.delete');
-        Route::post('/hrd/sanction/{id}/approve','HrdSanctionController@approveDeduction')->name('sanction.approve');
+        Route::get('/hrd/deduction','HrdSanctionController@index')->name('sanction.index');
+        Route::post('/hrd/deduction/store', 'HrdSanctionController@addDeduction')->name('sanction.store');
+        Route::post('/hrd/deduction/{id}/delete','HrdSanctionController@delete')->name('sanction.delete');
+        Route::post('/hrd/deduction/{id}/approve','HrdSanctionController@approveDeduction')->name('sanction.approve');
 
         //salary_financing
         Route::get('/finance/salary_financing','FinanceSPController@getSalaryFinancing')->name('salfin.index');
@@ -538,6 +596,7 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::post('/finance/schedule-payment', 'FinanceSPController@index')->name('sp.index');
         Route::post('/finance/schedule-payment/confirm', 'FinanceSPController@confirm')->name('sp.confirm');
         Route::post('/finance/schedule-payment/edit-date', 'FinanceSPController@edit_date')->name('sp.edit_date');
+        Route::post('/finance/schedule-payment/history', 'FinanceSPController@history')->name('sp.history');
 
         //Sub Cost
         Route::get('/marketing/subcost','MarketingSubcostController@index')->name('subcost.index');
@@ -594,6 +653,55 @@ Route::group(['middleware' => 'checkConfig'], function () {
         //Finance Tax
         Route::get('/finance/tax', 'FinanceTaxController@index')->name('tax.index');
         Route::post('/finance/tax/data', 'FinanceTaxController@get_data')->name('tax.get_data');
+
+        //Finance Business
+        Route::get('/finance/business', 'FinanceBusinessController@index')->name('business.index');
+        Route::get('/finance/delete/{id?}', 'FinanceBusinessController@delete')->name('business.delete');
+        Route::get('/finance/business/detail/{id}', 'FinanceBusinessController@detail')->name('business.detail');
+        Route::get('/finance/business/investor/detail/{id}', 'FinanceBusinessController@investor')->name('business.investor');
+        Route::get('/finance/business/investor/delete', 'FinanceBusinessController@deleteInvestor')->name('business.deleteInvestor');
+        Route::get('/finance/business/investor/delete-investment', 'FinanceBusinessController@deleteInvesment')->name('business.deleteInvesment');
+        Route::get('/finance/business/edit/{id?}', 'FinanceBusinessController@edit')->name('business.edit');
+        Route::get('/finance/business/pay/{id?}', 'FinanceBusinessController@pay')->name('business.pay');
+        Route::get('/finance/business/investor/pay', 'FinanceBusinessController@investorPay')->name('business.investorPay');
+        Route::get('/finance/business/print/{id?}', 'FinanceBusinessController@print')->name('business.print');
+
+        Route::post('/finance/business/add', 'FinanceBusinessController@add')->name('business.add');
+        Route::post('/finance/business/update', 'FinanceBusinessController@update')->name('business.update');
+        Route::post('/finance/business/pay', 'FinanceBusinessController@payConfirm')->name('business.payConfirm');
+        Route::post('/finance/business/investor/add', 'FinanceBusinessController@addInvestor')->name('business.addInvestor');
+        Route::post('/finance/business/investor/update-rate', 'FinanceBusinessController@updateRate')->name('business.updateRate');
+        Route::post('/finance/business/investor/add-investment', 'FinanceBusinessController@addInvesment')->name('business.addInvesment');
+        Route::post('/finance/business/investor/save-text', 'FinanceBusinessController@updateText')->name('business.updateText');
+
+        // Trading
+        //supplier
+        Route::get('/trading/supplier','TradingSupplierController@index')->name('trading.supplier.index');
+        Route::get('/trading/supplier/{id}/edit','TradingSupplierController@edit')->name('trading.supplier.edit');
+        Route::post('/trading/supplier/store','TradingSupplierController@storeSupplier')->name('trading.supplier.store');
+        Route::post('/trading/supplier/update','TradingSupplierController@updateSupplier')->name('trading.supplier.update');
+        Route::get('/trading/supplier/{id}/delete','TradingSupplierController@delete')->name('trading.supplier.delete');
+        Route::post('/trading/supplier/uploadNDA','TradingSupplierController@uploadNDA')->name('trading.supplier.uploadNDA');
+
+        //markets
+        Route::get('/trading/markets','TradingMarketController@index')->name('trading.market.index');
+        Route::post('/trading/store','TradingMarketController@store')->name('trading.market.store');
+        Route::get('/trading/{id}/delete','TradingMarketController@delete')->name('trading.market.delete');
+        Route::post('/trading/update','TradingMarketController@update')->name('trading.market.update');
+        Route::post('/trading/add-js','TradingMarketController@add_js')->name('trading.market.add.js');
+        Route::get('/trading/get-markets','TradingMarketController@get_markets')->name('trading.market.get.js');
+
+        //products
+        Route::get('/trading/products','TradingProductsController@index')->name('trading.products.index');
+        Route::get('/trading/products/detail/{id?}','TradingProductsController@detail')->name('trading.products.detail');
+        Route::post('/trading/products/add','TradingProductsController@add')->name('trading.products.add');
+        Route::post('/trading/products/update','TradingProductsController@update')->name('trading.products.update');
+        Route::get('/trading/products/autocomplete/{supplier?}','TradingProductsController@autocomplete')->name('trading.products.autocomplete');
+
+        //orders
+        Route::get('/trading/orders','TradingOrdersController@index')->name('trading.orders.index');
+        Route::post('/trading/orders/add','TradingOrdersController@add')->name('trading.orders.add');
+        Route::post('/trading/orders/final','TradingOrdersController@uploadFinal')->name('trading.orders.final');
 
         /*Technical Engineering*/
         //Equipment List
@@ -652,9 +760,9 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::post('/asset/wh/store','AssetWarehouseController@store')->name('wh.store');
         Route::post('/asset/wh/update','AssetWarehouseController@update')->name('wh.update');
         Route::get('/asset/wh/{id}/delete','AssetWarehouseController@delete')->name('wh.delete');
+
 //Delivery Order
         Route::get('/general/do','GeneralDOController@index')->name('do.index');
-        Route::get('/general/do/getItems/{id_wh}','GeneralDOController@getItems')->name('do.items');
         Route::get('/general/do/detail/{id}/{type?}','GeneralDOController@getDO')->name('do.detail');
         Route::get('/general/do/getWh','GeneralDOController@getWarehouse')->name('do.getWh');
         Route::post('/general/do/store','GeneralDOController@store')->name('do.add');
@@ -681,6 +789,10 @@ Route::group(['middleware' => 'checkConfig'], function () {
         Route::get('/dirut/preference/{id}/delFile/{id_company}','PreferenceController@deleteTempFile')->name('pref.file.del');
         Route::post('/dirut/preference/store/pr','PreferenceController@store_pr')->name('pref.store_pr');
         Route::post('/dirut/preference/store/ac','PreferenceController@store_ac')->name('pref.store_ac');
+        Route::post('/dirut/preference/working_environment/store','PreferenceController@store_we')->name('pref.store_we');
+        Route::post('/dirut/preference/working_environment/update','PreferenceController@update_we')->name('pref.update_we');
+        Route::get('/dirut/preference/working_environment/delete/{id}','PreferenceController@delete_we')->name('pref.delete_we');
+        Route::get('/dirut/preference/working_environment/find/{id}','PreferenceController@find_we')->name('pref.find_we');
 
         //Performa Review
         Route::get('/general/performa-review', 'GeneralPerformaReviewController@index')->name('general.pr.index');

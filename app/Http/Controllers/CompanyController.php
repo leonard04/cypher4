@@ -252,6 +252,12 @@ class CompanyController extends Controller
                 ->where('id_parent', Session::get('company_id'))
                 ->whereNotNull('inherit')
                 ->get());
+        } else {
+            $company->inherit = null;
+            Session::put('company_child', ConfigCompany::select('id')
+                ->where('id_parent', Session::get('company_id'))
+                ->whereNotNull('inherit')
+                ->get());
         }
         $company->save();
 
@@ -547,7 +553,7 @@ class CompanyController extends Controller
             if ($roleDivList->id_rms_roles_divisions_parent == null){
                 $level_role[$roleDivList->id] = 1;
             } elseif ($roleDivList->id_rms_roles_divisions_parent != null) {
-                if ($hasParent[$roleDivList->id_rms_roles_divisions_parent] == null){
+                if (!isset($hasParent[$roleDivList->id_rms_roles_divisions_parent]) || $hasParent[$roleDivList->id_rms_roles_divisions_parent] == null){
                     $level_role[$roleDivList->id] = 2;
                 } else {
                     $level_role[$roleDivList->id] = 3;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Hrd_employee;
+use App\Models\Rms_divisions;
 use Illuminate\Http\Request;
 use App\Models\Hrd_training;
 use App\Models\Hrd_training_users;
@@ -10,6 +11,8 @@ use App\Models\Hrd_training_syllabus;
 use App\Models\Hrd_training_link_video;
 use App\Models\Hrd_setting_point;
 use Session;
+use DB;
+
 
 class HrdTrainingController extends Controller
 {
@@ -238,10 +241,17 @@ class HrdTrainingController extends Controller
 
 	    $employee = Hrd_employee::whereIn('company_id', $id_companies)->get();
 	    $emp =[];
+        $emp_position = [];
+        $emp_point_mandatory = [];
 
 	    foreach ($employee as $key => $value){
-	        $emp[$value->id]['emp_name'] = $value->emp_name;
+            $emp[$value->id]['emp_name'] = $value->emp_name;
+            $emp_position[$value->id]['emp_position'] = $value->emp_position;
+            $emp_point_mandatory[$value->id]['emp_point_mandatory'] = $value->point_mandatory;
+
         }
+	    $hrdSettingpoint = Hrd_setting_point::first();
+//	    dd($hrdSettingpoint->max_minus_point);
         $datetimeToday = date('Y-m-d H:i:s');
         $trainingStatus = [];
         $hrdTrainings = Hrd_training::all();
@@ -256,14 +266,107 @@ class HrdTrainingController extends Controller
             }
         }
 
+
+        $hrd_emp_pos = Hrd_employee::select('emp_position')
+            ->where('emp_position','!=' ,'')
+            ->whereNotNull('emp_position')
+            ->whereIn('company_id', $id_companies)
+            ->groupBy('emp_position')->get();
+
+        $divisions = Rms_divisions::where('name','!=','admin')
+                        ->whereIn('id_company', $id_companies)->get();
+//        dd($hrd_emp_pos);
+
+//        dd($training->id);
+//        dd($training);
         return view('training.detail_users', [
             'emp_name' => $emp,
+            'emp_position' => $emp_position,
+            'emp_point_mandatory' => $emp_point_mandatory,
             'detail' => $training,
             'syllabus' => $syllabus,
             'videos' => $video,
             'users' => $users,
             'settingPoint' => $settingPoint,
             'trainingStatus' => $trainingStatus,
+            'hrdsettingpoint' => $hrdSettingpoint,
+            'all_employee' => $employee,
+            'all_emp_pos' =>$hrd_emp_pos,
+            'divisions' => $divisions,
         ]);
+    }
+
+    public function saveParticipant(Request $request){
+
+//	    dd($request);
+
+        if (isset($request->training_users)){
+            $emp_id = $request->training_users;
+            for ($i = 0; $i<count($emp_id); $i++){
+                $training_users = new Hrd_training_users();
+                $training_users->training_id = $request->training_id;
+                $training_users->emp_id = $emp_id[$i];
+                $training_users->active = 1;
+                $training_users->created_at = date('Y-m-d H:i:s');
+                $training_users->save();
+            }
+        }
+
+        if (isset($request->training_users_division)){
+            $id_division = $request->training_users_division;
+            $emp_id = Hrd_employee::select('id')
+                ->whereIn('division',$id_division)->get();
+            foreach ($emp_id as $key => $value){
+                $training_users = new Hrd_training_users();
+                $training_users->training_id = $request->training_id;
+                $training_users->emp_id = $value->id;
+                $training_users->active = 1;
+                $training_users->created_at = date('Y-m-d H:i:s');
+                $training_users->save();
+            }
+        }
+
+        return redirect()->route('training.detail',['id' => $request->training_id]);
+    }
+
+    public function saveScore(Request $request){
+//	    dd($request);
+        $training_users_id_arr = $request->training_users_id_arr;
+        $score = $request->score;
+        $emp_id = $request->employee_id;
+        $train_id_arr = $request->training_id_arr;
+        $training_id = '';
+        for ($i = 0; $i < count($training_users_id_arr); $i++){
+            $training_id = $train_id_arr[$i];
+            $training_detail = Hrd_training::where('id', $train_id_arr[$i])->first();
+            if ($score[$i] >= $training_detail->pass_score){
+                Hrd_training_users::where('id',$training_users_id_arr[$i])
+                    ->update([
+                        'exam_pass' => 1,
+                    ]);
+                Hrd_employee::where('id', $emp_id[$i])
+                    ->update([
+                        'point_mandatory' => 0
+                    ]);
+            } else {
+                Hrd_training_users::where('id',$training_users_id_arr[$i])
+                    ->update([
+                        'exam_pass' => 0,
+                    ]);
+            }
+            Hrd_training_users::where('id',$training_users_id_arr[$i])
+                ->update([
+                    'score' => $score[$i],
+                    'passed_on' => date('Y-m-d H:i:s')
+                ]);
+        }
+
+        return redirect()->route('training.detail',['id' => $training_id]);
+
+    }
+
+    public function deleteParticipant($id){
+        Hrd_training_users::find($id)->delete();
+        return redirect()->back();
     }
 }

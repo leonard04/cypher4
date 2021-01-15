@@ -129,7 +129,7 @@
             }
 
             $.ajax({
-                url: "{{route('tax.get_data')}}",
+                url: "@actionStart('tax', 'read'){{route('tax.get_data')}}@actionEnd",
                 type: "post",
                 dataType: "json",
                 data : {
@@ -152,7 +152,7 @@
                         bInfo: false,
                         "processing": true,
                         ajax : {
-                            url: "{{route('tax.get_data')}}",
+                            url: "@actionStart('tax', 'read'){{route('tax.get_data')}}@actionEnd",
                             type: "post",
                             data : {
                                 _token : "{{csrf_token()}}",

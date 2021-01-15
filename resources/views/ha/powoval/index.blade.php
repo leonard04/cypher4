@@ -23,12 +23,14 @@
                             <div class="card-title">
                                 <a href="#" class="text-black-50">Available PO & WO Validation Code</a>
                             </div>
+                            @actionStart('powo_validation', 'create')
                             <div class="card-toolbar">
                                 <div class="btn-group" role="group" aria-label="Basic example">
                                     <button type="button" class="btn btn-primary" onclick="button_add_type()"><i class="fa fa-plus"></i>Add Validation Code</button>
                                 </div>
                                 <!--end::Button-->
                             </div>
+                            @actionEnd
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -45,6 +47,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                        @actionStart('powo_validation', 'read')
                                             @php $num = 1; @endphp
                                             @foreach($papers as $key => $item)
                                                 @if($item->issued_date == null)
@@ -61,11 +64,14 @@
                                                         </td>
                                                         <td>{{strip_tags($item->purpose)}}</td>
                                                         <td align="center">
+                                                            @actionStart('powo_validation', 'delete')
                                                             <button class="btn btn-xs btn-danger btn-icon" onclick="button_delete_type('{{$item->id}}')"><i class="fa fa-trash"></i></button>
+                                                            @actionEnd
                                                         </td>
                                                     </tr>
                                                 @endif
                                             @endforeach
+                                        @actionEnd
                                         </tbody>
                                     </table>
                                 </div>
@@ -97,6 +103,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
+                                        @actionStart('powo_validation', 'read')
                                         @php $num = 1; @endphp
                                         @foreach($papers as $key => $item)
                                             @if($item->issued_date != null)
@@ -124,6 +131,7 @@
                                                 </tr>
                                             @endif
                                         @endforeach
+                                        @actionEnd
                                         </tbody>
                                     </table>
                                 </div>
@@ -211,9 +219,11 @@
                         <input type="hidden" name="id_type" id="id-type">
                         <input type="hidden" name="type" id="type">
                         <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
+                        @actionStart('powo_validation', 'update')
                         <button type="submit" class="btn btn-primary font-weight-bold">
                             <i class="fa fa-check"></i>
                             Update</button>
+                        @actionEnd
                     </div>
                 </form>
             </div>
@@ -246,9 +256,11 @@
                         <input type="hidden" name="id_data" id="id-data">
                         <input type="hidden" name="type_data" id="type-data">
                         <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
+                        @actionStart('powo_validation', 'update')
                         <button type="submit" class="btn btn-primary font-weight-bold">
                             <i class="fa fa-check"></i>
                             Update</button>
+                        @actionEnd
                     </div>
                 </form>
             </div>

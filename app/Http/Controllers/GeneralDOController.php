@@ -124,6 +124,34 @@ class GeneralDOController extends Controller
     }
 
     public function deleteDO($id){
+        $do = General_do::find($id);
+        $detail = General_do_detail::where('do_id', $id)->get();
+        if (!empty($do->gr_no)) {
+            foreach ($detail as $key => $value) {
+                if ($value->type == "Transfer") {
+                    $item  = Asset_item::where('item_code', $value->item_id)->first();
+                    $wh = Asset_qty_wh::where('wh_id', $do->from_id)
+                        ->where('item_id', $item->id)
+                        ->first();
+                    $towh = Asset_qty_wh::where('wh_id', $do->to_id)
+                        ->where('item_id', $item->id)
+                        ->first();
+                    $newqty = $towh->qty - $value->qty;
+                    $qty = $wh->qty + $value->qty;
+
+                    Asset_qty_wh::where('wh_id', $do->from_id)
+                        ->where('item_id', $item->id)
+                        ->update([
+                            'qty' => $qty
+                        ]);
+                    Asset_qty_wh::where('wh_id', $do->to_id)
+                        ->where('item_id', $item->id)
+                        ->update([
+                            'qty' => $newqty
+                        ]);
+                }
+            }
+        }
         General_do::where('id', $id)->delete();
         General_do_detail::where('do_id',$id)->delete();
         return redirect()->route('do.index');
@@ -159,35 +187,8 @@ class GeneralDOController extends Controller
             ]);
         return redirect()->route('do.index');
     }
-
-    public function getItems($id_wh){
-//        dd($id_wh);
-        $items = Asset_item::leftJoin('asset_qty_wh as qty_wh','qty_wh.item_id','=','asset_items.id')
-            ->where('asset_items.company_id', \Session::get('company_id'))
-            ->where('asset_items.item_code','like','%'.$_GET['term'].'%')
-            ->orWhere('asset_items.name','like','%'.$_GET['term'].'%')
-            ->where('qty_wh.wh_id', $id_wh)
-            ->get();
-//        dd($items);
-        $return_arr =[];
-        foreach ($items as $key => $item){
-            $row_array['item_category'] = $item->category_id;
-            $row_array['item_id'] = $item->id;
-            $row_array['item_name'] = $item->name;
-            $row_array['item_code'] = $item->item_code;
-            $row_array['item_uom'] = trim($item->uom);
-            $row_array['item_qoh'] = $item->qty;
-            $row_array['item_type'] = $item->type_id;
-
-
-            $row_array['value'] = $item->item_code." / ".$item->name." (".trim($item->uom).")";
-
-            array_push($return_arr, $row_array);
-        }
-        echo json_encode($return_arr);
-    }
-
     public function update(Request $request){
+//        dd($request);
         if ($request['type'] == 'appr'){
             $do = General_do::where('id',$request['id_do'])->first();
             $whfrom = $do->from_id;
@@ -203,20 +204,27 @@ class GeneralDOController extends Controller
                         ->where('wh_id', $whfrom)->first();
                 $qtywhto = Asset_qty_wh::where('item_id', $item_id)
                     ->where('wh_id', $whto)->first();
+                if (empty($qtywhto)){
+                    $nQtywhto = new Asset_qty_wh();
+                    $nQtywhto->wh_id = $whto;
+                    $nQtywhto->item_id = $item_id;
+                    $nQtywhto->qty = $qtyupdate;
+                    $nQtywhto->save();
+                } else {
+                    $newqtywhto = intval($qtywhto->qty) + intval($qtyupdate);
+                    Asset_qty_wh::where('item_id', $item_id)
+                        ->where('wh_id', $whto)
+                        ->update([
+                            'qty' => $newqtywhto
+                        ]);
+                }
 
                 $newqtywhfrom = intval($qtywhfrom->qty) - intval($qtyupdate);
-                $newqtywhto = intval($qtywhto->qty) + intval($qtyupdate);
 
                 Asset_qty_wh::where('item_id', $item_id)
                     ->where('wh_id', $whfrom)
                     ->update([
                         'qty' => $newqtywhfrom
-                    ]);
-
-                Asset_qty_wh::where('item_id', $item_id)
-                    ->where('wh_id', $whto)
-                    ->update([
-                        'qty' => $newqtywhto
                     ]);
             }
 
@@ -229,6 +237,7 @@ class GeneralDOController extends Controller
                     'notes' => $request['notes'],
                     'approved_by' => Auth::user()->username,
                     'approved_time' => date('Y-m-d'),
+                    'gr_no' => Auth::user()->username,
                 ]);
         } else {
             General_do::where('id', $request['id_do'])

@@ -7,219 +7,50 @@
             <div class="card-title">
                 Employee
             </div>
+            @actionStart('employee', 'create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addEmployee"><i class="fa fa-plus"></i>New Record</button>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
+        </div>
+        <div class="card-body">
+            <button type="button" onclick="getData(0)" class="btn btn-light-info font-weight-bold type" id="type0" name="type" style="width: 190px" value="0">
+                All
+            </button>
+            <br><br>
+            @foreach($emptypes as $key => $value)
+                <button type="button" onclick="getData({{$value->id}})" class="btn btn-light-info font-weight-bold type" id="type{{$value->id}}" name="type" style="width: 190px" value="{{$value->id}}">
+                    {{$value->name}}
+                </button>
+                &nbsp;
+            @endforeach
+
         </div>
         <div class="card-body">
             <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-                <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 100%;">
+                <table class="table table-bordered table-hover display font-size-sm data_emp" style="margin-top: 13px !important; width: 100%;">
                     <thead>
                     <tr>
-                        <th>#</th>
-                        <th nowrap="nowrap" style="width: 30%">Name</th>
+                        <th class="text-center">#</th>
+                        <th nowrap="nowrap" style="width: 25%">Name</th>
+                        <th nowrap="nowrap" class="text-center">Type</th>
                         <th nowrap="nowrap" class="text-center">ID</th>
                         <th nowrap="nowrap" class="text-center">Level</th>
                         <th nowrap="nowrap" class="text-center">Division</th>
-{{--                        <th nowrap="nowrap" class="text-center">Position</th>--}}
                         <th nowrap="nowrap" class="text-center">Contract Status</th>
                         <th nowrap="nowrap" class="text-center">CV</th>
                         <th nowrap="nowrap" class="text-center">Document</th>
                         <th nowrap="nowrap" class="text-center">Quit</th>
-                        <th nowrap="nowrap">Mandatory Training point</th>
-                        <th nowrap="nowrap" data-priority=1>#</th>
+                        <th nowrap="nowrap" class="text-center">Mandatory Training point</th>
+                        @actionStart('employee', 'delete')
+                        <th nowrap="nowrap" class="text-center">#</th>
+                        @actionEnd
                     </tr>
                     </thead>
-                    <tbody>
-                    @php $i = 0 @endphp
-                    @foreach($employees as $key => $value)
-                        @if($value->company_id == \Session::get('company_id'))
-                            @php /** @var TYPE_NAME $i */
-                                $i++
-                            @endphp
-                            @php
-                                /** @var TYPE_NAME $value */
-                                $status = substr($value->emp_id,4,1);
-                            @endphp
-                        <tr>
-                            <td>{{$i}}</td>
-                            <td nowrap="nowrap"><a href="{{route('employee.detail',['id'=>$value->id])}}" class="btn btn-primary btn-sm">
-                                    {{$value->emp_name}}</a></td>
-                            <td nowrap="nowrap">{{$value->emp_id}}</td>
-                            <td nowrap="nowrap" class="text-center">{{$value->emp_position}}</td>
-{{--                            <td nowrap="nowrap">{{$value->emp_type}}</td>--}}
-                            <td nowrap="nowrap" class="text-center">
-                                {{$divName['name'][$value->division]}}
-                            </td>
-                            <td nowrap="nowrap">
-                                @if($status != 'K' && $status != 'C')
-                                    <center><label for="" class="text-center text-success">Pegawai Tetap</label></center>
-                                @else
-                                    @if($value->expire == null)
-                                        <center>
-                                            <button type="button" data-target="#modalcontract-{{$value->id}}" data-toggle="modal" class="btn btn-sm btn-success">
-                                                <i class="fa fa-plus icon-nm"></i> [add contract]
-                                            </button>
-                                        </center>
-                                        <div class="modal fade" id="modalcontract-{{$value->id}}" tabindex="-1" role="dialog" aria-labelledby="modalcontract-{{$value->id}}" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Add Contract</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <i aria-hidden="true" class="ki ki-close"></i>
-                                                        </button>
-                                                    </div>
-                                                    <form method="post" action="{{route('employee.addcontract')}}" enctype="multipart/form-data">
-                                                        @csrf
-                                                        <input type="hidden" name="id" value="{{$value->id}}">
-                                                        <div class="modal-body">
-                                                            <br>
-                                                            <h4>Upload a contract for {{$value->emp_name}}</h4><hr>
-                                                            <div class="row">
-                                                                <div class="form col-md-12">
-                                                                    <div class="form-group">
-                                                                        <label>Document</label>
-                                                                        <input type="hidden" name="MAX_FILE_SIZE" value="200000" />
-                                                                        <input type="file" class="form-control" name="contract_file" id="contract_file" placeholder="">
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label>This contract expires on</label>
-                                                                        <input type="date" class="form-control" name="date_exp" placeholder="" />
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label></label>
-                                                                        <label or='as' class="control-label">
-                                                                            <input type='radio' name='opt' value="1" id='opt' checked />
-                                                                            Renew Contract
-                                                                        </label>
-                                                                        &nbsp;&nbsp;
-                                                                        <label for='int' class="control-label">
-                                                                            <input type='radio' name='opt' value="2" id='opt' />
-                                                                            Permanent Employee
-                                                                        </label>
-                                                                    </div>
 
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
-                                                            <button type="submit" name="submit" value="1" class="btn btn-primary font-weight-bold">
-                                                                <i class="fa fa-check"></i>
-                                                                Add Contract</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <center>
-                                            <label class="text-danger font-weight-bolder">exp: {{$value->expire}}</label>
-                                            <a href="{{route('download',$value->contract_file)}}" class="btn btn-xs btn-icon btn-light-success" target="_blank"><i class="fa fa-download"></i></a>
-                                        </center>
-                                        @php
-                                            /** @var TYPE_NAME $value */
-                                            $date2 = date('Y-m-d', strtotime('-1 month', strtotime($value->expire)));
-                                            $date1 = date('Y-m-d');
-
-                                            $diff = abs(strtotime($date2) - strtotime($date1));
-                                            $years = floor($diff / (365*60*60*24));
-                                            $months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
-                                            $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
-                                        @endphp
-                                        @if($months <= 1)
-                                            <center>
-                                                <button type="button" data-target="#modalrenewcontract-{{$value->id}}" data-toggle="modal" class="btn btn-sm btn-success">
-                                                    <i class="fa fa-plus icon-nm"></i> [renew contract]
-                                                </button>
-                                            </center>
-                                            <div class="modal fade" id="modalrenewcontract-{{$value->id}}" tabindex="-1" role="dialog" aria-labelledby="modalrenewcontract-{{$value->id}}" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="exampleModalLabel">Renew Contract</h5>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                <i aria-hidden="true" class="ki ki-close"></i>
-                                                            </button>
-                                                        </div>
-                                                        <form method="post" action="{{route('employee.addcontract')}}" enctype="multipart/form-data">
-                                                            @csrf
-                                                            <input type="hidden" name="id" value="{{$value->id}}">
-                                                            <div class="modal-body">
-                                                                <br>
-                                                                <h4>Upload a contract for {{$value->emp_name}}</h4><hr>
-                                                                <div class="row">
-                                                                    <div class="form col-md-12">
-                                                                        <div class="form-group">
-                                                                            <label>Document</label>
-                                                                            <input type="hidden" name="MAX_FILE_SIZE" value="200000" />
-                                                                            <input type="file" class="form-control" name="contract_file" id="contract_file" placeholder="">
-                                                                        </div>
-                                                                        <div class="form-group">
-                                                                            <label>This contract expires on</label>
-                                                                            <input type="date" class="form-control" name="date_exp" placeholder="" />
-                                                                        </div>
-                                                                        <div class="form-group">
-                                                                            <label></label>
-                                                                            <label or='as' class="control-label">
-                                                                                <input type='radio' name='opt' value="1" id='opt' checked />
-                                                                                Renew Contract
-                                                                            </label>
-                                                                            &nbsp;&nbsp;
-                                                                            <label for='int' class="control-label">
-                                                                                <input type='radio' name='opt' value="2" id='opt' />
-                                                                                Permanent Employee
-                                                                            </label>
-                                                                        </div>
-
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
-                                                                <button type="submit" name="submit" value="1" class="btn btn-primary font-weight-bold">
-                                                                    <i class="fa fa-check"></i>
-                                                                    Add Contract</button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
-
-                                    @endif
-                                @endif
-                            </td>
-                            <td class="text-center" nowrap="nowrap">
-                                <a href="{{route('employee.detail',['id'=>$value->id])}}" class="btn btn-success btn-sm"><i class="fa fa-cog icon-nm"></i> manage</a>
-                            </td>
-                            <td class="text-center" nowrap="nowrap">
-                                <a href="{{route('employee.detail',['id'=>$value->id])}}" class="btn btn-success btn-sm"><i class="fa fa-cog icon-nm"></i> manage</a>
-                            </td>
-                            <td nowrap="nowrap">
-                                <a href="{{route('employee.expel',['id' =>$value->id])}}" class="btn btn-sm btn-danger" onclick="return confirm('Pegawai ini DIPECAT?'); "><i class="fa fa-times icon-nm"></i> Fired</a>
-                            </td>
-                            <td class="text-center">
-                                <a href="" class="btn btn-light-dark btn-icon btn-sm"><i class="fa fa-eye text-white icon-nm"></i></a>
-                            </td>
-                            <td nowrap="nowrap">
-                                <form method="post" action="{{route('employee.delete',['id'=>$value->id])}}">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-icon btn-default" onclick="return confirm('Hapus data pegawai?');">
-                                        <i class="fa fa-trash text-danger"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        @endif
-                    @endforeach
-                    </tbody>
                 </table>
             </div>
         </div>
@@ -439,14 +270,96 @@
 @endsection
 @section('custom_script')
     <script>
+
+        function getData(x){
+            var type = x;
+            $.ajax({
+                url: "{{route('employee.getdata_post')}}",
+                type: "post",
+                dataType: "json",
+                data: {
+                    _token: "{{csrf_token()}}",
+                    type: type,
+                },
+                cache: false,
+                success: function(response){
+                    $("table.data_emp").DataTable().destroy()
+                    $("table.data_emp").DataTable({
+                        fixedHeader: true,
+                        fixedHeader: {
+                            headerOffset: 90
+                        },
+                        pageLength: 100,
+                        "processing": false,
+                        ajax : {
+                            url: "@actionStart('employee', 'read'){{route('employee.getdata_post')}}@actionEnd",
+                            type: "post",
+                            data: {
+                                _token: "{{csrf_token()}}",
+                                type: type,
+                            },
+                        },
+                        columns : [
+                            { "data": "no" },
+                            { "data": "emp_name" },
+                            { "data": "emp_type" },
+                            { "data": "emp_id" },
+                            { "data": "emp_position" },
+                            { "data": "division" },
+                            { "data": "status" },
+                            { "data": "cv" },
+                            { "data": "document" },
+                            { "data": "quit" },
+                            { "data": "training_point" },
+                            @actionStart('employee', 'delete'){ "data": "action" },@actionEnd
+                        ],
+                        columnDefs: [
+                            {
+                                "targets": "_all",
+                                "className": "text-center",
+                            }
+                        ],
+                        language: {
+                            loadingRecords: ""
+                        },
+                    })
+                }
+            })
+
+
+        }
+
         $(document).ready(function () {
 
-            $("table.display").DataTable({
+            $("table.data_emp").DataTable({
                 fixedHeader: true,
                 fixedHeader: {
                     headerOffset: 90
                 },
-                pageLength: 100
+                pageLength: 100,
+                'ajax':'@actionStart('employee', 'read'){{route('employee.getdata')}}@actionEnd',
+                'type' : 'GET',
+                dataSrc: 'responseData',
+                'columns' :[
+                    { "data": "no" },
+                    { "data": "emp_name" },
+                    { "data": "emp_type" },
+                    { "data": "emp_id" },
+                    { "data": "emp_position" },
+                    { "data": "division" },
+                    { "data": "status" },
+                    { "data": "cv" },
+                    { "data": "document" },
+                    { "data": "quit" },
+                    { "data": "training_point" },
+                    @actionStart('employee', 'delete'){ "data": "action" },@actionEnd
+                ],
+                'columnDefs': [
+                    {
+                        "targets": "_all",
+                        "className": "text-center",
+                    }
+                ]
             })
 
             $('#emp_type').change(function () {

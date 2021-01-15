@@ -5,12 +5,14 @@
             <div class="card-title">
                 <a href="#" class="text-black-50">Contract List</a>
             </div>
+            @actionStart('inv_out','create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLeads"><i class="fa fa-plus"></i>Add Contract</button>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             <div class="alert alert-primary">
@@ -30,6 +32,7 @@
                     </tr>
                     </thead>
                     <tbody>
+                    @actionStart('inv_out','read')
                     @foreach($invs as $key => $value)
                         <tr>
                             <td align="center">{{$key + 1}}</td>
@@ -76,10 +79,13 @@
                                 @endif
                             </td>
                             <td align="center">
+                                @actionStart('inv_out','delete')
                                 <button class="btn btn-icon btn-xs btn-danger" onclick="button_delete({{$value->id_inv}})"><i class="fa fa-trash"></i></button>
+                                @actionEnd
                             </td>
                         </tr>
                     @endforeach
+                    @actionEnd
                     </tbody>
                 </table>
             </div>

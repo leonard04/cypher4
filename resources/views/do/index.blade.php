@@ -6,13 +6,14 @@
                 <h3>List Delivery Order</h3><br>
 
             </div>
-
+            @actionStart('do', 'create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addItem"><i class="fa fa-plus"></i>Add Delivery Order</button>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -49,12 +50,12 @@
                                 <th class="text-center">Item(s)</th>
                                 <th class="text-center">Delivery Date</th>
                                 <th class="text-center">Delivery By</th>
-                                <th class="text-center">Approval</th>
                                 <th class="text-center">Received By</th>
                                 <th class="text-center">Action</th>
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('do', 'read')
                             @foreach($dos as $key => $val)
                                 <tr>
                                     <td class="text-center">{{$key+1}}</td>
@@ -74,59 +75,13 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @if($val->gr_no == null)
-                                            @if($val->approved_by != null && $val->approved_time != null)
-                                                <button type="button" class="btn btn-link btn-xs" data-toggle="modal" data-target="#setGr{{$val->id}}">
-                                                    <i class="fa fa-clock"></i>waiting
-                                                </button>
-                                                <div class="modal fade" id="setGr{{$val->id}}" tabindex="-1" role="dialog" aria-labelledby="addEmployee" aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="exampleModalLabel">Delivery Order Receive</h5>
-                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                    <i aria-hidden="true" class="ki ki-close"></i>
-                                                                </button>
-                                                            </div>
-                                                            <form method="post" action="{{URL::route('do.receive')}}" enctype="multipart/form-data">
-                                                                @csrf
-                                                                <div class="modal-body">
-                                                                    <div class="row">
-                                                                        <div class="col-md-12">
-
-                                                                            <div class="form-group row">
-                                                                                <label class="col-md-2 col-form-label text-right">Received By</label>
-                                                                                <div class="col-md-10">
-                                                                                    <input type="hidden" name="id" value="{{$val->id}}">
-                                                                                    <input type="text" name="receive_by" id="receive_by" class="form-control">
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
-                                                                    <button type="submit" name="submitReceive" class="btn btn-primary font-weight-bold">
-                                                                        <i class="fa fa-save"></i>
-                                                                        Save</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @else
-                                                waiting
-                                            @endif
-                                        @else
-                                            {{$val->gr_no}}
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
+                                        @actionStart('do', 'delete')
                                         <a href="{{route('do.delete',['id'=>$val->id])}}" class="btn btn-danger btn-xs"  title="Delete" onclick="return confirm('Are you sure you want to delete?')"><i class="fa fa-trash"></i></a>
+                                        @actionEnd
                                     </td>
                                 </tr>
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -167,7 +122,7 @@
                     @csrf
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <h4>Detail</h4>
                                 <hr>
                                 <input type="hidden" name="deliver_by" value="{{Auth::user()->username}}">
@@ -227,7 +182,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-7">
+                            <div class="col-md-6">
                                 <h4>Moving Item</h4>
                                 <hr>
                                 <div class="form-group row">
@@ -237,10 +192,8 @@
                                             <th>Item Code</th>
                                             <th>Item Name</th>
                                             <th>UoM</th>
-                                            <th>QoH</th>
                                             <th>Quantity</th>
                                             <th>Transfer Type</th>
-                                            <th>Balance</th>
                                             <th>Action</th>
                                         </tr>
                                         </thead>
@@ -260,20 +213,13 @@
                                             <td class="text-center" style="vertical-align: middle;">
                                                 <span id="uom"></span>
                                             </td>
-                                            <td class="text-center" style="vertical-align: middle;">
-                                                <span id="qoh"></span>
-                                            </td>
-                                            <input type="hidden" name="id_wh" id="id_wh">
                                             <td class="text-center"><input type="number" size="2" id="qty" placeholder="Qty" class="form-control" /></td>
                                             <td class="text-center">
-                                                <select class="form-control" name="transfer_type" id="transfer_type" style="width: 100%">
+                                                <select class="form-control" name="transfer_type" id="transfer_type">
                                                     <option value="Transfer">Transfer</option>
                                                     <option value="Transfer & Use">Transfer & Use</option>
                                                 </select>
                                                 {{--                                                <input type="number" size="2" id="qty" placeholder="Qty" class="form-control" />--}}
-                                            </td>
-                                            <td class="text-center" style="vertical-align: middle;">
-                                                <span id="balance"></span>
                                             </td>
                                             <td class="text-center">
                                                 <input type="button" class="btn btn-primary btn-md" value="Add" onClick="addInput('list_item');"/>
@@ -318,9 +264,9 @@
             if (due_date  === '') { alert('Due Date is mandatory.'); return false; }
             if (pr_cat  === '') { alert('Project Category is mandatory.'); return false; }
         });
-        function autoComplete(link){
+        $(document).ready(function(){
             $("#item").autocomplete({
-                source: link,
+                source: "{{route('fr.getItems')}}",
                 minLength: 1,
                 appendTo: "#autocomplete-div",
                 select: function(event, ui) {
@@ -330,43 +276,8 @@
                     $('#name').val(ui.item.item_name);
                     $('#uom').val(ui.item.item_uom);
                     $('#uom').html(ui.item.item_uom);
-                    $('#qoh').html(ui.item.item_qoh);
-                    $('#qoh').val(ui.item.item_qoh);
-                    if (ui.item.item_type == 1){
-                        // console.log(ui.item.item_type)
-                        $('#transfer_type').val('Transfer & Use').trigger('change')
-                    } else {
-                        $('#transfer_type').val('Transfer').trigger('change')
-                        // console.log(ui.item.item_type)
-                    }
                 }
             });
-        }
-
-        function sum(){
-            var qty = document.getElementById('qty').value;
-            var qoh = document.getElementById('qoh').value;
-            var result = parseInt(qoh) - parseInt(qty);
-            // console.log(result)
-            if (!isNaN(result)) {
-                $('#balance').text(result)
-                $('#balance').val(result)
-            }
-
-        }
-        $(document).ready(function(){
-            var link = "http://localhost/cypher4/public/general/do/getItems/";
-            $('#from').change(function () {
-                link = "http://localhost/cypher4/public/general/do/getItems/"+$('#from').val();
-                // console.log(link)
-                autoComplete(link)
-            })
-            // console.log(link)
-
-            sum();
-            $("#qty").on("change",function (){
-                sum();
-            })
         });
         function deleteRow(o){
             var p = o.parentNode.parentNode;
@@ -379,22 +290,16 @@
                 "<input type='hidden' name='code[]' value='" + $("#code").val() + "'>" + $("#code").val() +
                 "</td>" +
                 "<td align='center'>" +
-                "<input type='hidden' name='name[]' value='" + $("#name").val() + "'><b>" + $("#name").val() + "</b><br />" +
+                "<input type='hidden' name='name[]' value='" + $("#name").val() + "'><b>" + $("#name").val() + "</b><br /><em style='font-size:9px'>" + $("#category").val() + "</em>" +
                 "</td>" +
                 "<td align='center'>" +
                 "<input type='hidden' name='uom[]' value='" + $("#uom").val() + "'>" + $("#uom").val() +
-                "</td>" +
-                "<td align='center'>" +
-                "<input type='hidden' name='qoh[]' value='" + $("#qoh").val() + "'>" + $("#qoh").val() +
                 "</td>" +
                 "<td align='center'>" +
                 "<input type='hidden' name='qty[]' value='" + $("#qty").val() + "'>" + $("#qty").val() +
                 "</td>" +
                 "<td align='center'>" +
                 "<input type='hidden' name='transfer_type[]' value='" + $("#transfer_type").val() + "'>" + $("#transfer_type").val() +
-                "</td>" +
-                "<td align='center'>" +
-                "<input type='hidden' name='balance[]' value='" + $("#balance").val() + "'>" + $("#balance").val() +
                 "</td>" +
                 "<td align='center'>" +
                 "<button type='submit' onClick='deleteRow(this)' class='btn btn-xs btn-danger'><i class='fa fa-trash'></i></button>" +
@@ -415,7 +320,6 @@
                     headerOffset: 90
                 }
             })
-
             $('#from').select2({
                 ajax: {
                     url: function (params) {
@@ -433,7 +337,6 @@
                     },
                     processResults: function (response) {
                         console.log(response)
-                        $('#id_wh').val($('#from').val())
                         return {
                             results: response
                         };

@@ -16,7 +16,7 @@ class DivisionController extends Controller
 		$division->desc = $request->desc;
 		$division->save();
 
-		return redirect()->route('company.detail', $request->coid);
+		return redirect()->back();
 	}
 
 	public function update($id, Request $request)
@@ -27,13 +27,13 @@ class DivisionController extends Controller
 		$division->desc = $request->desc;
 		$division->save();
 
-		return redirect()->route('company.detail', $request->coid);
+		return redirect()->back();
 	}
 
 	public function delete($id, Request $request)
 	{
 		Division::find($id)->delete();
 
-		return redirect()->route('company.detail', $request->coid);
+		return redirect()->back();
 	}
 }

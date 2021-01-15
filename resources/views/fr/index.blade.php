@@ -57,7 +57,7 @@
             <div class="tab-content mt-5" id="myTabContent">
                 <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="home-tab">
                     <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-                        <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 100%;">
+                        <table class="table table-bordered table-hover display font-size-sm frwaiting" style="margin-top: 13px !important; width: 100%;">
                             <thead>
                             <tr>
                                 <th class="text-center">#</th>
@@ -74,60 +74,13 @@
                                 <th class="text-center"></th>
                             </tr>
                             </thead>
-                            <tbody>
-                            @foreach($waitings as $key => $value)
-                                <tr>
-                                    <td class="text-center">{{($key+1)}}</td>
-                                    <td class="text-left">{{date('d F Y',strtotime($value->request_at))}}</td>
-                                    <td class="text-center"><a href="{{route('fr.view',['id'=>$value->id])}}" class="btn btn-xs btn-link"><i class="fa fa-search"></i>{{ $value->fr_num}}</a></td>
-                                    <td class="text-center">{{ $value->request_by}}</td>
-                                    <td class="text-center">{{ $value->division}}</td>
-                                    <td class="text-left">{{ $value->prj_name}}</td>
-                                    <td align="center">{{$view_company[$value->company_id]->tag}}</td>
-                                    <td class="text-center">{{( $value->qty != null)?$value->qty:'-'}}</td>
-                                    <td class="text-center">
-                                        @if($value->fr_division_approved_by != null && ($value->fr_division_approved_at != null))
-                                            {{date('d F Y', strtotime( $value->fr_division_approved_at))}}
-                                        @else
-                                            <a href="{{route('fr.view',['id'=>$value->id,'code'=>base64_encode('div_appr')])}}" class="btn btn-link"><i class="fa fa-clock"></i>waiting</a>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if(($value->fr_approved_by != null) && ( $value->fr_approved_at != null))
-                                            {{date('d F Y', strtotime( $value->fr_approved_at))}}
-                                        @else
-                                            @if(($value->fr_division_approved_by != null) && ( $value->fr_division_approved_at != null))
-                                                <a href="{{route('fr.view',['id'=>$value->id,'code'=>base64_encode('asset_appr')])}}" class="btn btn-link btn-xs"><i class="fa fa-clock"></i>waiting</a>
-                                            @else
-                                                waiting
-                                            @endif
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if(( $value->qty == $value->delivered) && ( $value->qty > 0))
-                                            Delivered
-                                        @else
-                                            @if(($value->fr_division_approved_by != null) && ( $value->fr_division_approved_at != null))
-                                                <a href="{{route('fr.view',['id'=>$value->id,'code'=>base64_encode('deliver')])}}" class="btn btn-link btn-xs"><i class="fa fa-clock"></i>waiting</a>
-                                            @else
-                                                waiting
-                                            @endif
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @actionStart('frwaiting', 'delete')
-                                        <a href="{{route('fr.pr.delete',['id'=>$value->id,'code' =>'fr'])}}" class="btn btn-danger btn-xs"  title="Delete" onclick="return confirm('Are you sure you want to delete?')"><i class="fa fa-trash"></i></a>
-                                        @actionEnd
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
+
                         </table>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="sales" role="tabpanel" aria-labelledby="profile-tab">
                     <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-                        <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 100%;">
+                        <table class="table table-bordered table-hover display font-size-sm frbank" style="margin-top: 13px !important; width: 100%;">
                             <thead class="table-success">
                             <tr>
                                 <th class="text-center">#</th>
@@ -144,56 +97,13 @@
                                 <th class="text-center"></th>
                             </tr>
                             </thead>
-                            <tbody>
-                            @foreach($banks as $key => $value)
-                                <tr>
-                                    <td class="text-center">{{($key+1)}}</td>
-                                    <td class="text-left">{{date('d F Y',strtotime($value->request_at))}}</td>
-                                    <td class="text-center"><a href="{{route('fr.view',['id'=>$value->id])}}" class="btn btn-xs btn-link"><i class="fa fa-search"></i>{{ $value->fr_num}}</a></td>
-                                    <td class="text-center">{{ $value->request_by}}</td>
-                                    <td class="text-center">{{ $value->division}}</td>
-                                    <td class="text-left">{{ $value->prj_name}}</td>
-                                    <td align="center">{{$view_company[$value->company_id]->tag}}</td>
-                                    <td class="text-center">{{( $value->qty != null)?$value->qty:'-'}}</td>
-                                    <td class="text-center">
-                                        @if($value->fr_division_approved_by != null && ($value->fr_division_approved_at != null))
-                                            {{date('d F Y', strtotime( $value->fr_division_approved_at))}}
-                                        @else
-                                            <a href="#" class="btn btn-link"><i class="fa fa-clock"></i>waiting</a>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if(($value->fr_approved_by != null) && ( $value->fr_approved_at != null))
-                                            {{date('d F Y', strtotime( $value->fr_approved_at))}}
-                                        @else
-                                            @if(($value->fr_division_approved_by != null) && ( $value->fr_division_approved_at != null))
-                                                <a href="#" class="btn btn-link btn-xs"><i class="fa fa-clock"></i>waiting</a>
-                                            @else
-                                                waiting
-                                            @endif
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if(( $value->qty == $value->delivered) && ( $value->qty > 0))
-                                            Delivered
-                                        @else
-                                            waiting
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @actionStart('frbank', 'delete')
-                                        <a href="{{route('fr.pr.delete',['id'=>$value->id,'code' =>'fr'])}}" class="btn btn-danger btn-xs"  title="Delete" onclick="return confirm('Are you sure you want to delete?')"><i class="fa fa-trash"></i></a>
-                                        @actionEnd
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
+
                         </table>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="cost" role="tabpanel" aria-labelledby="contact-tab">
                     <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-                        <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 100%;">
+                        <table class="table table-bordered table-hover display font-size-sm frreject" style="margin-top: 13px !important; width: 100%;">
                             <thead class="table-danger">
                             <tr>
                                 <th class="text-center">#</th>
@@ -209,39 +119,7 @@
                                 <th class="text-center"></th>
                             </tr>
                             </thead>
-                            <tbody>
-                            @foreach($rejects as $key => $value)
-                                <tr>
-                                    <td class="text-center">{{($key+1)}}</td>
-                                    <td class="text-left">{{date('d F Y',strtotime($value->request_at))}}</td>
-                                    <td class="text-center">{{ $value->fr_num}}</td>
-                                    <td class="text-center">{{ $value->request_by}}</td>
-                                    <td class="text-center">{{ $value->division}}</td>
-                                    <td class="text-left">{{ $value->prj_name}}</td>
-                                    <td align="center">{{$view_company[$value->company_id]->tag}}</td>
-                                    <td class="text-center">{{( $value->qty != null)?$value->qty:'-'}}</td>
-                                    <td class="text-center">
-                                        @if($value->fr_division_rejected_by != null || ($value->fr_division_rejected_at != null))
-                                            {{date('d F Y', strtotime($value->fr_division_rejected_at))}} by {{$value->fr_division_rejected_by}}
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if(($value->fr_rejected_by != null) || ( $value->fr_rejected_at != null))
-                                            {{date('d F Y', strtotime( $value->fr_rejected_at))}} by {{$value->fr_rejected_by}}
-                                        @else
-                                           -
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @actionStart('frrejected', 'delete')
-                                        <a href="{{route('fr.pr.delete',['id'=>$value->id,'code' =>'fr'])}}" class="btn btn-danger btn-xs"  title="Delete" onclick="return confirm('Are you sure you want to delete?')"><i class="fa fa-trash"></i></a>
-                                        @actionEnd
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
+
                         </table>
                     </div>
                 </div>
@@ -503,11 +381,199 @@
         }
 
         $(document).ready(function(){
-            $("table.display").DataTable({
+
+            $("table.frwaiting").DataTable({
                 fixedHeader: true,
                 fixedHeader: {
                     headerOffset: 90
-                }
+                },
+                'ajax': '{{route('fr.getFrWaiting')}}',
+                'type': 'GET',
+                dataSrc: 'responseData',
+                'columns' :[
+                    { "data": "no" },
+                    { "data": "req_date" },
+                    { "data": "id_code" },
+                    { "data": "req_by" },
+                    { "data": "division" },
+                    { "data": "project" },
+                    { "data": "company" },
+                    { "data": "items" },
+                    { "data": "div_appr" },
+                    { "data": "asset_appr" },
+                    { "data": "deliv_status" },
+                    { "data": "action" },
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 0,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 2,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 3,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 4,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 6,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 7,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 8,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 9,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 10,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 11,
+                        "className": "text-center",
+                    },
+
+                ],
+            });
+            $("table.frbank").DataTable({
+                fixedHeader: true,
+                fixedHeader: {
+                    headerOffset: 90
+                },
+                'ajax': '{{route('fr.getFrBank')}}',
+                'type': 'GET',
+                dataSrc: 'responseData',
+                'columns' :[
+                    { "data": "no" },
+                    { "data": "req_date" },
+                    { "data": "id_code" },
+                    { "data": "req_by" },
+                    { "data": "division" },
+                    { "data": "project" },
+                    { "data": "company" },
+                    { "data": "items" },
+                    { "data": "div_appr" },
+                    { "data": "asset_appr" },
+                    { "data": "deliv_status" },
+                    { "data": "action" },
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 0,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 2,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 3,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 4,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 6,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 7,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 8,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 9,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 10,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 11,
+                        "className": "text-center",
+                    },
+
+                ],
+            });
+            $("table.frreject").DataTable({
+                fixedHeader: true,
+                fixedHeader: {
+                    headerOffset: 90
+                },
+                'ajax': '{{route('fr.getFrReject')}}',
+                'type': 'GET',
+                dataSrc: 'responseData',
+                'columns' :[
+                    { "data": "no" },
+                    { "data": "req_date" },
+                    { "data": "id_code" },
+                    { "data": "req_by" },
+                    { "data": "division" },
+                    { "data": "project" },
+                    { "data": "company" },
+                    { "data": "items" },
+                    { "data": "div_appr" },
+                    { "data": "asset_appr" },
+                    { "data": "action" },
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 0,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 2,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 3,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 4,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 6,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 7,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 8,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 9,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 10,
+                        "className": "text-center",
+                    },
+
+                ],
             });
         });
 

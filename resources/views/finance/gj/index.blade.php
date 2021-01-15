@@ -47,40 +47,44 @@
                                 @endif
                             </td>
                             <td>
-                                @foreach($value['debit'] as $key => $item)
-                                    <div class="accordion ui-accordion-icons accordion-toggle-arrow" id="accordionExample2">
-                                        <div class="card">
-                                            <div class="card-header" id="headingOne2">
-                                                <div class="card-title collapsed" data-toggle="collapse" data-target="#collapse{{$num."-".$key}}">
-                                                    {{$coa_name[$item['no_coa']]}}
+                                @if(isset($value['debit']))
+                                    @foreach($value['debit'] as $key => $item)
+                                        <div class="accordion ui-accordion-icons accordion-toggle-arrow" id="accordionExample2">
+                                            <div class="card">
+                                                <div class="card-header" id="headingOne2">
+                                                    <div class="card-title collapsed" data-toggle="collapse" data-target="#collapse{{$num."-".$key}}">
+                                                        {{(isset($coa_name[$item['no_coa']])) ? $coa_name[$item['no_coa']] : ""}}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div id="collapse{{$num."-".$key}}" class="collapse" data-parent="#accordionExample2">
-                                                <div class="card-body">
-                                                    Amount : {{number_format($item['debit'])}}
+                                                <div id="collapse{{$num."-".$key}}" class="collapse" data-parent="#accordionExample2">
+                                                    <div class="card-body">
+                                                        Amount : {{number_format($item['debit'])}}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                @endforeach
+                                    @endforeach
+                                @endif
                             </td>
                             <td>
-                                @foreach($value['credit'] as $key => $item)
-                                    <div class="accordion ui-accordion-icons accordion-toggle-arrow" id="accordionExample2">
-                                        <div class="card">
-                                            <div class="card-header" id="headingOne2">
-                                                <div class="card-title collapsed" data-toggle="collapse" data-target="#collapse{{$num."-".$item['no_coa']}}">
-                                                    {{$coa_name[$item['no_coa']]}}
+                                @if(isset($value['credit']))
+                                    @foreach($value['credit'] as $key => $item)
+                                        <div class="accordion ui-accordion-icons accordion-toggle-arrow" id="accordionExample2">
+                                            <div class="card">
+                                                <div class="card-header" id="headingOne2">
+                                                    <div class="card-title collapsed" data-toggle="collapse" data-target="#collapse{{$num."-".$item['no_coa']}}">
+                                                        {{(isset($coa_name[$item['no_coa']])) ? $coa_name[$item['no_coa']] : ""}}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div id="collapse{{$num."-".$item['no_coa']}}" class="collapse" data-parent="#accordionExample2">
-                                                <div class="card-body">
-                                                    Amount : {{number_format($item['credit'])}}
+                                                <div id="collapse{{$num."-".$item['no_coa']}}" class="collapse" data-parent="#accordionExample2">
+                                                    <div class="card-body">
+                                                        Amount : {{number_format($item['credit'])}}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                @endforeach
+                                    @endforeach
+                                @endif
                             </td>
                             <td align="center">
                                 @if($value['approved_at'] == null)

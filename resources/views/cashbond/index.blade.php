@@ -5,12 +5,14 @@
             <div class="card-title">
                 <h3>Cashbond</h3>
             </div>
+            @actionStart('cashbond', 'create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addItem"><i class="fa fa-plus"></i>Add Cashbond</button>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -51,6 +53,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('cashbond', 'read')
                             @php
                             $no = 1;
                             @endphp
@@ -60,6 +63,7 @@
                                         <td class="text-center">{{($no)}}</td>
                                         @php
                                             $now = time();
+                                            /** @var TYPE_NAME $value */
                                             $Tdue_date = strtotime($value->man_fin_cashout_date);
                                             $datediff = $now - $Tdue_date;
                                             $nDay =  round($datediff / (60 * 60 * 24)) * -1;
@@ -135,6 +139,7 @@
                                             <td class="text-center">{{($key+1)}}</td>
                                             @php
                                                 $now = time(); // or your date as well
+                                                /** @var TYPE_NAME $value */
                                                 $Tdue_date = strtotime($value->man_fin_cashout_date);
                                                 $datediff = $now - $Tdue_date;
                                                 $nDay =  round($datediff / (60 * 60 * 24)) * -1;
@@ -207,9 +212,11 @@
                                     @endif
                                 @endif
                                 @php
+                                    /** @var TYPE_NAME $no */
                                     $no += 1;
                                 @endphp
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -233,12 +240,14 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('cashbond', 'read')
                             @foreach($cashbondbanks as $key => $value)
                                 @if($value->user == 'open')
                                     <tr>
                                         <td class="text-center">{{($key+1)}}</td>
                                         @php
                                             $now = time();
+                                            /** @var TYPE_NAME $value */
                                             $Tdue_date = strtotime($value->man_fin_cashout_date);
                                             $datediff = $now - $Tdue_date;
                                             $nDay =  round($datediff / (60 * 60 * 24)) * -1;
@@ -380,12 +389,15 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
+                                                @actionStart('cashbond', 'delete')
                                                 <a href='{{route('cashbond.delete',['id' => $value->id])}}' class='btn btn-danger btn-xs' title='Delete' onclick="return confirm('Are you sure you want to delete?')"><i class="fa fa-trash"></i></a>
+                                                @actionEnd
                                             </td>
                                         </tr>
                                     @endif
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>

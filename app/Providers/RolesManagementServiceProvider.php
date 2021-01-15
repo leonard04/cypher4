@@ -32,6 +32,10 @@ class RolesManagementServiceProvider extends ServiceProvider
             return "<?php if(RolesManagement::actionStart($eE[0], $eE[1])) : ;?>";
         });
 
+        \Blade::directive('actionElse', function(){
+            return "<?php else: ?>";
+        });
+
         \Blade::directive('actionEnd', function(){
             return "<?php endif; ?>";
         });

@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityConfig;
 use App\Models\Asset_sre;
 use App\Models\Asset_sre_detail;
 use App\Models\Asset_type_wo;
 use App\Models\Asset_wo;
 use App\Models\Asset_wo_detail;
+use App\Models\ConfigCompany;
 use App\Models\Marketing_project;
 use App\Models\Pref_tax_config;
 use App\Models\Procurement_vendor;
+use App\Rms\RolesManagement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
@@ -17,6 +20,193 @@ use Session;
 
 class AssetSreController extends Controller
 {
+    function getSoReject(){
+        $id_companies = array();
+        if (Session::get('company_child') != null){
+            foreach (Session::get('company_child') as $item) {
+                $id_companies[] = $item->id;
+            }
+            array_push($id_companies, Session::get('company_id'));
+        } else {
+            array_push($id_companies, Session::get('company_id'));
+        }
+        $so = Asset_sre::whereIn('company_id', $id_companies)
+            ->whereNotNull('so_rejected_by')
+            ->get();
+        $so_det = Asset_sre_detail::all();
+        $det = array();
+        foreach ($so_det as $item){
+            $det[$item->so_id][] = $item->id;
+        }
+        $project = Marketing_project::whereIn('company_id', $id_companies)->get();
+        $pro_name = array();
+        foreach ($project as $item){
+            $pro_name[$item->id] = $item->prj_name;
+        }
+        $view_company = [];
+        $comp = ConfigCompany::all();
+        foreach ($comp as $key1 => $val){
+            $view_company[$val->id] = $val->tag;
+        }
+
+        $row = [];
+        $so_waiting = [];
+        foreach ($so as $i => $item){
+            $so_waiting['no'] = $i+ 1;
+            $so_waiting['so_num'] = "<a href='".URL::route('so.view', $item->id)."' class='text-hover-danger'>".$item->so_num."</a>";
+            $so_waiting['so_date'] = date('d F Y', strtotime($item->so_date));
+            $so_waiting['so_type'] = $item->so_type;
+            $so_waiting['created_by'] =$item->created_by;
+            $so_waiting['division'] = $item->division;
+            $so_waiting['project'] = $pro_name[$item->project];
+            $so_waiting['company'] = $view_company[$item->company_id];
+            $so_waiting['items'] = count($det[$item->id]);
+            $so_waiting['notes'] = strip_tags($item->so_notes);
+            if ($item->so_rejected_by == null){
+                $so_waiting['appr'] = "<a href='".URL::route('so.appr', $item->id)."' class='text-hover-danger'>waiting <i class='fa fa-clock'></i></a>";
+            } else {
+                $so_waiting['appr'] = "rejected at ".date('Y-m-d', strtotime($item->so_rejected_at))." by <b>".$item->so_rejected_by."</b>";
+            }
+            $so_waiting['action'] = "<button class='btn btn-xs btn-icon btn-danger'><i class='fa fa-trash'></i></button>";
+            if (RolesManagement::actionStart('so','read')) {
+                $row[] = $so_waiting;
+            } else {
+                $row[] = [];
+            }
+
+        }
+
+        $data = [
+            'data' => $row,
+        ];
+//        dd($data);
+        return json_encode($data);
+    }
+    function getSoBank(){
+        $id_companies = array();
+        if (Session::get('company_child') != null){
+            foreach (Session::get('company_child') as $item) {
+                $id_companies[] = $item->id;
+            }
+            array_push($id_companies, Session::get('company_id'));
+        } else {
+            array_push($id_companies, Session::get('company_id'));
+        }
+        $so = Asset_sre::whereIn('company_id', $id_companies)
+            ->whereNotNull('so_approved_by')
+            ->get();
+        $so_det = Asset_sre_detail::all();
+        $det = array();
+        foreach ($so_det as $item){
+            $det[$item->so_id][] = $item->id;
+        }
+        $project = Marketing_project::whereIn('company_id', $id_companies)->get();
+        $pro_name = array();
+        foreach ($project as $item){
+            $pro_name[$item->id] = $item->prj_name;
+        }
+        $view_company = [];
+        $comp = ConfigCompany::all();
+        foreach ($comp as $key1 => $val){
+            $view_company[$val->id] = $val->tag;
+        }
+
+        $row = [];
+        $so_waiting = [];
+        foreach ($so as $i => $item){
+            $so_waiting['no'] = $i+ 1;
+            $so_waiting['so_num'] = "<a href='".URL::route('so.view', $item->id)."' class='text-hover-danger'>".$item->so_num."</a>";
+            $so_waiting['so_date'] = date('d F Y', strtotime($item->so_date));
+            $so_waiting['so_type'] = $item->so_type;
+            $so_waiting['created_by'] =$item->created_by;
+            $so_waiting['division'] = $item->division;
+            $so_waiting['project'] = $pro_name[$item->project];
+            $so_waiting['company'] = $view_company[$item->company_id];
+            $so_waiting['items'] = count($det[$item->id]);
+            $so_waiting['notes'] = strip_tags($item->so_notes);
+            if ($item->so_approved_by == null){
+                $so_waiting['appr'] = "<a href='".URL::route('so.appr', $item->id)."' class='text-hover-danger'>waiting <i class='fa fa-clock'></i></a>";
+            } else {
+                $so_waiting['appr'] = "approved at ".date('Y-m-d', strtotime($item->so_approved_at))." by <b>".$item->so_approved_by."</b>";
+            }
+            $so_waiting['action'] = "<button class='btn btn-xs btn-icon btn-danger'><i class='fa fa-trash'></i></button>";
+
+            if (RolesManagement::actionStart('so','read')) {
+                $row[] = $so_waiting;
+            } else {
+                $row[] = [];
+            }
+        }
+
+        $data = [
+            'data' => $row,
+        ];
+//        dd($data);
+        return json_encode($data);
+    }
+    function getSoWaiting(){
+        $id_companies = array();
+        if (Session::get('company_child') != null){
+            foreach (Session::get('company_child') as $item) {
+                $id_companies[] = $item->id;
+            }
+            array_push($id_companies, Session::get('company_id'));
+        } else {
+            array_push($id_companies, Session::get('company_id'));
+        }
+        $so = Asset_sre::whereIn('company_id', $id_companies)
+            ->whereNull('so_rejected_by')
+            ->whereNull('so_approved_by')
+            ->get();
+        $so_det = Asset_sre_detail::all();
+        $det = array();
+        foreach ($so_det as $item){
+            $det[$item->so_id][] = $item->id;
+        }
+        $project = Marketing_project::whereIn('company_id', $id_companies)->get();
+        $pro_name = array();
+        foreach ($project as $item){
+            $pro_name[$item->id] = $item->prj_name;
+        }
+        $view_company = [];
+        $comp = ConfigCompany::all();
+        foreach ($comp as $key1 => $val){
+            $view_company[$val->id] = $val->tag;
+        }
+
+        $row = [];
+        $so_waiting = [];
+        foreach ($so as $i => $item){
+            $so_waiting['no'] = $i+ 1;
+            $so_waiting['so_num'] = "<a href='".URL::route('so.view', $item->id)."' class='text-hover-danger'>".$item->so_num."</a>";
+            $so_waiting['so_date'] = date('d F Y', strtotime($item->so_date));
+            $so_waiting['so_type'] = $item->so_type;
+            $so_waiting['created_by'] =$item->created_by;
+            $so_waiting['division'] = $item->division;
+            $so_waiting['project'] = $pro_name[$item->project];
+            $so_waiting['company'] = $view_company[$item->company_id];
+            $so_waiting['items'] = count($det[$item->id]);
+            $so_waiting['notes'] = strip_tags($item->so_notes);
+            if ($item->so_approved_by == null){
+                $so_waiting['appr'] = "<a href='".URL::route('so.appr', $item->id)."' class='text-hover-danger'>waiting <i class='fa fa-clock'></i></a>";
+            } else {
+                $so_waiting['appr'] = "approved at ".date('Y-m-d', strtotime($item->so_approved_at))." by <b>".$item->so_approved_by."</b>";
+            }
+            $so_waiting['action'] = "<button class='btn btn-xs btn-icon btn-danger'><i class='fa fa-trash'></i></button>";
+
+            if (RolesManagement::actionStart('so','read')) {
+                $row[] = $so_waiting;
+            } else {
+                $row[] = [];
+            }
+        }
+
+        $data = [
+            'data' => $row,
+        ];
+//        dd($data);
+        return json_encode($data);
+    }
     function so_index(){
         $id_companies = array();
         if (Session::get('company_child') != null){
@@ -49,6 +239,7 @@ class AssetSreController extends Controller
     }
 
     function so_add(Request $request){
+        ActivityConfig::store_point('so', 'create');
         $arrRomawi	= array(1=>"I","II","III", "IV", "V","VI","VII","VIII","IX","X", "XI","XII");
         $sre = new Asset_sre();
 
@@ -180,6 +371,7 @@ class AssetSreController extends Controller
     }
 
     function so_approve(Request $request){
+        ActivityConfig::store_point('so', 'approve_div');
         $so = Asset_sre::find($request->id);
         $so->so_approved_by = Auth::user()->username;
         $so->so_approved_at = date('Y-m-d H:i:s');

@@ -7,7 +7,7 @@
             </div>
             <div class="card-toolbar">
 
-                <a href="{{route('company.detail', $companyId)}}" class="btn btn-secondary font-weight-bolder">
+                <a href="{{route('company.role_controll', $companyId)}}" class="btn btn-secondary font-weight-bolder">
 				<span class="svg-icon svg-icon-md">
 					<i class="la la-angle-double-right"></i>
 				</span>Company
@@ -24,17 +24,42 @@
         <div class="card-body">
             <form id="positionPrivelegeUpdate" action="{{route('rprivilege.update', $roleDiv->id)}}" method="post">
                 @csrf
-                <table class="table">
+                <table class="table table-hover">
                     <thead>
-                    <th></th>
-                    @foreach($actionList as $key => $action)
-                        <th style="text-align: center; max-width: 30px;">
+                    <tr>
+                        <th style="text-align: right; max-width: 100px;">Inherit to child</th>
+                        <th colspan="{{count($actionList) + 1}}">
+                            <div class="checkbox-inline">
+                                <label class="checkbox checkbox-outline checkbox-outline-2x checkbox-primary">
+                                    <input type="checkbox" name="to_child">
+                                    <span></span>
+                                </label>
+                            </div>
+
+                        </th>
+                    </tr>
+                    <tr>
+                        <th style="text-align: right; max-width: 100px;">Inherit to users</th>
+                        <th colspan="{{count($actionList) + 1}}">
+                            <div class="checkbox-inline">
+                                <label class="checkbox checkbox-outline checkbox-outline-2x checkbox-primary">
+                                    <input type="checkbox" name="to_user">
+                                    <span></span>
+                                </label>
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        @foreach($actionList as $key => $action)
+                            <th style="text-align: center; max-width: 30px;">
 							<span>
 								{{$action}}
 							</span>
-                        </th>
-                    @endforeach
-
+                            </th>
+                        @endforeach
+                        <th style="text-align: center; max-width: 30px;">Check All</th>
+                    </tr>
                     </thead>
                     <tbody>
                     @foreach($moduleList as $moduleKey => $module)
@@ -45,13 +70,23 @@
 								</span>
                             </td>
                             @foreach($actionList as $actionKey => $action)
-                                <td style="text-align: center;">
-                                    <label class="kt-checkbox kt-checkbox--success" data-container="body" data-html="true" data-placement="top" data-toggle="kt-tooltip">
-                                        <input type="checkbox" name="privilege[{{$moduleKey}}][{{$actionKey}}]" id="privilege_{{$moduleKey}}_{{$actionKey}}" value="1">
-                                        <span></span>
-                                    </label>
+                                <td style="text-align: center;" align="center">
+                                    <div class="checkbox-inline justify-content-center">
+                                        <label class="checkbox checkbox-outline checkbox-outline-2x checkbox-primary">
+                                            <input type="checkbox" class="ck_box {{$module}}" name="privilege[{{$moduleKey}}][{{$actionKey}}]" id="privilege_{{$moduleKey}}_{{$actionKey}}" value="1">
+                                            <span></span>
+                                        </label>
+                                    </div>
                                 </td>
                             @endforeach
+                            <td align="center">
+                                <div class="checkbox-inline justify-content-center">
+                                    <label class="checkbox checkbox-outline checkbox-outline-2x checkbox-primary">
+                                        <input type="checkbox" class="ck_box" onclick="check_all(this,'.{{$module}}')" value="1">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </td>
                         </tr>
                     @endforeach
 
@@ -72,10 +107,23 @@
         </script>
     @endif
     <script type="text/javascript">
+        function check_all(check, checks){
+            if (check.checked){
+                console.log(checks)
+                $(checks).each(function(){
+                    this.checked = true
+                })
+
+            } else {
+                $(checks).each(function(){
+                    this.checked = false
+                })
+            }
+        }
         $(document).ready(function() {
             var clicked = false;
             $("#selectButton").on("click", function() {
-                $(":checkbox").prop("checked", !clicked);
+                $(".ck_box").prop("checked", !clicked);
                 clicked = !clicked;
             });
 

@@ -28,7 +28,6 @@ class HrdSeveranceController extends Controller
         }
         $users = Hrd_employee::whereIn('company_id', $id_companies)
             ->orderBy('emp_name', 'asc')
-            ->whereNull('expel')
             ->get();
 
         $empsal = array();
@@ -140,5 +139,18 @@ class HrdSeveranceController extends Controller
         }
 
         return json_encode($data);
+    }
+
+    function print($id){
+        $severance = Hrd_severance::find($id);
+        $emp = Hrd_employee::find($severance->emp_id);
+        $reason = Hrd_salary_master_reason::find($severance->id_reasons);
+
+
+        return view('severance.print', [
+            'severance' => $severance,
+            'emp' => $emp,
+            'reason' => $reason
+        ]);
     }
 }

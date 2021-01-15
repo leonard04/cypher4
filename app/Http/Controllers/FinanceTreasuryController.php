@@ -19,7 +19,9 @@ use Session;
 class FinanceTreasuryController extends Controller
 {
     function index(){
-        $treasure = Finance_treasury::where('company_id', Session::get('company_id'))->get();
+        $treasure = Finance_treasury::where('company_id', Session::get('company_id'))
+	->where('type', 'bank')
+	->get();
         $his = Finance_treasury_history::all();
         $tre_his = Finance_treasury_insert::where('company_id', Session::get('company_id'))
             ->where('approved_at', null)
@@ -98,7 +100,7 @@ class FinanceTreasuryController extends Controller
         $tre_ins->date_insert  = $date;
         $tre_ins->description = $request->description;
         $tre_ins->IDR         = $request->amount;
-        $tre_ins->project     = $request->project;
+        $tre_ins->project     = (isset($request->project)) ? $request->project : '';
         $tre_ins->created_by  = Auth::user()->username;
         $tre_ins->company_id  = Session::get('company_id');
         $tre_ins->save();

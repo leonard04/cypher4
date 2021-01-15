@@ -4,15 +4,17 @@
     <div class="card card-custom gutter-b">
         <div class="card-header">
             <div class="card-title">
-                Item Classification
+                Item Classification - &nbsp;<span class="text-primary">{{$category->name}}</span>
             </div>
+            @actionStart('item_database', 'create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addEmployee"><i class="fa fa-plus"></i>Add Classification</button> &nbsp;&nbsp;
-                    <a href="{{route('items.index',['category'=>$cat_id])}}" class="btn btn-success"><i class="fa fa-arrow-left"></i></a>
+                    <a href="{{route('category.index')}}" class="btn btn-success"><i class="fa fa-arrow-left"></i></a>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
@@ -27,11 +29,17 @@
                     </tr>
                     </thead>
                     <tbody>
+                    @actionStart('item_database', 'read')
                     @foreach($classifications as $key => $value)
                         <tr>
                             <td>{{($key+1)}}</td>
                             <td>
-                                {{$value->classification_name}}
+                                <a href="{{route('items.index', ['category'=>$cat_id,'classification' =>$value->id])}}">
+                                    <span class="label label-inline label-primary">
+                                        {{$value->classification_name}}
+                                    </span>
+                                </a>
+
                             </td>
                             <td class="text-center">
                                 {{$value->classification_code}}
@@ -91,10 +99,11 @@
                             </div>
                             <td class="text-center">
                                 <a href="#edit{{$value->id}}" data-toggle="modal" class="btn btn-sm btn-primary btn-icon btn-icon-md" title="Edit"><i class="fa fa-edit"></i></a>
-                                <a href="{{route('category.del',['id' => $value->id])}}" title="Delete" class="btn btn-sm btn-danger btn-icon btn-icon-md" onclick="return confirm('Delete Category?')"><i class="fa fa-trash"></i></a>
+                                <a href="{{route('item_class.delete',['id' => $value->id])}}" title="Delete" class="btn btn-sm btn-danger btn-icon btn-icon-md" onclick="return confirm('Delete Category?')"><i class="fa fa-trash"></i></a>
                             </td>
                         </tr>
                     @endforeach
+                    @actionEnd
                     </tbody>
                 </table>
             </div>
@@ -129,7 +138,6 @@
                                 <div class="form-group">
                                     <label>Category</label>
                                     <select class="form-control" name="category">
-                                        <option value="0"></option>
                                         @foreach($categories as $key2 => $val)
                                             <option value="{{$val->id}}" >{{$val->name}}</option>
                                         @endforeach

@@ -28,6 +28,8 @@
                     </tr>
                     </thead>
                     <tbody>
+                    @actionStart('salary_financing','read')
+
                     @foreach($salaryfinstats as $key => $value)
                         <tr>
                             <td class="text-center">{{($key+1)}}</td>
@@ -39,6 +41,7 @@
                             <td class="text-center">{{$value->currency}}&nbsp;{{number_format($total,2)}}</td>
                         </tr>
                     @endforeach
+                    @actionEnd
                     </tbody>
                 </table>
             </div>

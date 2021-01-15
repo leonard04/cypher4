@@ -3,11 +3,11 @@
     <div class="card card-custom gutter-b">
         <div class="card-header">
             <div class="card-title">
-                Decree Letter
+                Official Letter
             </div>
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addEmployee"><i class="fa fa-plus"></i>Add Decree</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addEmployee"><i class="fa fa-plus"></i>Add Official Letter</button>
                 </div>
                 <!--end::Button-->
             </div>
@@ -55,7 +55,7 @@
         <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Add Decree</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Add Official Letter</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <i aria-hidden="true" class="ki ki-close"></i>
                     </button>

@@ -101,9 +101,11 @@
                     <div class='col-md-10'>
                     </div>
                     <div class="col-md-2">
+                        @actionStart('meeting_scheduler', 'create')
                         <button type="submit" name="submit" class="btn btn-primary font-weight-bold">
                             <i class="fa fa-check"></i>
                             Save</button>
+                        @actionEnd
                     </div>
                 </div>
             </form>

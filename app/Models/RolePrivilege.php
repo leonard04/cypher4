@@ -15,28 +15,28 @@ class RolePrivilege extends Model
 
 	public function roleDiv()
 	{
-		return $this->belongsTo('App\Models\RoleDivision', 'id_rms_roles_divisions', 'id');
+		return $this->belongsTo('App\Models\RoleDivision', 'id', 'id_rms_roles_divisions');
 	}
 
 	public function module()
 	{
-		return $this->belongsTo('App\Models\Module', 'id_rms_modules', 'id');
+		return $this->belongsTo('App\Models\Module', 'id', 'id_rms_modules');
 	}
 
 	public function action()
 	{
-		return $this->belongsTo('App\Models\Action', 'id_rms_actions', 'id');
+		return $this->belongsTo('App\Models\Action', 'id', 'id_rms_actions');
 	}
 
-    use LogsActivity;
+    // use LogsActivity;
 
-    protected static $logAttributes = ['*'];
+    // protected static $logAttributes = ['*'];
 
-    protected static $logOnlyDirty = true;
+    // protected static $logOnlyDirty = true;
 
-    protected static $logName = 'rms_roles_privileges';
+    // protected static $logName = 'rms_roles_privileges';
 
-    public function getDescriptionForEvent(string $eventName): string {
-        return "This model has been $eventName";
-    }
+    // public function getDescriptionForEvent(string $eventName): string {
+    //     return "This model has been $eventName";
+    // }
 }

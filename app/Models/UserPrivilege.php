@@ -28,15 +28,15 @@ class UserPrivilege extends Model
 		return $this->belongsTo('App\Models\Action', 'id_rms_actions', 'id');
 	}
 
-    use LogsActivity;
+    // use LogsActivity;
 
-    protected static $logAttributes = ['*'];
+    // protected static $logAttributes = ['*'];
 
-    protected static $logOnlyDirty = true;
+    // protected static $logOnlyDirty = true;
 
-    protected static $logName = 'rms_users_privileges';
+    // protected static $logName = 'rms_users_privileges';
 
-    public function getDescriptionForEvent(string $eventName): string {
-        return "This model has been $eventName";
-    }
+    // public function getDescriptionForEvent(string $eventName): string {
+    //     return "This model has been $eventName";
+    // }
 }

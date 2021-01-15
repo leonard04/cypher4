@@ -59,6 +59,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                                @actionStart('pr', 'read')
                             @foreach($waitings as $key => $value)
                                 <tr>
                                     <td class="text-center">{{($key+1)}}</td>
@@ -78,10 +79,13 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        @actionStart('pr', 'delete')
                                         <a href="{{route('fr.pr.delete',['id'=>$value->id,'code' =>'pr'])}}" class="btn btn-danger btn-xs"  title="Delete" onclick="return confirm('Are you sure you want to delete?')"><i class="fa fa-trash"></i></a>
+                                        @actionEnd
                                     </td>
                                 </tr>
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -105,6 +109,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                                @actionStart('pr', 'read')
                             @foreach($banks as $key => $value)
                                 <tr>
                                     <td class="text-center">{{($key+1)}}</td>
@@ -124,10 +129,13 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        @actionStart('pr', 'delete')
                                         <a href="{{route('fr.pr.delete',['id'=>$value->id,'code' =>'pr'])}}" class="btn btn-danger btn-xs"  title="Delete" onclick="return confirm('Are you sure you want to delete?')"><i class="fa fa-trash"></i></a>
+                                        @actionEnd
                                     </td>
                                 </tr>
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -151,6 +159,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                                @actionStart('pr', 'read')
                             @foreach($rejects as $key => $value)
                                 <tr>
                                     <td class="text-center">{{($key+1)}}</td>
@@ -170,10 +179,13 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        @actionStart('pr', 'delete')
                                         <a href="{{route('fr.pr.delete',['id'=>$value->id,'code' =>'pr'])}}" class="btn btn-danger btn-xs"  title="Delete" onclick="return confirm('Are you sure you want to delete?')"><i class="fa fa-trash"></i></a>
+                                        @actionEnd
                                     </td>
                                 </tr>
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>

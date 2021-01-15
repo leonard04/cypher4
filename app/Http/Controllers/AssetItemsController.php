@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Asset_good_receive;
 use App\Models\Asset_item;
 use App\Models\Asset_item_classification;
 use App\Models\Asset_item_update;
 use App\Models\Asset_new_category;
+use App\Models\Asset_po;
+use App\Models\Asset_po_detail;
 use App\Models\Asset_qty_wh;
 use App\Models\Asset_wh;
+use App\Models\ConfigCompany;
+use App\Models\General_do;
+use App\Models\General_do_detail;
 use App\Models\Procurement_vendor;
 use Illuminate\Http\Request;
 use Session;
@@ -84,46 +90,138 @@ class AssetItemsController extends Controller
         ]);
     }
 
-    function index($category){
-        $vendor = Procurement_vendor::where('category', 'Supplier')->get();
+    function getItemWh($id_wh){
+        $wh = Asset_wh::where('id', $id_wh)->first();
+        $assetQtyWH= Asset_qty_wh::where('wh_id',$id_wh)->get();
+        $itemsQty = [];
+        $itemsId = [];
+        foreach ($assetQtyWH as $Key => $value){
+            $itemsQty[$value->item_id]['qty'] = $value->qty;
+            $itemsId[] = $value->item_id;
+        }
         if (Session::get('company_child') != null){
             $childs = array();
             foreach (Session::get('company_child') as $item) {
                 $childs[] = $item->id;
             }
             array_push($childs, Session::get('company_id'));
-            $items = Asset_item::leftJoin('new_category as cat','cat.id','=','asset_items.category_id')
-                ->select('asset_items.*','cat.name as catName')
-                ->where('asset_items.category_id', $category)
-                ->whereIn('company_id', $childs)
-                ->whereNull('asset_items.deleted_at')->get();
-            $itemsup = Asset_item_update::where('approved_by', null)
-                ->whereIn('company_id', $childs)
+            $items = Asset_item::leftJoin('new_category as cat','cat.id','asset_items.category_id')
+                ->select('asset_items.*', 'cat.name as catName')
+                ->whereIn('asset_items.company_id', $childs)
                 ->get();
-            $warehouses = Asset_wh::whereIn('company_id', $childs)->get();
         } else {
-            $items = Asset_item::leftJoin('new_category as cat','cat.id','=','asset_items.category_id')
-                ->select('asset_items.*','cat.name as catName')
-                ->where('asset_items.category_id', $category)
-                ->where('company_id', Session::get('company_id'))
-                ->whereNull('asset_items.deleted_at')->get();
-            $itemsup = Asset_item_update::where('approved_by', null)
-                ->where('company_id', Session::get('company_id'))
+            $items = Asset_item::leftJoin('new_category as cat','cat.id','asset_items.category_id')
+                ->select('asset_items.*', 'cat.name as catName')
+                ->where('asset_items.company_id', \Session::get('company_id'))
                 ->get();
-            $warehouses = Asset_wh::where('company_id', \Session::get('company_id'))->get();
         }
+
+        $item_name = [];
+        $item_category = [];
+        $item_code = [];
+        $item_type = [];
+        $item_uom = [];
+        $item_comp_id = [];
+
+        foreach ($items as $key => $val){
+            $item_name[$val->id]['name'] = $val->name;
+            $item_category[$val->id]['cat'] = $val->catName;
+            $item_code[$val->id]['code'] = $val->item_code;
+            $item_type[$val->id]['type'] = $val->type_id;
+            $item_uom[$val->id]['uom'] = $val->uom;
+            $item_comp_id[$val->id]['comp_id'] = $val->company_id;
+        }
+
+        $companies = ConfigCompany::all();
+        $company = [];
+        foreach ($companies as $key => $value){
+            $company[$value->id]['comp_name'] = $value->tag;
+        }
+//        dd($itemsId);
+        return view('wh.item_wh',[
+            'item_name' => $item_name,
+            'item_category' => $item_category,
+            'item_code' => $item_code,
+            'item_type' => $item_type,
+            'itemsQty' => $itemsQty,
+            'itemsId' => $itemsId,
+            'item_uom' => $item_uom,
+            'company' => $company,
+            'wh' => $wh,
+            'item_comp_id' => $item_comp_id,
+        ]);
+    }
+
+    function indexClassification($category){
+        if ($category == null){
+            $classification = Asset_item_classification::leftJoin('new_category as cat','cat.id','=','asset_items_classification.id_category')
+                ->select('asset_items_classification.*','cat.name as catName')
+                ->get();
+            $categories = Asset_new_category::all();
+            $cat = '';
+        } else {
+            $classification = Asset_item_classification::leftJoin('new_category as cat','cat.id','=','asset_items_classification.id_category')
+                ->select('asset_items_classification.*','cat.name as catName')
+                ->where('asset_items_classification.id_category', $category)
+                ->get();
+            $categories = Asset_new_category::where('id', $category)->get();
+            $cat = Asset_new_category::where('id', $category)->first();
+        }
+
+//        dd($classification);
+        return view('item_class.index',[
+            'classifications' => $classification,
+            'categories' => $categories,
+            'cat_id' => $category,
+            'category' => $cat
+        ]);
+
+    }
+    function index($category,$classification){
+        
+        $vendor = Procurement_vendor::where('category', 'Supplier')->get();
+        
+        $childs = array();
+        if (Session::get('company_child') != null){
+            foreach (Session::get('company_child') as $item) {
+                $childs[] = $item->id;
+            }
+            array_push($childs, Session::get('company_id'));
+        }
+
+        $_comp = ConfigCompany::select('id_parent')
+            ->whereNotNull('id_parent')
+            ->whereNotNull('inherit')
+            ->where('id', Session::get('company_id'))
+            ->get();
+        foreach ($_comp as $item){
+            $childs[] = $item->id_parent;
+        }
+        
+
+        $items = Asset_item::leftJoin('new_category as cat','cat.id','=','asset_items.category_id')
+            ->select('asset_items.*','cat.name as catName')
+            ->where('asset_items.category_id', $category)
+            ->where('asset_items.class_id', $classification)
+            ->whereIn('company_id', $childs)
+            ->whereNull('asset_items.deleted_at')->get();
+        $itemsup = Asset_item_update::where('approved_by', null)
+            ->whereIn('company_id', $childs)
+            ->get();
+        $warehouses = Asset_wh::whereIn('company_id', $childs)->get();
+
+
         $cat = Asset_new_category::where('id', $category)->first();
         $class = Asset_item_classification::all();
 
-//        dd(Session::get('company_child'));
         return view('items.index', [
             'vendor' => $vendor,
             'items' => $items,
             'itemsup' => count($itemsup),
             'categories' => $cat,
             'warehouses' => $warehouses,
-            'classification' => $class
-
+            'classification' => $class,
+            'class' => $classification,
         ]);
     }
 
@@ -264,7 +362,7 @@ class AssetItemsController extends Controller
 
         }
 
-        return redirect()->route('items.index',['category' => $request['category']]);
+        return redirect()->back();
     }
 
     function delete(Request $request){
@@ -288,6 +386,81 @@ class AssetItemsController extends Controller
         }
 
         $val = array('item' => $item,'qtywh' => $qtywh);
+
+        return json_encode($val);
+    }
+
+    function find_transaction($id){
+        $items = Asset_item::find($id);
+        $do_details = General_do_detail::where('item_id', $items->item_code)->get();
+        $dataDo = General_do::all();
+        $whData = Asset_wh::all();
+        $wh = array();
+        $data = array();
+        foreach ($whData as $item){
+            $wh[$item->id] = $item;
+        }
+        $do = array();
+        foreach ($dataDo as $item){
+            $do[$item->id] = $item;
+        }
+
+        $poData = Asset_po::all();
+        foreach ($poData as $item){
+            $po[$item->id] = $item;
+        }
+
+        $poDetailData = Asset_po_detail::where('item_id', $items->item_code)->get();
+
+        $grData = Asset_good_receive::all();
+        foreach ($grData as $item){
+            $gr[$item->po_num] = $item;
+        }
+
+        foreach ($poDetailData as $item){
+            $iGr = (isset($gr[$po[$item->po_num]->po_num])) ? $gr[$po[$item->po_num]->po_num] : null;
+            if (!empty($iGr)){
+                $row['no'] = "";
+                $row['date'] = $iGr->gr_date;
+                $row['description'] = "Good Received";
+                $row['paper'] = $iGr->po_num;
+                $row['warehouse'] = $wh[$iGr->wh_id]->name;
+                $row['amount'] = $item->qty;
+                $data[] = $row;
+            }
+        }
+
+        foreach ($do_details as $item){
+            $description = ($item->type == "Transfer") ? "Transfer" : "Use";
+            $row['no'] = "";
+            $row['date'] = $do[$item->do_id]->deliver_date;
+            $row['description'] = "DO - ".$description;
+            $row['paper'] = $do[$item->do_id]->no_do;
+            $row['warehouse'] = $wh[$do[$item->do_id]->from_id]->name;
+            $row['amount'] = $item->qty*-1;
+            $data[] = $row;
+            if ($item->type == "Transfer"){
+                $row['no'] = "";
+                $row['date'] = $do[$item->do_id]->deliver_date;
+                $row['description'] = "DO - ".$description;
+                $row['paper'] = $do[$item->do_id]->no_do;
+                $row['warehouse'] = $wh[$do[$item->do_id]->to_id]->name;
+                $row['amount'] = $item->qty;
+                $data[] = $row;
+            }
+        }
+
+        if (count($data) > 0){
+            usort($data, function ($a, $b){
+                if ($a["date"] == $b["date"])
+                    return (0);
+                return (($a["date"] > $b["date"]) ? -1 : 1);
+            });
+        }
+
+        $val = array(
+            "data" => $data
+        );
 
         return json_encode($val);
     }

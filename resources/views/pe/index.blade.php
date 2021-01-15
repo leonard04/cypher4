@@ -60,6 +60,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                                @actionStart('pe', 'read')
                             @foreach($pev as $key => $value)
                                 @if(empty($value->pev_approved_by) && empty($value->rejected_time))
                                     <tr>
@@ -101,11 +102,14 @@
                                             @endif
                                         </td>
                                         <td align="center">
+                                            @actionStart('pe', 'delete')
                                             <button class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -130,6 +134,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                                @actionStart('pe', 'read')
                             @foreach($pev as $key => $value)
                                 @if(!empty($value->pev_approved_by))
                                     <tr>
@@ -171,11 +176,14 @@
                                             @endif
                                         </td>
                                         <td align="center">
+                                            @actionStart('pe', 'delete')
                                             <button class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -200,6 +208,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                                @actionStart('pe', 'read')
                             @foreach($pev as $key => $value)
                                 @if(!empty($value->pev_rejected_time))
                                     <tr>
@@ -237,11 +246,14 @@
                                             <label for="" class="text-danger">rejected</label>
                                         </td>
                                         <td align="center">
+                                            @actionStart('pe', 'delete')
                                             <button class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>

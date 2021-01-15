@@ -47,17 +47,19 @@
                                 @php
                                     $spanday =[];
                                 @endphp
-                                @if(count($spandays)>0)
-                                    @php
-                                        $spanday = (strtotime(date('Y-m-d')) - strtotime($spandays[$val->id][0]))/86400;
-                                    @endphp
+                                @if(!empty($spandays))
+                                    @if(count($spandays)>0)
+                                        @php
+                                            $spanday = (strtotime(date('Y-m-d')) - strtotime($spandays[$val->id][0]))/86400;
+                                        @endphp
+                                    @endif
                                 @endif
                                 <tr>
                                     <td class="text-center">{{($key+1)}}</td>
                                     <td>
                                         <b class="font-size-h6-sm">{{$val->emp_name}}</b>
                                         <i class="text-black-50"><small class="font-size-h6-sm">
-                                                {{'('}}return {{$spanday}} day(s) ago on {{date('d-M-Y',strtotime($spandays[$val->id][0]))}}
+                                                {{'('}}return {{(isset($spanday[$key]))?$spanday[$key]:''}} day(s) ago on {{(isset($spandays[$val->id][0]))?date('d-M-Y',strtotime($spandays[$val->id][0])):''}}
                                                     @foreach($to_plan as $toplan)
                                                         @if($toplan->emp_id == $val->id) Planned for
                                                             @foreach($projects as $key2 => $val2)
@@ -91,6 +93,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('crewloc', 'read')
                             @foreach($localkruoff as $key => $val)
                                 <tr>
                                     <td class="text-center">{{($key+1)}}</td>
@@ -98,6 +101,7 @@
                                     <td class="text-center"> </td>
                                 </tr>
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
 
@@ -121,6 +125,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('crewloc', 'read')
                             @foreach($kruoff as $key => $val)
                                 <form method="post" action="{{route('crewloc.storeplan')}}">
                                     @csrf
@@ -140,7 +145,7 @@
                                                 <input type="hidden" name="emp_id" value="{{$val->id}}">
                                             </td>
                                             <td class="text-center">{{$val->emp_position}}</td>
-                                            <td class="text-center">{{$spanday}} day(s)</td>
+                                            <td class="text-center">{{(isset($spanday[$key]))?$spanday[$key]:''}} day(s)</td>
                                             <td>
                                                 <div class="form-group">
                                                     <input type="date" class="form-control" name="date_assign" @foreach($to_plan as $toplan) @if($toplan->emp_id == $val->id) value="{{date('Y-m-d',strtotime($toplan->assign_date))}}" @else value="{{date('Y-m-d')}}" @endif @endforeach/>
@@ -169,6 +174,7 @@
 
                                 </form>
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>

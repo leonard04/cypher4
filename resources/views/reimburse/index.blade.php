@@ -5,12 +5,14 @@
             <div class="card-title">
                 <h3>Reimburse</h3>
             </div>
+            @actionStart('reimburse', 'create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addItem"><i class="fa fa-plus"></i>Add Reimburse</button>
                 </div>
 
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -52,6 +54,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('reimburse', 'read')
                             @foreach($reimburselists as $key => $value)
                                 @if($value->user == 'open')
                                     <tr>
@@ -108,7 +111,9 @@
                                             </div>
                                             <div class="text-block" style='margin-top:5px'>
                                                 <button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#editItem{{$value->id}}" title="Edit"><i class="fa fa-edit"></i></button>
-                                                <a href="{{route('reimburse.delete',['id' => $value->id])}}" class="btn btn-danger btn-xs"  title="Delete" onclick="return confirm('Are you sure you want to delete?'); "><i class="fa fa-trash"></i></a>
+                                                @actionStart('reimburse', 'delete')
+                                                    <a href="{{route('reimburse.delete',['id' => $value->id])}}" class="btn btn-danger btn-xs"  title="Delete" onclick="return confirm('Are you sure you want to delete?'); "><i class="fa fa-trash"></i></a>
+                                                @actionEnd
                                             </div>
                                             <div class="modal fade" id="editItem{{$value->id}}" tabindex="-1" role="dialog" aria-labelledby="addEmployee" aria-hidden="true">
                                                 <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
@@ -360,6 +365,8 @@
                                 @endif
                             @endforeach
                             </tbody>
+                            @actionEnd
+
                         </table>
                     </div>
                 </div>
@@ -383,6 +390,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('reimburse', 'read')
                             @foreach($reimbursebanks as $key => $value)
                                 @if($value->user == 'open')
                                     <tr>
@@ -591,7 +599,9 @@
                                                 </div>
                                                 <div class="text-block" style='margin-top:5px'>
                                                     <button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#editItem{{$value->id}}" title="Edit"><i class="fa fa-edit"></i></button>
+                                                    @actionStart('reimburse', 'delete')
                                                     <a href="{{route('reimburse.delete',['id' => $value->id])}}" class="btn btn-danger btn-xs"  title="Delete" onclick="return confirm('Are you sure you want to delete?'); "><i class="fa fa-trash"></i></a>
+                                                    @actionEnd
                                                 </div>
                                                 <div class="modal fade" id="editItem{{$value->id}}" tabindex="-1" role="dialog" aria-labelledby="addEmployee" aria-hidden="true">
                                                     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
@@ -691,6 +701,7 @@
                                 @endif
                             @endforeach
                             </tbody>
+                            @actionEnd
                         </table>
                     </div>
                 </div>

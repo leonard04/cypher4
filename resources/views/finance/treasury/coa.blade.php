@@ -70,8 +70,8 @@
                             <th class="text-center">#</th>
                             <th class="text-center">Date</th>
                             <th class="text-center">Activity</th>
-                            <th class="text-center">Credit</th>
                             <th class="text-center">Debit</th>
+                            <th class="text-center">Credit</th>
                             <th class="text-center">Balance</th>
                             <th class="text-center">File</th>
                             <th class="text-center">CoA</th>

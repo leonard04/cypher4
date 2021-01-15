@@ -55,7 +55,10 @@ class FinanceGeneralJournal extends Controller
 
     function add(Request $request){
 //        dd($request);
-        $hash = md5(Auth::user()->username."-".date('Y-m-d H:i:s'));
+        $last = Finance_coa_history::where('company_id', Session::get('company_id'))
+            ->orderBy('md5', "desc")
+            ->first();
+        $hash = $last->md5 + 1;
         $debit = $request->coa_code_debit;
         $de_amount = $request->amount_debit;
         $credit = $request->coa_code_credit;
@@ -79,7 +82,7 @@ class FinanceGeneralJournal extends Controller
                     $iCoa->no_coa = $coa_code;
                     $iCoa->coa_date = $request->gj_date;
                     $iCoa->debit = $de_amount[$key];
-                    if ($upload){
+                    if (isset($upload)){
                         $iCoa->file_hash = $hashFile;
                     }
                     $iCoa->description = $request->description;
@@ -99,7 +102,7 @@ class FinanceGeneralJournal extends Controller
                     $iCoa->md5 = $hash;
                     $iCoa->no_coa = $coa_code;
                     $iCoa->coa_date = $request->gj_date;
-                    if ($upload){
+                    if (isset($upload)){
                         $iCoa->file_hash = $hashFile;
                     }
                     $iCoa->credit = $cre_amount[$key];

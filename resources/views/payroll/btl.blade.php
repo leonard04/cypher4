@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
     <title>Document</title>
 </head>
-<body onload="window.print()">
+<body onload="">
     <pre>
         <table>
             <tr>
@@ -28,11 +28,12 @@
             </tr>
             <?php $sum_all = 0; ?>
             @foreach($data['data'] as $key => $value)
-                <?php $sum_all+= intval(str_replace(',', '', $value['thp']))?>
+                <?php /** @var TYPE_NAME $value */
+                $sum_all+= intval(str_replace(',', '', (isset($remarks[$value['emp_id']]) ? $remarks[$value['emp_id']]->thp : $value['thp'])))?>
                 <tr>
                     <td>{{$key + 1}}</td>
-                    <td>{{$value['bank_account']." ".$data['bank_code'][$value['bank_code']]}}</td>
-                    <td align="right">{{$value['thp']}}</td>
+                    <td>{{$value['bank_account']}}{{(isset($data['bank_code'][$value['bank_code']])) ? $data['bank_code'][$value['bank_code']] : ""}}</td>
+                    <td align="right">{{(isset($remarks[$value['emp_id']])) ? number_format($remarks[$value['emp_id']]->thp, 2) : $value['thp']}}</td>
                     <td>{{$value['emp_name']}}</td>
                 </tr>
             @endforeach
@@ -66,11 +67,11 @@
                 <?php $sum_all = 0; ?>
                     @foreach($data['data'] as $key => $value)
                         @if($value['bank_code'] == $bank_key)
-                            <?php $sum_all+= intval(str_replace(',', '', $value['thp']))?>
+                            <?php $sum_all+= intval(str_replace(',', '', (isset($remarks[$value['emp_id']]) ? $remarks[$value['emp_id']]->thp : $value['thp'])))?>
                             <tr>
                                 <td>{{$key + 1}}</td>
-                                <td>{{$value['bank_account']." ".$data['bank_code'][$value['bank_code']]}}</td>
-                                <td align="right">{{$value['thp']}}</td>
+                                <td>{{$value['bank_account']." ".(isset($data['bank_code'][$value['bank_code']])) ? $data['bank_code'][$value['bank_code']] : ''}}</td>
+                                <td align="right">{{(isset($remarks[$value['emp_id']])) ? number_format($remarks[$value['emp_id']]->thp, 2) : $value['thp']}}</td>
                                 <td>{{$value['emp_name']}}</td>
                             </tr>
                         @endif

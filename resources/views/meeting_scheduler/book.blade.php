@@ -30,6 +30,7 @@
                             </tr>
                         </thead>
                         <tbody>
+                        @actionStart('meeting_scheduler', 'read')
                         @foreach($hours as $key => $hour)
                             @php
                                 /** @var TYPE_NAME $hour */
@@ -86,9 +87,11 @@
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
+                                                        @actionStart('meeting_scheduler', 'create')
                                                         <button type="submit" name="submit" class="btn btn-primary font-weight-bold">
                                                             <i class="fa fa-check"></i>
                                                             Save</button>
+                                                        @actionEnd
                                                     </div>
                                                 </form>
                                             </div>
@@ -98,6 +101,7 @@
 
                             </tr>
                         @endforeach
+                        @actionEnd
                         </tbody>
                     </table>
                 </div>
@@ -135,6 +139,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
+                                        @actionStart('meeting_scheduler', 'read')
                                         @php
                                             $stat_plan = false;
                                             $noA = 0;
@@ -162,6 +167,7 @@
                                             @endif
 
                                         @endforeach
+                                        @actionEnd
                                         </tbody>
                                     </table>
                                 </div>
@@ -180,6 +186,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
+                                        @actionStart('meeting_scheduler', 'read')
                                         @foreach($topics as $key2 => $value2)
                                             <tr>
                                                 <td class="text-center">{{($key2+1)}}</td>
@@ -194,6 +201,7 @@
                                                 </td>
                                             </tr>
                                         @endforeach
+                                        @actionEnd
                                         </tbody>
                                     </table>
                                 </div>

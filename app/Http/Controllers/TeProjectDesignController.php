@@ -47,7 +47,6 @@ class TeProjectDesignController extends Controller
     public function updateCategory(Request $request){
         $elCat = Te_pd_category::find($request->id_cat);
         $elCat->category_name = $request->cat_name;
-        $elCat->tag = $request->tag;
         $elCat->updated_by = Auth::user()->username;
 
         if ($elCat->save()){

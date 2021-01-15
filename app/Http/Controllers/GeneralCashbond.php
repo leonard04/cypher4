@@ -93,6 +93,7 @@ class GeneralCashbond extends Controller
 
     public function addCashbond(Request $request){
         ActivityConfig::store_point('cashbond', 'create');
+//        dd($point);
         $cashbond = new General_cashbond();
         $cashbond->subject = $request['subject'];
         $cashbond->input_date = date('Y-m-d');
@@ -248,6 +249,8 @@ class GeneralCashbond extends Controller
             ->where('company_id',\Session::get('company_id'))
             ->first();
         $sources = Finance_treasury::where('source','not like','%BR %')
+            ->where('company_id',\Session::get('company_id'))
+            ->where('type', 'bank')
             ->get();
         $cashbond_detail = General_cashbond_detail::where('id_cashbond', $id)
             ->where('cashin','>',0)
@@ -288,7 +291,7 @@ class GeneralCashbond extends Controller
             $treasuryHistory->save();
 
             if (isset($request['approved'])){
-                ActivityConfig::store_point('cashbond', 'approve');
+                ActivityConfig::store_point('so', 'approve');
                 General_cashbond::where('id',$br_id)
                     ->update([
                         'approved_by' => $name,
@@ -298,6 +301,7 @@ class GeneralCashbond extends Controller
             }
         }
         if ($request['who'] == 'director'){
+            ActivityConfig::store_point('cashbond', 'approve_dir');
             $treasuryHistory = new Finance_treasury_history();
             $treasuryHistory->id_treasure = $bank_id;
             $treasuryHistory->date_input = $datenow;
@@ -309,7 +313,6 @@ class GeneralCashbond extends Controller
             $treasuryHistory->company_id = \Session::get('company_id');
             $treasuryHistory->save();
 
-            ActivityConfig::store_point('cashbond', 'approve_dir');
             General_cashbond::where('id',$br_id)
                 ->update([
                     'dir_appr' => $name,
@@ -318,7 +321,6 @@ class GeneralCashbond extends Controller
         }
         if ($request['who'] == 'manager'){
             ActivityConfig::store_point('cashbond', 'approve_div');
-
             General_cashbond::where('id',$br_id)
                 ->update([
                     'm_approve' => $name,

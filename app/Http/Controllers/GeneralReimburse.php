@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityConfig;
 use App\Models\Asset_new_category;
 use App\Models\Asset_type_wo;
 use App\Models\Finance_treasury;
@@ -65,6 +66,7 @@ class GeneralReimburse extends Controller
     }
 
     public function addReimburse(Request $request){
+        ActivityConfig::store_point('reimburse', 'create');
         if (isset($request['edit'])){
             General_reimburse::where('id',$request['id'])
                 ->update([
@@ -207,6 +209,7 @@ class GeneralReimburse extends Controller
 
         if ($request['who'] == 'manager'){
             if (isset($request['approved'])){
+                ActivityConfig::store_point('reimburse', 'approve_dir');
                 General_reimburse::where('id',$br_id)
                     ->update([
                         'm_approve' => $name,
@@ -229,6 +232,7 @@ class GeneralReimburse extends Controller
             $treasuryHistory->company_id = \Session::get('company_id');
             $treasuryHistory->save();
             if (isset($request['approved'])){
+                ActivityConfig::store_point('reimburse', 'approve_finance');
                 General_reimburse::where('id',$br_id)
                     ->update([
                         'approved_by' => $name,

@@ -6,18 +6,19 @@
             <div class="card-title">
                 <h3>Item Database</h3><br>
             </div>
+            @actionStart('item_database', 'create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <a href="{{URL::route('items.revision')}}" class="btn btn-warning mr-2"><span class="label label-light-danger mr-2">{{$itemsup}}</span> Item Revision</a>
                     <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#addItem"><i class="fa fa-plus"></i>New Items</button>
-                    <a href="{{URL::route('item_class.index',['category'=>$categories->id])}}" class="btn btn-info mr-2"><i class="fa fa-object-group"></i> Item Classification</a>
-                    <a href="{{route('category.index')}}" class="btn btn-xs btn-success ml-3"><i class="fa fa-arrow-left"></i></a>
+{{--                    <a href="{{URL::route('item_class.index',['category'=>$categories->id])}}" class="btn btn-info mr-2"><i class="fa fa-object-group"></i> Item Classification</a>--}}
+                    <a href="{{route('items.class.index',['category' =>$categories->id])}}" class="btn btn-xs btn-success ml-3"><i class="fa fa-arrow-left"></i></a>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
-{{--            <h5><span class="span">This page contains a list of Travel Order which has been formed.</span></h5>--}}
             <table class="table display">
                 <thead>
                     <tr>
@@ -33,10 +34,11 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @actionStart('item_database', 'read')
                     @foreach($items as $key => $item)
                         <tr>
                             <td align="center">{{$key + 1}}</td>
-                            <td><button class="btn btn-link" data-toggle="modal" data-target="#editItem" onclick="edit_item({{$item->id}})">{{$item->name}}</button></td>
+                            <td><button class="btn btn-link"  data-toggle="modal" data-target="#editItem" onclick="edit_item({{$item->id}})">{{$item->name}}</button></td>
                             <td>{{$item->catName}}</td>
                             <td>{{($item->type_id == 1) ? "Consumable" : "Non Consumable"}}</td>
                             <td align="center">{{$item->item_code}}</td>
@@ -50,6 +52,7 @@
                             </td>
                         </tr>
                     @endforeach
+                    @actionEnd
                 </tbody>
             </table>
         </div>
@@ -80,6 +83,7 @@
                                 <input type="text" readonly name="" id="" class="form-control" value="{{$categories->name}}">
                                 <input type="hidden" name="category" id="category" value="{{$categories->id}}">
                                 <input type="hidden" name="category_code" id="category_code" value="{{$categories->code}}">
+                                <input type="hidden" name="inventory" value="1">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -239,6 +243,7 @@
 {{--                                        <input type="number" class="form-control" placeholder="Price" id="price" name="price" required>--}}
 {{--                                    </div>--}}
 {{--                                </div>--}}
+                                <input type="hidden" name="class_hidden" id="class_hidden" value="{{$class}}">
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label text-right">Serial Number</label>
                                     <div class="col-md-6">
@@ -357,12 +362,13 @@
             </div>
         </div>
     </div>
+    <input type="hidden" name="" id="jsonwh" value="{{json_encode($warehouses)}}">
 @endsection
 
 @section('custom_script')
     <script>
 
-        var dataCategory, dataClass,dataCategoryCode,dataClassCode,paramItemCode;
+        var dataCategory, dataClass,dataCategoryCode,dataClassCode,paramItemCode,dataClas2;
         function delete_item(id) {
             Swal.fire({
                 title: "Delete",
@@ -411,7 +417,7 @@
                 success : function(response){
                     // console.log(response)
                     var json_wh = "{{json_encode($warehouses)}}".replaceAll("&quot;", "\"")
-                    var wh = JSON.parse(json_wh)
+                    var wh = $("#jsonwh").val()
                     for (let i = 0; i < wh.length; i++) {
                         console.log(response.qtywh[wh[i].id])
                         var stock = 0
@@ -481,11 +487,13 @@
             //     width: "100%"
             // })
             dataCategory = $('#category').val();
+            dataClas2 = $('#class_hidden').val();
             dataCategoryCode = $('#category_code').val();
             // console.log(dataCategory)
             function getURLClass(){
-                var url = "{{route('item_class.getclass',['id' => ':id1'])}}";
+                var url = "{{route('item_class.getclass',['id' => ':id1','class_id' => ':id2'])}}";
                 url = url.replace(':id1', dataCategory);
+                url = url.replace(':id2', dataClas2)
                 return url;
             }
 

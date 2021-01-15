@@ -48,7 +48,7 @@
                     <div class="form-group row">
                         <button type="button" id="btnExport" class="btn btn-primary btn-xs"><i class="fa fa-file-export"></i> Export</button>
                         <a id="btnPrint" class="btn btn-info ml-5 btn-xs"><i class="fa fa-print"></i> Print Bank Transfer</a>
-                        <button type="button" id="btnUpdateArch" class="btn ml-5 btn-danger btn-xs"><i class="fa fa-file-export"></i> Update Archive</button>
+                        <button type="button" id="btnUpdateArch" class="btn ml-5 btn-danger btn-xs"><i class="fa flaticon-refresh"></i> Refresh</button>
                     </div>
                 </form>
             </div>
@@ -94,7 +94,7 @@
                             <th class="text-center">Rate</th>
                             <th class="text-center">Days</th>
                             <th class="text-center">Total</th>
-                            <th class="text-center">Sunction</th>
+                            <th class="text-center">Sanction</th>
                             <th class="text-center">Absence</th>
                             <th class="text-center">Loan</th>
                         </tr>
@@ -236,11 +236,12 @@
                                     var datafoot = response.footer;
                                     $("#table-payroll").fadeIn()
                                     $("#btnPrint").show()
-                                    $("#btnPrint").attr('href', "{{route('payroll.print_btl')}}?t="+t+"&m="+m+"&y="+y+"")
+                                    $("#btnPrint").attr('href', "{{route('payroll.print_btl')}}?act=remarks&t="+t+"&m="+m+"&y="+y+"")
                                     $('#table-display').DataTable().clear();
                                     $('#table-display').DataTable().destroy();
                                     $("#table-display").DataTable({
                                         "data" : response.data,
+                                        paging: false,
                                         dom: 'Bfrtip',
                                         fixedHeader: true,
                                         fixedHeader: {

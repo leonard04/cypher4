@@ -5,12 +5,14 @@
             <div class="card-title">
                 <h3>Minutes Of Meeting (MOM)</h3>
             </div>
+            @actionStart('mom', 'create')
             <div class="card-toolbar">
                 <!--end::Button-->
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addItem"><i class="fa fa-plus"></i>Add MOM</button>
                 </div>
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             <!--begin: Datatable-->

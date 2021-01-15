@@ -194,9 +194,7 @@
                         <th class="text-left">Description</th>
                         <th class="text-right">IDR Amount</th>
                         <th class="text-right">USD Amount</th>
-                        <th class="text-center">Operational Dir. Approval</th>
                         <th class="text-center">President Dir. Approval</th>
-                        <th class="text-center">Finance Dir. Approval</th>
                         <th class="text-center"></th>
                     </tr>
                     </thead>
@@ -214,21 +212,7 @@
                                 <td class="text-right">@if($val->currency == 'IDR'){{number_format($val->cashout,2)}} @else 0.00 @endif</td>
                                 <td class="text-right">@if($val->currency == 'USD'){{number_format($val->cashout,2)}} @else 0.00 @endif</td>
                                 <td class="text-center">
-                                    @if($val->ceo_approve == null)
-                                        <a href='{{route('subcost.approve',['id' => $val->id_subcost,'id_detail' => $val->id,'type' => base64_encode('ceo')])}}'><i class='fa fa-clock'></i>&nbsp;&nbsp; Waiting... </a>
-                                    @else
-                                        <label class='text-success'><i class='fa fa-check'></i></label>&nbsp;&nbsp {{date('Y-m-d', strtotime($val->ceo_approve_time))}}
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @if($val->ops_approve == null)
-                                        <a href='{{route('subcost.approve',['id' => $val->id_subcost,'id_detail' => $val->id,'type' => base64_encode('ops')])}}'><i class='fa fa-clock'></i>&nbsp;&nbsp; Waiting... </a>
-                                    @else
-                                        <label class='text-success'><i class='fa fa-check'></i></label>&nbsp;&nbsp {{date('Y-m-d', strtotime($val->ops_approve_time))}}
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @if($val->ceo_approve != null && $val->fin_approve == null)
+                                    @if($val->fin_approve == null)
                                         <button type="button" class="btn btn-link-primary btn-xs" data-toggle="modal" data-target="#apprCashOut{{$val->id}}"><i class="fa fa-clock"></i>&nbsp;&nbsp; Waiting... </button>
                                         <div class="modal fade" id="apprCashOut{{$val->id}}" tabindex="-1" role="dialog" aria-labelledby="addEmployee" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
@@ -332,7 +316,7 @@
                                             </div>
                                         </div>
                                     @elseif($val->fin_approve != null)
-                                        <label class='text-success'><i class='fa fa-check'></i></label>&nbsp;&nbsp {{date('Y-m-d', strtotime($val->ops_approve_time))}}
+                                        <label class='text-success'><i class='fa fa-check'></i></label>&nbsp;&nbsp {{date('Y-m-d', strtotime($val->fin_approve_time))}}
                                     @else
                                         Waiting
                                     @endif
@@ -458,7 +442,7 @@
                         <td colspan="2" class="text-right"><b>TOTAL</b></td>
                         <td class="text-right"><b>IDR. {{number_format($cashouts,2)}}</b></td>
                         <td class="text-right"><b>USD. {{number_format($cashoutsD,2)}}</b></td>
-                        <td></td>
+                        <td colspan="4"></td>
                     </tr>
                 </table>
 

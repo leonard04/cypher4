@@ -259,10 +259,13 @@ class FinanceAccountReceivable extends Controller
         $taxes = Pref_tax_config::where('company_id', Session::get('company_id'))->get();
         $tax_name = [];
         $tax_formula = [];
+        $isWapu = [];
         foreach ($taxes as $item){
             $tax_name[$item->id] = $item->tax_name;
             $tax_formula[$item->id] = $item->formula;
+            $isWapu[$item->id] = $item->is_wapu;
         }
+
         return view('finance.account_receivable.input', [
             'inv_detail' => $inv_detail,
             'client_address' => $client_address[$id_client],
@@ -270,7 +273,8 @@ class FinanceAccountReceivable extends Controller
             'title_name' => $title_name,
             'taxes' => $taxes,
             'tax_name' => $tax_name,
-            'tax_formula' => $tax_formula
+            'tax_formula' => $tax_formula,
+            'isWapu' => $isWapu
         ]);
     }
 
@@ -311,9 +315,11 @@ class FinanceAccountReceivable extends Controller
         $taxes = Pref_tax_config::where('company_id', Session::get('company_id'))->get();
         $tax_name = [];
         $tax_formula = [];
+        $isWapu = [];
         foreach ($taxes as $item){
             $tax_name[$item->id] = $item->tax_name;
             $tax_formula[$item->id] = $item->formula;
+            $isWapu[$item->id] = $item->is_wapu;
         }
 //        return view('finance.account_receivable.detail', [
 //            'inv_detail' => $inv_detail,
@@ -344,6 +350,7 @@ class FinanceAccountReceivable extends Controller
                 'act' => $act,
                 'data_client' => $data_client,
                 'payment_account' => $payment_account,
+                'isWapu' => $isWapu
             ]);
         } else {
             return view('finance.account_receivable.detail', [
@@ -355,7 +362,8 @@ class FinanceAccountReceivable extends Controller
                 'tax_name' => $tax_name,
                 'tax_formula' => $tax_formula,
                 'inv_prints' => $print,
-                'act' => $act
+                'act' => $act,
+                'isWapu' => $isWapu
             ]);
         }
     }

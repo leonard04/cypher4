@@ -7,12 +7,14 @@
                 <h3>Leasing</h3><br>
 
             </div>
+            @actionStart('leasing','create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addItem"><i class="fa fa-plus"></i>Add Leasing</button>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             {{--            <h5><span class="span">This page contains a list of Travel Order which has been formed.</span></h5>--}}
@@ -29,6 +31,7 @@
                 </tr>
                 </thead>
                 <tbody>
+                @actionStart('leasing','read')
                     @foreach($loans as $key => $loan)
                         <tr>
                             <td align="center">{{$key + 1}}</td>
@@ -53,10 +56,13 @@
                             </td>
                             <td align="center">
 {{--                                <button class="btn btn-icon btn-primary btn-xs"><i class="fa fa-pencil-alt"></i></button>--}}
+                                @actionStart('leasing','delete')
                                 <button class="btn btn-icon btn-danger btn-xs" onclick="button_delete({{$loan->id}})"><i class="fa fa-trash"></i></button>
+                                @actionEnd
                             </td>
                         </tr>
                     @endforeach
+                @actionEnd
                 </tbody>
             </table>
         </div>

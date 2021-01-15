@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ConfigCompany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Session;
@@ -15,6 +16,34 @@ use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
+    public function getCompany(){
+        $users = ConfigCompany::all();
+        $data = [];
+        foreach ($users as $value){
+            $data[] = array(
+                "id" => $value->id,
+                "text" => $value->company_name
+            );
+        }
+        return response()->json($data);
+    }
+
+    public function getUsers($id_company){
+        $arr = array(
+            'company_id' => $id_company,
+        );
+
+        $users = User::where($arr)->get();
+        $data = [];
+        foreach ($users as $value){
+            $data[] = array(
+                "id" => $value->id,
+                "text" => $value->name
+            );
+        }
+        return response()->json($data);
+    }
+
     public function getDetailUser($id){
         $user = User::where('id',$id)->first();
         return view('users.detail',[
@@ -59,34 +88,51 @@ class UsersController extends Controller
     }
 
     function add(Request $request){
-        $name = $request->name;
-        $email = $request->email;
-        $username = $request->username;
-        $password = Hash::make($request->password);
-        // $position = $request->position;
-        $id = base64_decode($request->coid);
+        if (isset($request->export)){
+//            dd(base64_decode($request->coid));
+//            dd($request);
+            $user = User::where('id', $request->user_company)->first();
+//            dd($user);
+            $userNew = new User();
+            $userNew->name = $user->name;
+            $userNew->password = $user->password;
+            $userNew->username = $user->username;
+            $userNew->email = $user->email;
+            $userNew->company_id = base64_decode($request->coid);
+//            $userNew->ein = $user->ein;
+            $userNew->id_rms_roles_divisions = $user->id_rms_roles_divisions;
+            $userNew->save();
 
-        $user = new User;
-        $user->name = $name;
-        $user->email = $email;
-        $user->username = $username;
-        $user->password = $password;
-        // $user->position = $position;
-        $user->id_rms_roles_divisions = $request->userRoleAdd;
-        $user->company_id = $id;
-        $user->save();
+        } else {
+            $name = $request->name;
+            $email = $request->email;
+            $username = $request->username;
+            $password = Hash::make($request->password);
+            // $position = $request->position;
+            $id = base64_decode($request->coid);
 
-        //Add user privilege based on position
-        $roleDivPriv = RolePrivilege::select('id_rms_modules', 'id_rms_actions')
-        ->where('id_rms_roles_divisions', $request->userRoleAdd)
-        ->get();
-        foreach ($roleDivPriv as $key => $valDivPriv) 
-        {
-            $addUserRole = new UserPrivilege;
-            $addUserRole->id_users = $user->id;
-            $addUserRole->id_rms_modules = $valDivPriv->id_rms_modules;
-            $addUserRole->id_rms_actions = $valDivPriv->id_rms_actions;
-            $addUserRole->save();
+            $user = new User;
+            $user->name = $name;
+            $user->email = $email;
+            $user->username = $username;
+            $user->password = $password;
+            // $user->position = $position;
+            $user->id_rms_roles_divisions = $request->userRoleAdd;
+            $user->company_id = $id;
+            $user->save();
+
+            //Add user privilege based on position
+            $roleDivPriv = RolePrivilege::select('id_rms_modules', 'id_rms_actions')
+                ->where('id_rms_roles_divisions', $request->userRoleAdd)
+                ->get();
+            foreach ($roleDivPriv as $key => $valDivPriv)
+            {
+                $addUserRole = new UserPrivilege;
+                $addUserRole->id_users = $user->id;
+                $addUserRole->id_rms_modules = $valDivPriv->id_rms_modules;
+                $addUserRole->id_rms_actions = $valDivPriv->id_rms_actions;
+                $addUserRole->save();
+            }
         }
 
         return redirect()->route('company.detail', ['id' => $request->coid]);
@@ -106,7 +152,7 @@ class UsersController extends Controller
 
         // Change user position
         if($request->userRoleEdit != $request->userRoleEditOld)
-        {           
+        {
             $userRole = User::find($request->id_u);
             $userRole->id_rms_roles_divisions = $request->userRoleEdit;
             $userRole->save();
@@ -119,7 +165,7 @@ class UsersController extends Controller
             ->where('id_rms_roles_divisions', $request->userRoleEdit)
             ->get();
 
-            foreach ($roleDivPriv as $key => $valDivPriv) 
+            foreach ($roleDivPriv as $key => $valDivPriv)
             {
                 $editUserRole = new UserPrivilege;
                 $editUserRole->id_users = $request->id_u;

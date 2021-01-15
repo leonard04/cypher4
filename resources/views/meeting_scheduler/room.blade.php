@@ -7,12 +7,14 @@
                     Room List
                 </h3>
             </div>
+            @actionStart('meeting_scheduler', 'create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addItem"><i class="fa fa-plus"></i>New Room</button>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="modal fade" id="addItem" tabindex="-1" role="dialog" aria-labelledby="addEmployee" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
@@ -54,12 +56,14 @@
                 </tr>
                 </thead>
                 <tbody>
+                @actionStart('meeting_scheduler', 'read')
                 @foreach($rooms as $key => $room)
                     <tr>
                         <td class="text-center">{{($key+1)}}</td>
                         <td><a href="{{route('ms.book',['tanggal'=>base64_encode($date),'id_room' => $room->id])}}" class="btn btn-link"><i class="fa fa-calendar-plus"></i>{{$room->nama_ruangan}}</a></td>
                     </tr>
                 @endforeach
+                @actionEnd
                 </tbody>
             </table>
         </div>

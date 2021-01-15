@@ -87,11 +87,9 @@
                         <div class="col-md-8">
                             <select class="form-control" name="working_environment_condition" id="working_environment_condition">
                                 <option value="" selected="selected">Normal</option>
-                                <option value="EPF">EPF</option>
-                                <option value="SWT">Well Test</option>
-                                <option value="DGR">Toxic Hazard</option>
-                                <option value="HNA">Hostile Natives</option>
-                                <option value="OFF">Offshore</option>
+                                @foreach($we as $value)
+                                    <option value="{{$value->tag}}">{{$value->name}}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>

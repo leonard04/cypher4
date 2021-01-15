@@ -13,6 +13,7 @@ use App\Models\Hrd_employee_loan;
 use App\Models\Hrd_employee_loan_payment;
 use App\Models\Hrd_overtime;
 use App\Models\Hrd_salary_archive;
+use App\Models\Hrd_salary_remarks;
 use App\Models\Hrd_sanction;
 use App\Models\Preference_config;
 use Illuminate\Http\Request;
@@ -67,15 +68,15 @@ class HrdPayrollController extends Controller
 
         $data['type'] = array(
             'all' => 'All',
-            'staff'=> 'Staff',
-            'manager'=> 'Manager',
-            'marketing'=> 'Marketing',
-            'bod'=> 'BOD',
-            'field'=> 'Field Engineer',
-            'whbin'=> 'WH Bintaro',
-            'whcil'=> 'WH Cileungsi',
-            'konsultan'=> 'Konsultan',
-            'local'=> 'Local'
+            '1'=> 'Staff',
+            '5'=> 'Manager',
+            '9'=> 'Marketing',
+            '6'=> 'BOD',
+            '2'=> 'Field Engineer',
+            '3'=> 'WH Bintaro',
+            '4'=> 'WH Cileungsi',
+            '7'=> 'Konsultan',
+            '8'=> 'Local'
         );
 
         $startyear = date('Y', strtotime('-10 years'));
@@ -96,20 +97,20 @@ class HrdPayrollController extends Controller
     }
 
     function show(Request $request){
-        $id_companies = array();
-        if (Session::get('company_child') != null){
-            foreach (Session::get('company_child') as $item) {
-                $id_companies[] = $item->id;
-            }
-            array_push($id_companies, Session::get('company_id'));
-        } else {
-            array_push($id_companies, Session::get('company_id'));
-        }
+        $id_companies = Session::get('company_id');
+        // if (Session::get('company_child') != null){
+        //     foreach (Session::get('company_child') as $item) {
+        //         $id_companies[] = $item->id;
+        //     }
+        //     array_push($id_companies, Session::get('company_id'));
+        // } else {
+        //     array_push($id_companies, Session::get('company_id'));
+        // }
         $t = $request->type;
         $m = $request->month;
         $y = $request->years;
 
-        $pref = Preference_config::whereIn('id_company', $id_companies)->get();
+        $pref = Preference_config::where('id_company', $id_companies)->get();
 //        dd($pref->period_start);
         $prefCount = $pref->count();
         $now = date('Y-n-d');
@@ -135,19 +136,21 @@ class HrdPayrollController extends Controller
 //            dd($period_end);
         if($t == "all"){
             $emp = Hrd_employee::where('expel', null)
-                ->whereIn('company_id', $id_companies)
+                ->where('company_id', $id_companies)
                 ->get();
         } else {
-            $emp = Hrd_employee::where('emp_position', $t)
+            $emp = Hrd_employee::where('emp_type', $t)
                 ->where('expel', null)
-                ->whereIn('company_id', $id_companies)
+                ->where('company_id', $id_companies)
                 ->get();
         }
+
         $emp_name = [];
         $emp_pos = [];
         $emp_bank = [];
         $emp_type = [];
         $type_emp = [];
+        $emp_comp = [];
 
         foreach ($emp as $key => $value) {
             $emp_name[$value->id] = $value->emp_name;
@@ -155,15 +158,18 @@ class HrdPayrollController extends Controller
             $emp_bank[$value->id] = $value->bank_acct;
             $emp_type[] = $value->id;
             $type_emp[$value->emp_position][] = $value->id;
+            $emp_comp[$value->id] = $value->company_id;
         }
 
 
 //        $emp_arc = Hrd_salary_archive::where('company_id',\Session::get('company_id'))->get();
 
-        $emp_his = Hrd_employee_history::where('activity', 'in')->get();
+        $emp_his = Hrd_employee_history::where('activity', 'in')
+            ->where('company_id', $id_companies)
+            ->get();
 
         foreach ($emp_his as $key => $value) {
-            $act_date[$value->emp_id] = $value->act_date;
+            $act_date[$value->company_id][$value->emp_id] = $value->act_date;
         }
 
         $sign = $this->signName($t);
@@ -172,7 +178,7 @@ class HrdPayrollController extends Controller
         $period_end_date = $y."-".sprintf('%02d', $m)."-".$period_end;
         $period_4 = $y."-".sprintf('%02d', $m)."-". ($period_end + 1);
 
-        $ovt = Hrd_overtime::whereIn('company_id', $id_companies)
+        $ovt = Hrd_overtime::where('company_id', $id_companies)
             ->whereBetween('ovt_date', [$period_start_date, $period_end_date])
             ->get();
 //        dd($ovt);
@@ -275,8 +281,9 @@ class HrdPayrollController extends Controller
             foreach ($emp as $key => $value) {
                 $archive = Hrd_salary_archive::where('emp_id', $value->id)
                     ->where('archive_period', $m."-".$y)
-                    ->whereIn('company_id', $id_companies)->first();
+                    ->where('company_id', $id_companies)->first();
                 if (empty($archive) || $archive == null){
+                    $empid = (empty($value->old_id)) ? $value->id : $value->old_id;
                     $row = new Hrd_salary_archive();
                     $salary_emp = base64_decode($value->salary);
                     $sunction = 0;
@@ -285,7 +292,7 @@ class HrdPayrollController extends Controller
                     $ln_amt = 0;
                     $hours = 0;
 
-                    $sanction = Hrd_sanction::where('emp_id', $value->id)
+                    $sanction = Hrd_sanction::where('emp_id', $empid)
                         ->whereNotNull('approved_by')
                         ->whereBetween('sanction_date',[$rangeStart,$rangeEnd])
                         ->get();
@@ -293,7 +300,7 @@ class HrdPayrollController extends Controller
                         $sunction += intval($valSanc->sanction_amount);
                     }
 
-                    $foot['sum_sanction'] += $sunction;
+
 
                     $allow_bpjs_tk = ($value->allow_bpjs_tk == "") ? 0 : $value->allow_bpjs_tk;
                     $allow_bpjs_kes = ($value->allow_bpjs_kes == "") ? 0 : $value->allow_bpjs_kes;
@@ -398,7 +405,7 @@ class HrdPayrollController extends Controller
                         $thr_total = 0;
                     }
                     $row->thr = $thr_total;
-                    $row->category = $t;
+                    $row->category = $value->emp_position;
                     $row->fld_dgr = $flddgr;
                     $row->fld_swt = $fldswt;
                     $row->odo_dgr = $ododgr;
@@ -415,9 +422,10 @@ class HrdPayrollController extends Controller
 
                     $thp = $total_sal - $sunction - $absence_deduct - $ln_amt - $value->deduc_bpjs_tk - $value->deduc_bpjs_kes - $value->deduc_jshk - $value->deduc_pph21;
                     $xthp = $thp - $fld - $wh - $odo - $ododgr - $odoswt - $fldswt - $flddgr;
-                    $pro_day = round((strtotime($act_date[$value->id]) - strtotime($rangeStart)) / 86400,0);
-                    $in_date = $act_date[$value->id];
-                    $zero_day = (strtotime($rangeEnd) - strtotime($act_date[$value->id])) / 86400;
+                    $date = (isset($act_date[$value->company_id][$empid])) ? $act_date[$value->company_id][$empid] : "0000-00-00";
+                    $pro_day = round((strtotime($date) - strtotime($rangeStart)) / 86400,0);
+                    $in_date = $date;
+                    $zero_day = (strtotime($rangeEnd) - strtotime($date)) / 86400;
                     if($pro_day > 0 && $pro_day <= $pro_n_day)
                     {
                         $pro_basis = $pro_n_day;
@@ -457,7 +465,7 @@ class HrdPayrollController extends Controller
                     }
 
                     $row->proportional = $total_decrement; //Proportional
-                    $row->company_id = Session::get('company_id');
+                    $row->company_id = $value->company_id;
 
                     $row->save();
                 }
@@ -465,12 +473,24 @@ class HrdPayrollController extends Controller
             }
 
             $emp_arc = Hrd_salary_archive::where('archive_period', $m."-".$y)
-                ->whereIn('company_id', $id_companies)
+                ->where('company_id', $id_companies)
                 ->whereIn('emp_id', $emp_type)
                 ->get();
 
+
             if (count($emp_arc) > 0) {
                 foreach ($emp_arc as $key => $value) {
+                    $sunction = 0;
+                    $sanction = Hrd_sanction::where('emp_id', $value->id)
+                        ->whereNotNull('approved_by')
+                        ->whereBetween('sanction_date',[$rangeStart,$rangeEnd])
+                        ->get();
+//                    dd($sanction);
+
+                    foreach ($sanction as $key => $valSanc){
+                        $sunction += intval($valSanc->sanction_amount);
+                    }
+
                     $row = [];
                     $salary_emp = base64_decode($value->salary);
 
@@ -582,7 +602,7 @@ class HrdPayrollController extends Controller
                     $thp_total = $total_sal + $thr_total - $value->lateness;
 
                     $thp_total -= $value->proportional;
-                    $foot['sum_thp'] += $value->proportional;
+                    $foot['sum_thp'] += $thp_total;
 
                     $row[] = ($value->deduc_pph21 == "") ? 0 : number_format($value->deduc_pph21,2); //PPH21
                     $foot['sum_pph21'] += $value->deduc_pph21;
@@ -590,7 +610,7 @@ class HrdPayrollController extends Controller
                     $row[] = number_format($thp_total,2); //THP
                     $empsalid[$value->emp_id] = $thp_total;
                     $foot['sum_prop'] += $value->proportional;
-
+                    $foot['sum_sanction'] += $value->lateness;
                     $data[] = $row;
                     $source = "Archive";
 
@@ -637,6 +657,7 @@ class HrdPayrollController extends Controller
                     $ln_amt = 0;
                     $hours = 0;
                     $sumSanc = 0;
+                    $empid = (!empty($value->old_id)) ? $value->old_id : $value->id;
 
                     $sanction = Hrd_sanction::where('emp_id', $value->id)
                         ->whereNotNull('approved_by')
@@ -773,9 +794,10 @@ class HrdPayrollController extends Controller
 
                     $thp = $total_sal - $sunction - $absence_deduct - $ln_amt - $value->deduc_bpjs_tk - $value->deduc_bpjs_kes - $value->deduc_jshk - $value->deduc_pph21;
                     $xthp = $thp - $fld - $wh - $odo - $ododgr - $odoswt - $fldswt - $flddgr;
-                    $pro_day = round((strtotime($act_date[$value->id]) - strtotime($rangeStart)) / 86400,0);
-                    $in_date = $act_date[$value->id];
-                    $zero_day = (strtotime($rangeEnd) - strtotime($act_date[$value->id])) / 86400;
+                    $_date = (isset($act_date[$value->company_id][$empid])) ? $act_date[$value->company_id][$empid] : "000-00-00";
+                    $pro_day = round((strtotime($_date) - strtotime($rangeStart)) / 86400,0);
+                    $in_date = $act_date[$value->company_id][$empid];
+                    $zero_day = (strtotime($rangeEnd) - strtotime($_date)) / 86400;
                     if($pro_day > 0 && $pro_day <= $pro_n_day)
                     {
                         $pro_basis = $pro_n_day;
@@ -833,7 +855,7 @@ class HrdPayrollController extends Controller
 
                 }
                 $error = 0;
-                $source = "EMP";
+                $source = "EMPLOYEE";
             } else {
                 $error = 1;
                 $data = null;
@@ -868,27 +890,416 @@ class HrdPayrollController extends Controller
         ]);
         if ($request['searchInput'] == 'koi999'){
             Session::put('seckey_payroll', 99);
-            return redirect()->back()->with('message_needsec_success', 'Access Granted! Please re-access the payroll menu');
+            return redirect()->route('payroll.index');
         } else {
             return redirect()->back()->with('message_needsec_fail', 'Access Denied! Please enter the correct code');
         }
     }
 
-    public function print_btl(Request $request){
-        $id_companies = array();
-        if (Session::get('company_child') != null){
-            foreach (Session::get('company_child') as $item) {
-                $id_companies[] = $item->id;
-            }
-            array_push($id_companies, Session::get('company_id'));
+    function update(Request $request){
+//        dd($request);
+        if ($request->type == "all"){
+            $whereType = "";
+            $wherePos = "";
         } else {
-            array_push($id_companies, Session::get('company_id'));
+            $whereType = " AND category = ".$request->type;
+            $wherePos = " AND emp_position = ".$request->type;
         }
+        $period = $request->month."-".$request->years;
+        Hrd_salary_archive::whereRaw("archive_period='".$period."'".$whereType)->delete();
+        $id_companies = Session::get('company_id');
+        // if (Session::get('company_child') != null){
+        //     foreach (Session::get('company_child') as $item) {
+        //         $id_companies[] = $item->id;
+        //     }
+        //     array_push($id_companies, Session::get('company_id'));
+        // } else {
+        //     array_push($id_companies, Session::get('company_id'));
+        // }
+        $t = $request->type;
+        $m = $request->month;
+        $y = $request->years;
+
+        $pref = Preference_config::where('id_company', $id_companies)->get();
+//        dd($pref->period_start);
+        $prefCount = $pref->count();
+        $now = date('Y-n-d');
+
+//        dd($pref);
+        if ($prefCount >0){
+            $period_end = $pref[0]->period_end;
+            $period_start = $pref[0]->period_start;
+        } else {
+            if (session()->has('company_period_end') && session()->has('company_period_start')){
+                $period_end = Session::get('company_period_end');
+                $period_start = Session::get('company_period_start');
+            } else {
+                $period_end = 27;
+                $period_start = 28;
+            }
+        }
+//        $period_end = Session::get('company_period_end');
+//        $period_start = Session::get('company_period_start');
+//        $thr_period = Session::get('company_thr_period');
+
+        $thr_period = Session::get('company_thr_period');
+//            dd($period_end);
+        if($t == "all"){
+            $emp = Hrd_employee::where('expel', null)
+                ->where('company_id', $id_companies)
+                ->get();
+        } else {
+            $emp = Hrd_employee::where('emp_position', $t)
+                ->where('expel', null)
+                ->where('company_id', $id_companies)
+                ->get();
+        }
+
+        $emp_name = [];
+        $emp_pos = [];
+        $emp_bank = [];
+        $emp_type = [];
+        $type_emp = [];
+        $emp_comp = [];
+
+        foreach ($emp as $key => $value) {
+            $emp_name[$value->id] = $value->emp_name;
+            $emp_pos[$value->id] = $value->emp_position;
+            $emp_bank[$value->id] = $value->bank_acct;
+            $emp_type[] = $value->id;
+            $type_emp[$value->emp_position][] = $value->id;
+            $emp_comp[$value->id] = $value->company_id;
+        }
+
+
+//        $emp_arc = Hrd_salary_archive::where('company_id',\Session::get('company_id'))->get();
+
+        $emp_his = Hrd_employee_history::where('activity', 'in')
+            ->where('company_id', $id_companies)
+            ->get();
+
+        foreach ($emp_his as $key => $value) {
+            $act_date[$value->company_id][$value->emp_id] = $value->act_date;
+        }
+
+        $sign = $this->signName($t);
+
+        $period_start_date = $y."-".sprintf('%02d', $m-1)."-".$period_start;
+        $period_end_date = $y."-".sprintf('%02d', $m)."-".$period_end;
+        $period_4 = $y."-".sprintf('%02d', $m)."-". ($period_end + 1);
+
+        $ovt = Hrd_overtime::where('company_id', $id_companies)
+            ->whereBetween('ovt_date', [$period_start_date, $period_end_date])
+            ->get();
+//        dd($ovt);
+        foreach ($ovt as $key => $value) {
+            $time_in[$value->emp_id][] = $value->time_in;
+            $time_out[$value->emp_id][] = $value->time_out;
+        }
+
+        $to = General_travel_order::where('status', 0)
+            ->whereBetween('departure_dt', [$period_start_date, $period_end_date])
+            ->orWhereBetween('departure_dt', [$period_start_date, $period_end_date])
+            ->get();
+//        dd($to::getQueryLog());
+
+        foreach ($to as $key => $value) {
+            $d1 = ($period_end_date > $value->return_dt) ? $value->return_dt : $period_end_date;
+            $d2 = ($period_start_date > $value->departure_dt) ? $period_start_date : $value->departure_dt;
+
+            $sum = date_diff(date_create($d1), date_create($d2));
+
+            if ($value->travel_type == "reg") {
+                if (empty($value->location_rate)) {
+                    switch ($value->dest_type) {
+                        case "fld" :
+                            $fld_day[$value->employee_id] = $sum->format("%a");
+                            break;
+                        case "wh" :
+                            $wh_day[$value->employee_id] = $sum->format("%a");
+                            break;
+                    }
+                } elseif ($value->location_rate == "SWT") {
+                    switch ($value->dest_type) {
+                        case "fld" :
+                            $fld_swt[$value->employee_id] = $sum->format("%a");
+                            break;
+                    }
+                } elseif ($value->location_rate == "DGR") {
+                    switch ($value->dest_type) {
+                        case "fld" :
+                            $fld_dgr[$value->employee_id] = $sum->format("%a");
+                            break;
+                    }
+                }
+            } elseif ($value->travel_type = "odo") {
+                if (empty($value->location_rate)) {
+                    if ($value->dest_type == "fld_bonus") {
+                        $odo_day[$value->employee_id] = $sum->format("%a");
+                    }
+                } elseif ($value->location_rate == "SWT") {
+                    if ($value->dest_type == "fld_bonus") {
+                        $odo_swt[$value->employee_id] = $sum->format("%a");
+                    }
+                } elseif ($value->location_rate == "DGR") {
+                    if ($value->dest_type == "fld_bonus") {
+                        $odo_dgr[$value->employee_id] = $sum->format("%a");
+                    }
+                }
+            }
+        }
+
+        $whereLoan = $y."-".sprintf("%02d", $m);
+
+        $loan = Hrd_employee_loan::all();
+
+        $loan_det = Hrd_employee_loan_payment::where('date_of_payment', "LIKE", '%' . $whereLoan . '%')->get();
+
+        $bonus = Hrd_bonus::all();
+
+        $bonus_pay = Hrd_bonus_payment::where('date_of_payment', "LIKE", '%' . $whereLoan . '%')->get();
+
+        $foot['sum_salary'] = 0;
+        $foot['sum_ovt'] = 0;
+        $foot['sum_fld'] = 0;
+        $foot['sum_wh'] = 0;
+        $foot['sum_odo'] = 0;
+        $foot['sum_tk'] = 0;
+        $foot['sum_ks'] = 0;
+        $foot['sum_jshk'] = 0;
+        $foot['sum_tot_salary'] = 0;
+        $foot['sum_sunction'] = 0;
+        $foot['sum_absence'] = 0;
+        $foot['sum_loan'] = 0;
+        $foot['sum_ded_tk'] = 0;
+        $foot['sum_ded_ks'] = 0;
+        $foot['sum_ded_jshk'] = 0;
+        $foot['sum_bonus'] = 0;
+        $foot['sum_thr'] = 0;
+        $foot['sum_pph21'] = 0;
+        $foot['sum_prop'] = 0;
+        $foot['sum_thp'] = 0;
+        $foot['sum_voucher'] = 0;
+        $foot['sum_ovt'] = 0;
+        $foot['sum_sanction'] = 0;
+
+        $rangeStart = $y."-".($m-1)."-".$period_start;
+        $rangeEnd = $y."-".$m."-".$period_end;
+        $pro_n_day = date("t", strtotime($rangeEnd));
+
+        foreach ($emp as $key => $value) {
+            $archive = Hrd_salary_archive::where('emp_id', $value->id)
+                ->where('archive_period', $m."-".$y)
+                ->where('company_id', $id_companies)->first();
+            if (empty($archive) || $archive == null){
+                $empid = (empty($value->old_id)) ? $value->id : $value->old_id;
+                $row = new Hrd_salary_archive();
+                $salary_emp = base64_decode($value->salary);
+                $sunction = 0;
+                $absence_deduct = 0;
+                $bonus_amt = 0;
+                $ln_amt = 0;
+                $hours = 0;
+
+                $sanction = Hrd_sanction::where('emp_id', $empid)
+                    ->whereNotNull('approved_by')
+                    ->whereBetween('sanction_date',[$rangeStart,$rangeEnd])
+                    ->get();
+                foreach ($sanction as $key => $valSanc){
+                    $sunction += intval($valSanc->sanction_amount);
+                }
+
+                $foot['sum_sanction'] += $sunction;
+
+                $allow_bpjs_tk = ($value->allow_bpjs_tk == "") ? 0 : $value->allow_bpjs_tk;
+                $allow_bpjs_kes = ($value->allow_bpjs_kes == "") ? 0 : $value->allow_bpjs_kes;
+                $allow_jshk = ($value->allow_jshk == "") ? 0 : $value->allow_jshk;
+
+                $foot['sum_tk'] += $allow_bpjs_tk;
+                $foot['sum_ks'] += $allow_bpjs_kes;
+                $foot['sum_jshk'] += $allow_jshk;
+
+                $deduc_bpjs_tk = ($value->deduc_bpjs_tk == "") ? 0 : $value->deduc_bpjs_tk;
+                $deduc_bpjs_kes = ($value->deduc_bpjs_kes == "") ? 0 : $value->deduc_bpjs_kes;
+                $deduc_jshk = ($value->deduc_jshk == "") ? 0 : $value->deduc_jshk;
+                $deduc_pph21 = ($value->deduc_pph21 == "") ? 0 : $value->deduc_pph21;
+
+                $foot['sum_ded_tk'] += $deduc_bpjs_tk;
+                $foot['sum_ded_ks'] += $deduc_bpjs_kes;
+                $foot['sum_ded_jshk'] += $deduc_jshk;
+
+
+                $sal = $salary_emp + base64_decode($value->transport) + base64_decode($value->meal) + base64_decode($value->house) + base64_decode($value->health);
+
+                if (!empty($time_in[$value->id])) {
+                    for ($i=0; $i < count($time_in[$value->id]); $i++) {
+                        $diff = strtotime($time_out[$value->id][$i]) - strtotime($time_in[$value->id][$i]);
+                        $hours += $diff;
+                    }
+                }
+
+                $ovt_total = $value->overtime * ceil(($hours / 3600));
+
+                $foot['sum_ovt'] += $ovt_total;
+                $whday = (empty($wh_day[$value->id])) ? "0" : $wh_day[$value->id];
+                $fldday = (empty($fld_day[$value->id])) ? "0" : $fld_day[$value->id];
+                $fldswtday = (empty($fld_swt[$value->id])) ? "0" : $fld_swt[$value->id];
+                $fldgrday = (empty($fld_dgr[$value->id])) ? "0" : $fld_dgr[$value->id];
+
+                $fld = $value->fld_bonus * $fldday;
+                $flddgr = ($value->fld_bonus + 25000) * $fldgrday;
+                $fldswt = ($value->fld_bonus + 50000) * $fldswtday;
+
+                $foot['sum_fld'] += $fld + $flddgr + $fldswt;
+
+                $wh = $value->wh_bonus * $whday;
+
+                $foot['sum_wh'] += $wh;
+
+                $ododay = (empty($odo_day[$value->id])) ? "0" : $odo_day[$value->id];
+                $odoswtday = (empty($odo_swt[$value->id])) ? "0" : $odo_swt[$value->id];
+                $odogrday = (empty($odo_dgr[$value->id])) ? "0" : $odo_dgr[$value->id];
+
+                $odo = $value->odo_bonus * $ododay;
+                $ododgr = ($value->odo_bonus + 25000) * $odogrday;
+                $odoswt = ($value->odo_bonus + 50000) * $odoswtday;
+
+                $foot['sum_odo'] += $odo + $ododgr + $odoswt;
+
+                foreach ($loan as $keyLoan => $valueLoan) {
+                    if ($value->id == $valueLoan->emp_id) {
+                        foreach ($loan_det as $keyDet => $valueDet) {
+                            if ($valueLoan->id == $valueDet->loan_id) {
+                                $ln_amt += $valueDet->amount;
+                            }
+                        }
+                    }
+                }
+
+                $foot['sum_loan'] += $ln_amt;
+
+                foreach ($bonus as $keyBonus => $valueBonus) {
+                    if ($value->id == $valueBonus->emp_id) {
+                        foreach ($bonus_pay as $keyBonusPay => $valueBonusPay) {
+                            if ($valueBonus->id == $valueBonusPay->bonus_id) {
+                                $bonus_amt += $valueBonusPay->amount;
+                            }
+                        }
+                    }
+                }
+
+                $yearly_bonus = $value->yearly_bonus * $salary_emp + $value->fx_yearly_bonus;
+                $bonus_only = $value->yearly_bonus * $salary_emp;
+
+                // Datatable
+                $row->emp_id = $value->id;
+                $row->archive_period = $m."-".$y;
+                $row->salary = base64_encode($sal);
+                $row->ovt_rate = $value->overtime;
+                $row->ovt_nom = $ovt_total;
+                $row->field_rate = $value->fld_bonus;
+                $row->field_nom = $fld;
+                $row->wh_rate = $value->wh_bonus;
+                $row->wh_nom = $wh;
+                $row->odo_rate = $value->odo_bonus;
+                $row->odo_nom = $odo;
+                $row->voucher = $value->voucher;
+                $row->deduction = $ln_amt;
+                $row->lateness = $sunction;
+                $row->bonus = 0;
+                $isThr = sprintf("%02d", $m)."-".$y;
+                if ($isThr == strip_tags($thr_period)){
+                    $thr_total = $sal * $value->thr;
+                } else {
+                    $thr_total = 0;
+                }
+                $row->thr = $thr_total;
+                $row->category = $value->emp_position;
+                $row->fld_dgr = $flddgr;
+                $row->fld_swt = $fldswt;
+                $row->odo_dgr = $ododgr;
+                $row->odo_swt = $odoswt;
+                $row->allow_bpjs_tk = $allow_bpjs_tk;
+                $row->allow_bpjs_kes = $allow_bpjs_kes;
+                $row->allow_jshk = $allow_jshk;
+                $row->deduc_bpjs_tk = $deduc_bpjs_tk;
+                $row->deduc_bpjs_kes = $deduc_bpjs_kes;
+                $row->deduc_jshk = $deduc_jshk;
+                $row->deduc_pph21 = $deduc_pph21;
+
+                $total_sal = $sal + $ovt_total + $fld + $wh + $odo + $ododgr + $odoswt + $flddgr + $fldswt + $value->voucher + $value->allow_bpjs_tk + $value->allow_bpjs_kes + $value->allow_jshk;
+
+                $thp = $total_sal - $sunction - $absence_deduct - $ln_amt - $value->deduc_bpjs_tk - $value->deduc_bpjs_kes - $value->deduc_jshk - $value->deduc_pph21;
+                $xthp = $thp - $fld - $wh - $odo - $ododgr - $odoswt - $fldswt - $flddgr;
+                $date = (isset($act_date[$value->company_id][$empid])) ? $act_date[$value->company_id][$empid] : "0000-00-00";
+                $pro_day = round((strtotime($date) - strtotime($rangeStart)) / 86400,0);
+                $in_date = $date;
+                $zero_day = (strtotime($rangeEnd) - strtotime($date)) / 86400;
+                if($pro_day > 0 && $pro_day <= $pro_n_day)
+                {
+                    $pro_basis = $pro_n_day;
+                    $pro_decrement = ($pro_day) / $pro_basis * $xthp;
+                }
+                //kalau hari masuk = start month gaji, pengurangan = gaji = ZERO gaji.
+                elseif($pro_day == 0)
+                {
+                    // $pro_decrement = $xthp;
+                    if(date('d',strtotime($in_date)) == 16)
+                    {
+                        $pro_decrement = 0;
+                    }
+                    else
+                    {
+                        $pro_decrement = $xthp;
+                    }
+                }
+                //tidak ada pemotongan
+                else
+                {
+                    $pro_decrement = 0;
+                }
+
+                //kalau tgl masuk baru lebih baru dari range2. ZERO gaji
+                if($zero_day <= 0)
+                {
+                    $pro_decrement = $xthp;
+                }
+
+                if($pro_day >= 0 && $pro_day <= 30) {
+                    $total_decrement = $pro_decrement;
+                } elseif($zero_day <= 0) {
+                    $total_decrement = $pro_decrement;
+                } else {
+                    $total_decrement = 0;
+                }
+
+                $row->proportional = $total_decrement; //Proportional
+                $row->company_id = $value->company_id;
+
+                $row->save();
+            }
+        }
+
+        $data['error'] = 0;
+
+        return json_encode($data);
+    }
+
+    public function print_btl(Request $request){
+        $id_companies = Session::get('company_id');
+        // if (Session::get('company_child') != null){
+        //     foreach (Session::get('company_child') as $item) {
+        //         $id_companies[] = $item->id;
+        //     }
+        //     array_push($id_companies, Session::get('company_id'));
+        // } else {
+        //     array_push($id_companies, Session::get('company_id'));
+        // }
         $t = $request->t;
         $m = $request->m;
         $y = $request->y;
 
-        $pref = Preference_config::whereIn('id_company', $id_companies)->get();
+        $pref = Preference_config::where('id_company', $id_companies)->get();
 //        dd($pref->period_start);
         $prefCount = $pref->count();
         $now = date('Y-n-d');
@@ -911,12 +1322,12 @@ class HrdPayrollController extends Controller
 //            dd($period_end);
         if($t == "all"){
             $emp = Hrd_employee::where('expel', null)
-                ->whereIn('company_id', $id_companies)
+                ->where('company_id', $id_companies)
                 ->get();
         } else {
             $emp = Hrd_employee::where('emp_position', $t)
                 ->where('expel', null)
-                ->whereIn('company_id', $id_companies)
+                ->where('company_id', $id_companies)
                 ->get();
         }
         $emp_name = [];
@@ -933,7 +1344,7 @@ class HrdPayrollController extends Controller
             $data_emp[$value->id] = $value;
         }
 
-        $emp_arc = Hrd_salary_archive::whereIn('company_id',$id_companies)->get();
+        $emp_arc = Hrd_salary_archive::where('company_id',$id_companies)->get();
 
         $emp_his = Hrd_employee_history::where('activity', 'in')->get();
 
@@ -946,7 +1357,7 @@ class HrdPayrollController extends Controller
         $period_start_date = $y."-".sprintf('%02d', $m-1)."-".$period_start;
         $period_end_date = $y."-".sprintf('%02d', $m)."-".$period_end;
 
-        $ovt = Hrd_overtime::whereIn('company_id', $id_companies)
+        $ovt = Hrd_overtime::where('company_id', $id_companies)
             ->whereBetween('ovt_date', [$period_start_date, $period_end_date])
             ->get();
 //        dd($ovt);
@@ -1046,7 +1457,7 @@ class HrdPayrollController extends Controller
 
         if (strtotime($now) > strtotime($period_end_date)){
             $emp_arc = Hrd_salary_archive::where('archive_period', $m."-".$y)
-                ->whereIn('company_id', $id_companies)
+                ->where('company_id', $id_companies)
                 ->whereIn('emp_id', $emp_type)
                 ->get();
 
@@ -1171,6 +1582,8 @@ class HrdPayrollController extends Controller
                     $foot['sum_pph21'] += $value->deduc_pph21;
 //                    $row[] = number_format($value->proportional,2); //Proportional
                     $row['thp'] = number_format($thp_total,2); //THP
+                    $row['emp_id'] = $value->emp_id;
+                    $row['company_id'] = $value->company_id;
 
                     $foot['sum_prop'] += $value->proportional;
 
@@ -1373,6 +1786,8 @@ class HrdPayrollController extends Controller
                     $foot['sum_pph21'] += $value->deduc_pph21;
 //                    $row[] = number_format($total_decrement,2); //Proportional
                     $row['thp'] = number_format($thp_total,2); //THP
+                    $row['emp_id'] = $value->id;
+                    $row['company_id'] = $value->company_id;
 
                     $foot['sum_prop'] += $total_decrement;
 
@@ -1399,8 +1814,55 @@ class HrdPayrollController extends Controller
             'source' => $source
         );
 
-        return view('payroll.btl', [
-            'data' => $val
+        if ($request->act == 'remarks'){
+            $view = "payroll.btl_remarks";
+        } else {
+            $view = "payroll.btl";
+        }
+
+        $data_remarks = Hrd_salary_remarks::where('periode',  $y."-".$m)
+            ->where('company_id', Session::get('company_id'))
+            ->get();
+        $remarks = array();
+        foreach ($data_remarks as $item){
+            $remarks[$item->emp_id] = $item;
+        }
+
+        return view($view, [
+            'data' => $val,
+            'remarks' => $remarks
         ]);
+    }
+
+    function save_remarks(Request $request){
+//        dd($request);
+        $thp = $request->thp;
+        $thp_old = $request->thp_old;
+        $remarks = $request->remarks;
+
+        foreach ($thp as $thpKey => $thpValue){
+            if ($thpValue != $thp_old[$thpKey]){
+                $find = Hrd_salary_remarks::where('periode', $request->periode)
+                    ->where('emp_id', $thpKey)
+                    ->where('company_id', Session::get('company_id'))
+                    ->first();
+                if (empty($find)){
+                    $hrd_remarks = new Hrd_salary_remarks();
+                    $hrd_remarks->emp_id = $thpKey;
+                    $hrd_remarks->company_id = Session::get('company_id');
+                    $hrd_remarks->periode = $request->periode;
+                    $hrd_remarks->thp = $thpValue;
+                    $hrd_remarks->remarks = $remarks[$thpKey];
+                    $hrd_remarks->save();
+                } else {
+                    $hrd_remarks = Hrd_salary_remarks::find($find->id);
+                    $hrd_remarks->thp = $thpValue;
+                    $hrd_remarks->remarks = $remarks[$thpKey];
+                    $hrd_remarks->save();
+                }
+            }
+        }
+
+        return redirect()->back();
     }
 }

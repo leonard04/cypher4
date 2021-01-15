@@ -9,6 +9,7 @@
                 <h3>Salary List</h3><br>
 
             </div>
+            @actionStart('salary_list', 'create')
             <div class="card-toolbar">
                 <form action="{{route('salarylist.generateTHR')}}" method="POST">
                     @csrf
@@ -32,9 +33,11 @@
                         </form></li>
                 </ul>
             </div>
+            @actionEnd
         </div>
 
         <div class="card-body">
+            @actionStart('salary_list', 'read')
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 @foreach($types as $type)
                     <li class="nav-item">
@@ -195,6 +198,7 @@
                     </div>
                 @endforeach
             </div>
+            @actionEnd
         </div>
     </div>
 @endsection

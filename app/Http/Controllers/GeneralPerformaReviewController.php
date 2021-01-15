@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityConfig;
 use App\Models\Hrd_employee;
 use App\Models\Hrd_performa_review;
 use Illuminate\Http\Request;
@@ -34,6 +35,7 @@ class GeneralPerformaReviewController extends Controller
     }
 
     function add(Request $request){
+        ActivityConfig::store_point('performa_review', 'create');
         $pr = new Hrd_performa_review();
         $pr->emp_id = $request->id_emp;
         $pr->superior_id = Auth::user()->username;
@@ -51,6 +53,7 @@ class GeneralPerformaReviewController extends Controller
     }
 
     function approve(Request $request){
+        ActivityConfig::store_point('meeting_scheduler', 'approve');
         $pr = Hrd_performa_review::find($request->id_per);
         $pr->entry_point = json_encode($request->answer_edit);
         $pr->entry_goal = json_encode($request->goal_edit);

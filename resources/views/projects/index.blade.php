@@ -5,12 +5,14 @@
             <div class="card-title">
                 <a href="{{route('marketing.project')}}" class="text-black-50">Project List</a>
             </div>
+            @actionStart('project','create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProject"><i class="fa fa-plus"></i>Add Project</button>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             <div class="row">
@@ -82,7 +84,6 @@
                                 <th nowrap="nowrap" class="text-center">Project Expiry</th>
                                 <th nowrap="nowrap" class="text-center">FT</th>
                                 <th nowrap="nowrap" class="text-left">SKPI <br> SKPP</th>
-                                <th nowrap="nowrap" class="text-center">Actual PL</th>
                                 <th nowrap="nowrap" class="text-center">Status</th>
                                 <th nowrap="nowrap" class="text-center">Prognosis</th>
                                 <th nowrap="nowrap" class="text-center">Files</th>
@@ -90,6 +91,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('project', 'read')
                             @foreach($projectsall as $key => $prj_all)
                                 <tr>
                                     <td>{{($key+1)}}</td>
@@ -263,9 +265,11 @@
 
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
+                                                        @actionStart('project', 'update')
                                                         <button type="submit" name="submit" class="btn btn-primary font-weight-bold">
                                                             <i class="fa fa-check"></i>
                                                             Update</button>
+                                                        @actionEnd
                                                     </div>
                                                 </form>
                                             </div>
@@ -286,7 +290,6 @@
                                         {{number_format((intval($prj_all->transport)+intval($prj_all->rent)+intval($prj_all->taxi)+intval($prj_all->airtax)),2)}}
                                     </td>
                                     <td class="text-left">0.00 <br> 0.00</td>
-                                    <td class="text-center">Actual PL</td>
                                     <td class="text-center">
                                         @if(!empty($prj_all->status))
                                             {{$prj_all->status}}
@@ -294,7 +297,13 @@
                                             {{'No PL'}}
                                         @endif
                                     </td>
-                                    <td class="text-center">Prognosis</td>
+                                    <td class="text-center">
+                                        @if(isset($prognosis[$prj_all->id]))
+                                            <a href="{{route('marketing.prognosis.index', $prj_all->id)}}" class="label label-md label-inline label-primary"><i class="fa fa-eye text-white font-size-sm"></i>&nbsp;View</a>
+                                        @else
+                                            <a href="{{route('marketing.prognosis.index', $prj_all->id)}}" class="label label-md label-inline label-primary"><i class="fa fa-pencil-alt text-white font-size-sm"></i>&nbsp;Create</a>
+                                        @endif
+                                    </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-default btn-xs dttb" data-toggle="modal" data-target="#filesAll{{$prj_all->id}}"><i class="fa fa-clipboard-list"></i></button>
                                         <div class="modal fade" id="filesAll{{$prj_all->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
@@ -375,6 +384,8 @@
                                     </td>
                                 </tr>
                             @endforeach
+                            @actionEnd
+
                             </tbody>
                         </table>
                     </div>
@@ -393,7 +404,6 @@
                                 <th nowrap="nowrap" class="text-center">Project Expiry</th>
                                 <th nowrap="nowrap" class="text-center">FT</th>
                                 <th nowrap="nowrap" class="text-left">SKPI <br> SKPP</th>
-                                <th nowrap="nowrap" class="text-center">Actual PL</th>
                                 <th nowrap="nowrap" class="text-center">Status</th>
                                 <th nowrap="nowrap" class="text-center">Prognosis</th>
                                 <th nowrap="nowrap" class="text-center">Files</th>
@@ -401,6 +411,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('project', 'read')
                             @foreach($projectssales as $key => $prj_all)
                                 <tr>
                                     <td>{{($key+1)}}</td>
@@ -597,7 +608,6 @@
                                         {{number_format((intval($prj_all->transport)+intval($prj_all->rent)+intval($prj_all->taxi)+intval($prj_all->airtax)),2)}}
                                     </td>
                                     <td class="text-left">0.00 <br> 0.00</td>
-                                    <td class="text-center">Actual PL</td>
                                     <td class="text-center">
                                         @if(!empty($prj_all->status))
                                             {{$prj_all->status}}
@@ -605,7 +615,12 @@
                                             {{'No PL'}}
                                         @endif
                                     </td>
-                                    <td class="text-center">Prognosis</td>
+                                    <td class="text-center">
+                                        @if(isset($prognosis[$prj_all->id]))
+                                        @else
+                                            <a href=""><i class="fa fa-pencil-alt"></i>Create prognosis</a>
+                                        @endif
+                                    </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-default btn-xs dttb" data-toggle="modal" data-target="#filesSales{{$prj_all->id}}"><i class="fa fa-clipboard-list"></i></button>
                                         <div class="modal fade" id="filesSales{{$prj_all->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
@@ -687,7 +702,7 @@
                                     </td>
                                 </tr>
                             @endforeach
-
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -706,7 +721,6 @@
                                 <th nowrap="nowrap" class="text-center">Project Expiry</th>
                                 <th nowrap="nowrap" class="text-center">FT</th>
                                 <th nowrap="nowrap" class="text-left">SKPI <br> SKPP</th>
-                                <th nowrap="nowrap" class="text-center">Actual PL</th>
                                 <th nowrap="nowrap" class="text-center">Status</th>
                                 <th nowrap="nowrap" class="text-center">Prognosis</th>
                                 <th nowrap="nowrap" class="text-center">Files</th>
@@ -714,6 +728,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('project', 'read')
                             @foreach($projectscost as $key => $prj_all)
                                 <tr>
                                     <td>{{($key+1)}}</td>
@@ -910,7 +925,6 @@
                                         {{number_format((intval($prj_all->transport)+intval($prj_all->rent)+intval($prj_all->taxi)+intval($prj_all->airtax)),2)}}
                                     </td>
                                     <td class="text-left">0.00 <br> 0.00</td>
-                                    <td class="text-center">Actual PL</td>
                                     <td class="text-center">
                                         @if(!empty($prj_all->status))
                                             {{$prj_all->status}}
@@ -918,7 +932,12 @@
                                             {{'No PL'}}
                                         @endif
                                     </td>
-                                    <td class="text-center">Prognosis</td>
+                                    <td class="text-center">
+                                        @if(isset($prognosis[$prj_all->id]))
+                                        @else
+                                            <a href="">Create prognosis</a>
+                                        @endif
+                                    </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-default btn-xs dttb" data-toggle="modal" data-target="#filesCost{{$prj_all->id}}"><i class="fa fa-clipboard-list"></i></button>
                                         <div class="modal fade" id="filesCost{{$prj_all->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
@@ -1000,6 +1019,7 @@
                                 </tr>
 
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>

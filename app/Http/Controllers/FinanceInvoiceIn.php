@@ -54,8 +54,8 @@ class FinanceInvoiceIn extends Controller
             $data['bank_acct'][$value->id] = $value->bank_acct;
             $data['web'][$value->id] = $value->web;
             $data['pic'][$value->id] = $value->pic;
-            $supplier['name'][$value->id] = $value->name;
-            $supplier['bank_acct'][$value->id] = $value->bank_acct;
+            $supplier[$value->id]['name'] = $value->name;
+            $supplier[$value->id]['bank_acct'] = $value->bank_acct;
         }
 
         $po = Asset_po::where('company_id', Session::get('company_id'))->get();
@@ -141,7 +141,11 @@ class FinanceInvoiceIn extends Controller
                         $item_uom[$valItem->item_code] = $valItem->uom;
                     }
                     $subtotal = 0;
-                    $ppn = json_decode($data->ppn);
+                    if (!empty($data->ppn)){
+                        $ppn = json_decode($data->ppn);
+                    } else {
+                        $ppn = array();
+                    }
                     $val['table'] = "<table class='table table-bordered display' style=\"width: 100%\"><thead><tr><th class='text-center'>No</th><th>Item</th><th class='text-center'>UoM</th><th class='text-center'>Qty</th><th class='text-right'>Unit Price</th><th class='text-right'>Amount</th></tr></thead>";
                     foreach ($detail as $key => $value){
                         $amount = $value->qty * $value->price;

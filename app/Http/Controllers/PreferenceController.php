@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ConfigCompany;
 use App\Models\Pref_activity_point;
+use App\Models\Pref_work_environment;
 use App\Models\Preference_config;
 use App\Models\Template_files;
 use Illuminate\Http\Request;
@@ -85,6 +86,9 @@ class PreferenceController extends Controller
         for ($m=1; $m<=12; $m++) {
             $month[$m] = date('F', mktime(0,0,0,$m, 1, date('Y')));
         }
+
+        $we = Pref_work_environment::where('company_id', Session::get('company_id'))->get();
+
 //        dd($preferences);
         return view('preference.index',[
             'company' => $company,
@@ -94,7 +98,8 @@ class PreferenceController extends Controller
             'months' => $month,
             'label' => $label,
             'action' => $action,
-            'data_point' => $data_point
+            'data_point' => $data_point,
+            'we' => $we
         ]);
     }
 
@@ -175,7 +180,39 @@ class PreferenceController extends Controller
         $pref->save();
 
         return redirect()->route('preference', base64_encode($request->id));
+    }
 
+    function store_we(Request $request){
+//        dd($request);
+        $pref = new Pref_work_environment();
+        $pref->name = $request->name;
+        $pref->tag = $request->tag;
+        $pref->formula = $request->formula;
+        $pref->created_by = Auth::user()->username;
+        $pref->company_id = Session::get('company_id');
+        $pref->save();
+        return redirect()->back();
+    }
+
+    function delete_we($id){
+        Pref_work_environment::find($id)->delete();
+        return redirect()->back();
+    }
+
+    function find_we($id){
+        $we = Pref_work_environment::find($id);
+        return view('preference.working_environment_edit', compact('we'));
+    }
+
+    function update_we(Request $request){
+//        dd($request);
+        $pref = Pref_work_environment::find($request->id_we);
+        $pref->name = $request->name;
+        $pref->tag = $request->tag;
+        $pref->formula = $request->formula;
+        $pref->updated_by = Auth::user()->username;
+        $pref->save();
+        return redirect()->back();
     }
 
     function store_ac(Request $request){

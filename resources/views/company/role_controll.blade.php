@@ -183,7 +183,7 @@
 
                         <div class="card-body">
 
-                            <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 50%;">
+                            <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 50%;" data-page-length="100">
                                 <thead>
                                 <tr>
                                     <th>#</th>
@@ -388,7 +388,7 @@
 
                         <div class="card-body">
 
-                            <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 50%;">
+                            <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 50%;" data-page-length="100">
                                 <thead>
                                 <tr>
                                     <th>#</th>
@@ -525,7 +525,7 @@
 
                         <div class="card-body">
 
-                            <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 50%;">
+                            <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 50%;" data-page-length="100">
                                 <thead>
                                 <tr>
                                     <th>#</th>
@@ -662,7 +662,7 @@
 
                         <div class="card-body">
 
-                            <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 50%;">
+                            <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 50%;" data-page-length="100">
                                 <thead>
                                 <tr>
                                     <th>#</th>

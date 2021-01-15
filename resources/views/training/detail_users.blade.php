@@ -257,7 +257,186 @@
                     </div>
                 </div>
                 <div class="tab-pane fade" id="sales" role="tabpanel" aria-labelledby="profile-tab">
+                    <form action="{{route('training.saveScore')}}" method="POST" onsubmit="return confirm('Are you sure?')">
+                        @csrf
+                    <div class="card card-custom gutter-b">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#ModalAddParticipants"  alt="Add More Participants" title="Add More Participants">
+                                    <i class="fa fa-plus"></i>&nbsp;&nbsp;Add Participant
+                                </button>
+                            </div>
+                            <div class="card-toolbar">
+                                <div class="btn-group" role="group" aria-label="Basic example">
 
+                                </div>
+                                &nbsp;
+                                <div class="btn-group" role="group" aria-label="Basic example">
+                                    <input type="submit" class="btn btn-success pull-right" name="submit_score" value="Save Score">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <table class="table display">
+                                <thead>
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th class="text-center">Name</th>
+                                    <th class="text-center">Exam Status</th>
+                                    <th class="text-center">Exam Date</th>
+                                    <th class="text-center">Last Visit</th>
+                                    <th class="text-center">Complete Status</th>
+                                    @if($detail->type == "Optional")
+                                        <th class="text-center">Pick Status</th>
+                                    @endif
+                                    <th class="text-center">Score</th>
+                                    @if($detail->type == "Mandatory")
+                                        <th class="text-center">Mandatory Point<br>Balance</th>
+                                    @endif
+                                    <th class="text-center"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @php
+                                    $arr_emp_id = [];
+                                @endphp
+                                @foreach($users as $key => $value)
+                                    <tr>
+                                        <td class="text-center">{{($key+1)}}</td>
+                                        @php
+                                            /** @var TYPE_NAME $value */
+                                            array_push($arr_emp_id,$value->emp_id);
+                                        @endphp
+                                        <td class="text-center">{{$emp_name[$value->emp_id]['emp_name']}} <b>{{$emp_position[$value->emp_id]['emp_position']}}</b></td>
+                                        <td class="text-center">
+                                            @if($value->passed_on != null)
+                                                @if($value->exam_pass == 0)
+                                                    <b><p class='text-danger'>Failed</p></b>
+                                                @elseif($value->exam_pass == 1)
+                                                    <b><p class='text-success'>Pass</p></b>
+                                                @endif
+                                            @else
+                                                {{'-'}}
+
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if($value->passed_on == null)
+                                                {{'-'}}
+                                            @else
+                                                {{date("d M Y, H:i", strtotime($value->passed_on))}}
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if($value->passed_on == null)
+                                                {{'-'}}
+                                            @else
+                                                {{date("d M Y, H:i", strtotime($value->passed_on))}}
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if($value->date_modified == null)
+                                                {{'-'}}
+                                            @else
+                                                {{date("d M Y, H:i", strtotime($value->date_modified))}}
+                                            @endif
+                                        </td>
+                                        @if($detail->type == "Optional")
+                                            <td class="text-center">
+                                                @if($value->pick_status == 0)
+                                                    {{'-'}}
+                                                @elseif($value->pick_status == 1)
+                                                    {{'Pick'}}
+                                                @else
+                                                    {{'-'}}
+                                                @endif
+                                            </td>
+                                        @endif
+                                        <td class="text-center">
+                                            @if($value->score != null)
+                                                <input type="number" id="" name="score[]" class="form-control" value="{{$value->score}}" min="0" max="100">
+                                            @else
+                                                <input type="number" id="" name="score[]" class="form-control" value="0" min="0" max="100">
+                                            @endif
+                                            <input type="hidden" name="exam_pass_arr[]" value="{{$value->exam_pass}}">
+                                            <input type="hidden" name="employee_id[]" value="{{$value->emp_id}}">
+                                            <input type="hidden" name="training_id_arr[]" value="{{$value->training_id}}">
+                                            <input type="hidden" name="training_users_id_arr[]" value="{{$value->id}}">
+                                            <input type="hidden" name="training_users_id[]" value="{{$value->id}}">
+                                        </td>
+                                        @if($detail->type == "Mandatory")
+                                            <td class="text-center">
+                                                @if($emp_point_mandatory[$value->emp_id]['emp_point_mandatory'] <= $hrdsettingpoint->max_minus_point)
+                                                    <label title="Points Less" class="label label-danger">
+                                                        {{$emp_point_mandatory[$value->emp_id]['emp_point_mandatory']}}
+                                                    </label>
+                                                @else
+                                                    <label title="Normal" class="label label-success">
+                                                        {{$emp_point_mandatory[$value->emp_id]['emp_point_mandatory']}}
+                                                    </label>
+                                                @endif
+                                            </td>
+                                        @endif
+                                        <td class="text-center">
+                                            <a href="{{route('training.deleteparticipant',['id' => $value->id])}}" onclick="return confirm('Are you sure want to delete?');" class='btn btn-xs btn-default btn-icon'><i class='fa fa-trash'></i></a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </form>
+                    <div class="modal fade" id="ModalAddParticipants" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Add More Participants</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <i aria-hidden="true" class="ki ki-close"></i>
+                                    </button>
+                                </div>
+                                <form method="post" name="form_training_users" id="form_training_users" action="{{route('training.saveParticipant')}}" >
+                                    @csrf
+                                    <input type="hidden" name="training_id" id="training_id" value="{{$detail->id}}">
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label>Invite by Employee</label>
+                                            <select name='training_users[]' id='training_users' class="form-control selectpicker" multiple data-actions-box="true">
+                                                @foreach($all_emp_pos as $key1 =>$val_emp_pos)
+                                                <optgroup label="{{$val_emp_pos->emp_position}}">
+                                                    @foreach($all_employee as $key2 => $val_emp)
+                                                        @if($val_emp_pos->emp_position == $val_emp->emp_position)
+                                                            @if(!in_array($val_emp->id,$arr_emp_id))
+                                                                <option value="{{$val_emp->id}}">{{$val_emp->emp_name}}</option>
+                                                            @endif
+                                                        @endif
+                                                    @endforeach
+                                                </optgroup>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Invite by Division</label>
+                                            <select name='training_users_division[]' id='training_users_division' class="form-control selectpicker" multiple data-actions-box="true">
+                                                @foreach($divisions as $key =>$val)
+                                                    <option value="{{$val->id}}">{{$val->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
+                                        <button type="submit" name="submit_participant" value="1" class="btn btn-primary font-weight-bold">
+                                            <i class="fa fa-check"></i>
+                                            Add</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>

@@ -6,14 +6,13 @@
             <div class="card-title">
                 <h3>Inventory</h3><br>
             </div>
-            <div class="card-toolbar">
+            <!-- <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <a href="{{URL::route('items.revision')}}" class="btn btn-warning mr-2"><span class="label label-light-danger mr-2">{{$itemsup}}</span> Item Revision</a>
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addItem"><i class="fa fa-plus"></i>New Items</button>
 
                 </div>
-                <!--end::Button-->
-            </div>
+            </div> -->
         </div>
         <div class="card-body">
             {{--            <h5><span class="span">This page contains a list of Travel Order which has been formed.</span></h5>--}}
@@ -28,27 +27,25 @@
                     <th class="text-center">Minimal Stock</th>
                     <th class="text-center">UoM</th>
                     <th class="text-center">Company</th>
-                    <th class="text-center"></th>
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($items as $key => $item)
-                    <tr>
-                        <td align="center">{{$key + 1}}</td>
-                        <td><button class="btn btn-link" data-toggle="modal" data-target="#editItem" onclick="edit_item({{$item->id}})">{{$item->name}}</button></td>
-                        <td>{{$item->catName}}</td>
-                        <td>{{($item->type_id == 1) ? "Consumable" : "Non Consumable"}}</td>
-                        <td align="center">{{$item->item_code}}</td>
-                        <td align="center">{{$item->minimal_stock}}</td>
-                        <td align="center">{{$item->uom}}</td>
-                        <td align="center">
-                            {{$view_company[$item->company_id]->tag}}
-                        </td>
-                        <td align="center">
-                            <button class="btn btn-danger btn-xs btn-icon" onclick="delete_item({{$item->id}})"><i class="fa fa-trash"></i></button>
-                        </td>
-                    </tr>
-                @endforeach
+                @actionStart('inventory', 'read')
+                    @foreach($items as $key => $item)
+                        <tr>
+                            <td align="center">{{$key + 1}}</td>
+                            <td><button class="btn btn-link" data-toggle="modal" data-target="#editItem" onclick="edit_item({{$item->id}})">{{$item->name}}</button></td>
+                            <td>{{$item->catName}}</td>
+                            <td>{{($item->type_id == 1) ? "Consumable" : "Non Consumable"}}</td>
+                            <td align="center">{{$item->item_code}}</td>
+                            <td align="center">{{$item->minimal_stock}}</td>
+                            <td align="center">{{$item->uom}}</td>
+                            <td align="center">
+                                {{$view_company[$item->company_id]->tag}}
+                            </td>
+                        </tr>
+                    @endforeach
+                @actionEnd
                 </tbody>
             </table>
         </div>
@@ -201,26 +198,20 @@
                     @csrf
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-6">
                                 <h4>Basic Information</h4>
                                 <hr>
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label text-right">Item Name</label>
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" placeholder="Item Name" id="item_name" name="item_name" required>
-                                    </div>
+                                    <label class="col-md-6 font-weight-bold col-form-label" id="item_name"></label>
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label text-right">Item Code</label>
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" placeholder="Item Code" id="item_code" name="item_code" required>
-                                    </div>
+                                    <label class="col-md-6 font-weight-bold col-form-label" id="item_code"></label>
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label text-right">Brand Name</label>
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" placeholder="Brand Name" id="item_series" name="item_series" required>
-                                    </div>
+                                    <label class="col-md-6 font-weight-bold col-form-label" id="item_series"></label>
                                 </div>
                                 {{--                                <div class="form-group row">--}}
                                 {{--                                    <label class="col-md-2 col-form-label text-right">Supplier</label>--}}
@@ -235,14 +226,7 @@
                                 {{--                                </div>--}}
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label text-right">Item Category</label>
-                                    <div class="col-md-6">
-                                        <select name="category" id="category" class="form-control select2" required>
-                                            <option value="">Select Category</option>
-                                            @foreach($categories as $value)
-                                                <option value="{{$value->id}}">{{ucwords($value->name)}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                    <label class="col-md-6 font-weight-bold col-form-label" id="category"></label>
                                 </div>
                                 {{--                                <div class="form-group row">--}}
                                 {{--                                    <label class="col-md-2 col-form-label text-right">Price</label>--}}
@@ -252,61 +236,40 @@
                                 {{--                                </div>--}}
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label text-right">Serial Number</label>
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" placeholder="Serial Number" id="serial_number" name="serial_number" required>
-                                    </div>
+                                    <label class="col-md-6 font-weight-bold col-form-label" id="serial_number"></label>
                                 </div>
-                                <br>
-                                <h4>Detail Info</h4>
-                                <hr>
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label text-right">Type</label>
-                                    <div class="col-md-6">
-                                        <select name="type" id="type" class="form-control" required>
-                                            <option value="1">Consumable</option>
-                                            <option value="2">Non Consumable</option>
-                                        </select>
-                                    </div>
+                                    <label class="col-md-6 font-weight-bold col-form-label" id="type"></label>
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label text-right">Minimal Stock</label>
-                                    <div class="col-md-6">
-                                        <input type="number" class="form-control" placeholder="Minimal Stock" id="minimal_stock" name="min_stock" required>
-                                    </div>
+                                    <label class="col-md-6 font-weight-bold col-form-label" id="minimal_stock"></label>
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label text-right">UoM</label>
-                                    <div class="col-md-6">
-                                        <select name="uom" id="uomedit" class="form-control" required>
-                                            <option value="">- Select UOM -</option>
-                                            @foreach($uom as $v)
-                                                <option value="{{$v}}">{{$v}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                    <label class="col-md-6 font-weight-bold col-form-label" id="uomedit"></label>
                                 </div>
+                                <br>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Detail Info</h4>
+                                <hr>
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label text-right">Picture</label>
                                     <div class="col-md-9">
                                         <div class="col-lg-9 col-xl-6">
                                             <div class="image-input image-input-outline" id="app_logo">
                                                 <div class="image-input-wrapper"></div>
-                                                <label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" data-action="change" data-toggle="tooltip" title="" data-original-title="Change">
-                                                    <i class="fa fa-pen icon-sm text-muted"></i>
-                                                    <input type="file" name="pict" id="p_logo_edit" accept=".png, .jpg, .jpeg" />
+{{--                                                <label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" data-action="change" data-toggle="tooltip" title="" data-original-title="Change">--}}
+{{--                                                    <i class="fa fa-pen icon-sm text-muted"></i>--}}
+{{--                                                    <input type="file" name="pict" id="p_logo_edit" accept=".png, .jpg, .jpeg" />--}}
                                                 </label>
                                                 <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" data-action="cancel" data-toggle="tooltip" title="Cancel">
                                             <i class="ki ki-bold-close icon-xs text-muted"></i>
                                         </span>
                                             </div>
                                             <span class="form-text text-muted">
-                                        <div class="checkbox-inline">
-                                            <label class="checkbox checkbox-success">
-                                                <input type="checkbox" name="del_pict"/>
-                                                <span></span>
-                                                Check this to delete the picture
-                                            </label>
-                                        </div>
                                     </span>
                                         </div>
                                     </div>
@@ -314,16 +277,19 @@
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label text-right">Notes</label>
                                     <div class="col-md-6">
-                                        <textarea name="notes" class="form-control" id="notes" cols="30" rows="10"></textarea>
+                                        <textarea name="notes" class="form-control" id="notes" cols="30" rows="10" readonly></textarea>
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label text-right">Specification</label>
                                     <div class="col-md-6">
-                                        <textarea name="specification" class="form-control" id="specification" cols="30" rows="10"></textarea>
+                                        <textarea name="specification" class="form-control" id="specification" cols="30" rows="10" readonly></textarea>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <hr>
+                        <div class="row">
                             <div class="col-md-4">
                                 <h4>Quantity</h4>
                                 <hr>
@@ -354,8 +320,27 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-8">
+                                <h4>Transaction</h4>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table class="table table-hover table-striped" id="table-transaction">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center">No</th>
+                                                    <th class="text-center">Date</th>
+                                                    <th class="text-center">Description</th>
+                                                    <th class="text-center">Paper</th>
+                                                    <th class="text-center">Warehouse</th>
+                                                    <th class="text-center"></th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" id="id_item" name="id_item">
@@ -408,6 +393,7 @@
             })
         }
         function edit_item(id){
+            $("#table-transaction").DataTable().destroy()
             $.ajax({
                 url: '{{URL::route('items.find')}}',
                 data: {
@@ -432,19 +418,25 @@
                         $("#wh"+wh[i].id).val(stock)
                     }
                     // console.log(json_wh)
+
+                    if (response.item.type_id == 1){
+                        var type = "CONSUMABLE"
+                    } else {
+                        var type = "NON CONSUMABLE"
+                    }
                     $("#id_item").val(response.item.id)
-                    $("#item_name").val(response.item.name)
-                    $("#item_code").val(response.item.item_code)
-                    $("#item_series").val(response.item.item_series)
-                    $("#serial_number").val(response.item.serial_number)
+                    $("#item_name").text(": "+ response.item.name)
+                    $("#item_code").text(": "+ response.item.item_code)
+                    $("#item_series").text(": "+ response.item.item_series)
+                    $("#serial_number").text(": "+ response.item.serial_number)
                     $("#price").val(response.item.price)
                     $("#notes").val(response.item.notes)
                     $("#specification").val(response.item.specification)
-                    $("#minimal_stock").val(response.item.minimal_stock)
-                    $("#supplier").val(response.item.supplier).trigger('change')
-                    $("#category").val(response.item.category_id).trigger('change')
-                    $("#type").val(response.item.type_id).trigger('change')
-                    $("#uomedit").val(response.item.uom).trigger('change')
+                    $("#minimal_stock").text(": "+ response.item.minimal_stock)
+                    $("#supplier").text(": "+ response.item.supplier)
+                    $("#category").text(": "+ response.category)
+                    $("#type").text(": "+ type)
+                    $("#uomedit").text(": "+ response.item.uom)
                     var stock = $(".stocks").toArray()
                     var total_stock = 0
                     for (const i in stock) {
@@ -461,6 +453,48 @@
                         var imgUrl = "{{str_replace("\\", "/", asset('media/asset/'))}}/" + response.item.picture
                         $("#app_logo .image-input-wrapper").css('background-image', "url('"+imgUrl+"')")
                     }
+
+                    $.ajax({
+                        url: "{{route('items.find_transaction')}}/"+response.item.id,
+                        type: "GET",
+                        dataType: "json",
+                        cache: false,
+                        success: function (resp) {
+                            console.log(resp)
+                            var t = $("#table-transaction").DataTable({
+                                responsive: true,
+                                paging: false,
+                                bInfo: false,
+                                searching: false,
+                                data: resp.data,
+                                columns: [
+                                    {"data" : "no"},
+                                    {"data" : "date"},
+                                    {"data" : "description"},
+                                    {"data" : "paper"},
+                                    {"data" : "warehouse"},
+                                    {"data" : "amount"},
+                                ],
+                                columnDefs: [
+                                    {"className" : "amount", "targets" : [5]},
+                                    {"className" : "dt-center", "targets" : "_all"}
+                                ]
+                            })
+
+                            t.on( 'order.dt search.dt', function () {
+                                t.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+                                    cell.innerHTML = i+1;
+                                } );
+                            } ).draw();
+
+                            $(".amount").each(function(){
+                                if (parseInt($(this).text()) > 0){
+                                    var num = "+"+$(this).text()
+                                    $(this).text(num)
+                                }
+                            })
+                        }
+                    })
                 }
             })
         }

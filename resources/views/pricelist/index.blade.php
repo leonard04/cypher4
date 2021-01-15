@@ -44,6 +44,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('price_list','read')
                             @foreach($pricelists as $key =>$val)
                                 <tr>
                                     <td class="text-center">{{($key+1)}}</td>
@@ -54,6 +55,7 @@
                                     <td class="text-right">{{$val->itemUom}}</td>
                                 </tr>
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>

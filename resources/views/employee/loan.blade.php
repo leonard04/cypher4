@@ -23,27 +23,44 @@
                         <th nowrap="nowrap" class="text-right">Loan Amount</th>
                         <th nowrap="nowrap" class="text-center">Loan Start</th>
                         <th nowrap="nowrap" class="text-center">Loan End</th>
+                        <th nowrap="nowrap" class="text-center">Unpaid</th>
                         <th nowrap="nowrap" class="text-center" data-priority=1>#</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach($loans as $key => $loan)
-                        <tr>
-                            <td>{{($key+1)}}</td>
-                            <td class="text-center"><a href="{{route('employee.loan.detail',['id' => $loan->id])}}" class="btn btn-link"><i class="fa fa-search"></i>{{$loan->loan_id}}</a></td>
-                            <td class="text-left">{{$loan->emp_name}}</td>
-                            <td class="text-right">{{number_format($loan->loan_amount,2)}}</td>
-                            <td class="text-center">{{date('d F Y',strtotime($loan->loan_start))}}</td>
-                            <td class="text-center">{{date('d F Y',strtotime($loan->loan_end))}}</td>
-                            <td class="text-center">
-                                <form method="post" action="{{route('employee.loan.delete',['id' => $loan->id])}}">
-                                    @csrf
-                                    <button type="submit" class="btn btn-xs btn-icon btn-default" onclick="return confirm('Hapus data pinjaman?');">
-                                        <i class="fa fa-trash text-danger"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
+                        <?php
+                        /** @var TYPE_NAME $loan */
+                        /** @var TYPE_NAME $payments */
+                            if (empty($loan->old_id)){
+                                $paid = (isset($payments[$loan->company_id][$loan->id])) ? array_sum($payments[$loan->company_id][$loan->id]) : 0;
+                                $unpaid = $loan->loan_amount - $paid;
+                            } else {
+                                $paid = (isset($payments[$loan->company_id][$loan->id])) ? array_sum($payments[$loan->company_id][$loan->id]) : 0;
+                                $unpaid = $loan->loan_amount - $paid;
+                            }
+                        ?>
+{{--                        @if($unpaid > 0)--}}
+                            <tr>
+                                <td>{{($key+1)}}</td>
+                                <td class="text-center"><a href="{{route('employee.loan.detail',['id' => $loan->id])}}" class="btn btn-link"><i class="fa fa-search"></i>{{$loan->loan_id}}</a></td>
+                                <td class="text-left">{{$data_emp[$loan->emp_id]->emp_name}}</td>
+                                <td class="text-right">{{number_format($loan->loan_amount,2)}}</td>
+                                <td class="text-center">{{date('d F Y',strtotime($loan->loan_start))}}</td>
+                                <td class="text-center">{{date('d F Y',strtotime($loan->loan_end))}}</td>
+                                <td class="text-right">
+                                    {{number_format($unpaid, 2)}}
+                                </td>
+                                <td class="text-center">
+                                    <form method="post" action="{{route('employee.loan.delete',['id' => $loan->id])}}">
+                                        @csrf
+                                        <button type="submit" class="btn btn-xs btn-icon btn-default" onclick="return confirm('Hapus data pinjaman?');">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+{{--                        @endif--}}
                     @endforeach
                     </tbody>
                 </table>

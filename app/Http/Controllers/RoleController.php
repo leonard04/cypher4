@@ -16,7 +16,7 @@ class RoleController extends Controller
 		$role->desc = $request->desc;
 		$role->save();
 
-		return redirect()->route('company.detail', $request->coid);
+		return redirect()->back();
 	}
 
 	public function update($id, Request $request)
@@ -27,13 +27,13 @@ class RoleController extends Controller
 		$role->desc = $request->desc;
 		$role->save();
 
-		return redirect()->route('company.detail', $request->coid);
+		return redirect()->back();
 	}
 
 	public function delete($id, Request $request)
 	{
 		Role::find($id)->delete();
 
-		return redirect()->route('company.detail', $request->coid);
+		return redirect()->back();
 	}
 }

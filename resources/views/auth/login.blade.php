@@ -18,7 +18,7 @@
                         <a href="javascript:;" onclick="getIdCompany({{$value->id}})">
                               <span class="svg-icon svg-icon-lg svg-icon-primary">
                                   <!--begin::Svg Icon | path:assets/media/svg/icons/Home/Library.svg-->
-                                  <img src='{{str_replace("public", "public_html", asset('images/'.$value->app_logo))}}' style="align-content: center; max-width: 95%" @if($value->tag == 'CYP') height='15px' @else height='30px' @endif alt="{{$value->company_name}}"/> &nbsp;&nbsp;
+                                  <img src='{{str_replace("public", "public_html", asset('images/'.$value->app_logo))}}' style="align-content: center;" height='30px' alt="{{$value->company_name}}"/> &nbsp;&nbsp;
                                   <!--end::Svg Icon-->
                               </span>
                         </a>

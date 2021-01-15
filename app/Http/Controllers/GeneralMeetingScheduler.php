@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityConfig;
 use App\Models\Hrd_employee;
 use App\Models\Marketing_project;
 use Illuminate\Http\Request;
@@ -97,7 +98,6 @@ class GeneralMeetingScheduler extends Controller
     }
 
     public function addReservation(Request $request){
-
         $ambil_id       = $request['id_room'];
         $jamMasuk       = $request['jam_masuk'];
         $jamKeluar      = $request['jam_keluar'];
@@ -156,6 +156,7 @@ class GeneralMeetingScheduler extends Controller
     }
 
     public function storeEvent(Request $request){
+        ActivityConfig::store_point('meeting_scheduler', 'create');
         if ($request['leader'] == 'new'){
             $leader = $request['meeting_leader'];
             $emp_id_leader = 0;

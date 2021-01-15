@@ -9,8 +9,12 @@
             </div>
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
+                    @actionStart('utilization','read')
                     <button type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#addCriteria"><i class="fa fa-cog"></i>Criteria</button>
+                    @actionEnd
+                    @actionStart('utilization','create')
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addItem"><i class="fa fa-plus"></i>Add Utilization</button>
+                    @actionEnd
                 </div>
                 <!--end::Button-->
             </div>
@@ -31,6 +35,7 @@
                 </tr>
                 </thead>
                 <tbody>
+                @actionStart('utilization','read')
                     @foreach($utils as $key => $util)
                         <tr>
                             <td align="center">{{$key + 1}}</td>
@@ -68,10 +73,13 @@
                                 @endif
                             </td>
                             <td align="center">
+                                @actionStart('utilization','delete')
                                 <button type="button" onclick="button_delete('{{$util->id}}')" class="btn btn-danger btn-icon btn-xs"><i class="fa fa-trash"></i></button>
+                                @actionEnd
                             </td>
                         </tr>
                     @endforeach
+                @actionEnd
                 </tbody>
             </table>
         </div>

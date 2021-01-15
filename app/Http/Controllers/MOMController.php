@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityConfig;
 use App\Helpers\FileManagement;
 use App\Models\ConfigCompany;
+use App\Rms\RolesManagement;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Hash;
@@ -172,9 +174,19 @@ class MOMController extends Controller
             $meeting['location'] = $value->location;
             $meeting['created_by'] = $value->created_by;
             $meeting['action'] = ($value->progress == 'created') ? "<a class='btn btn-success btn-icon btn-xs' href='".route('mom.action.progress',['id' => $value->id_main])."' onclick='return confirm(\"Are you sure?\")'><i class='fa fa-check-square'></i></a>" : "<a class='btn btn-icon btn-xs btn-primary' href='#'><i class='fa fa-download'></i></a>";
-            $meeting['guest'] = "<a class='btn btn-danger btn-xs btn-icon' title='Delete' href='".route('mom.delete.main', ['id'=>$value->id_main])."' onclick='return confirm(\"Are you sure you want to delete ?\")'><i class='fa fa-trash'></i></a>";
+            if (RolesManagement::actionStart('mom','delete')){
+                $meeting['guest'] = "<a class='btn btn-danger btn-xs btn-icon' title='Delete' href='".route('mom.delete.main', ['id'=>$value->id_main])."' onclick='return confirm(\"Are you sure you want to delete ?\")'><i class='fa fa-trash'></i></a>";
+            } else {
+                $meeting['guest'] = "-";
 
-            $row[] = $meeting;
+            }
+
+            if (RolesManagement::actionStart('mom','read')){
+                $row[] = $meeting;
+            } else {
+                $row[] = [];
+            }
+
         }
         $data = [
             'data' => $row,
@@ -190,7 +202,7 @@ class MOMController extends Controller
         return redirect()->route('mom.index');
     }
     public function storeMain(Request $request){
-
+        ActivityConfig::store_point('mom', 'create');
         $mtg_main = new Mtg_main();
         $mtg_main->topic = $request['topic'];
         $mtg_main->location = $request['location'];

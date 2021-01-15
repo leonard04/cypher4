@@ -72,7 +72,7 @@
                     </thead>
                     <tbody>
                         @foreach($val as $key => $item)
-                            <tr bgcolor="{{$item['bgcolor']}}" {{--{{($item['status'] == 1) ? "style=display:none" : ""}}--}} class="text-white">
+                            <tr bgcolor="{{$item['bgcolor']}}" {{($item['status'] == 1) ? "style=display:none" : ""}} class="text-white">
                                 <td align="center"></td>
                                 <td>{{date('d F Y', strtotime($item['date']))}} </td>
                                 <td>{{($item['paper'] != null) ? $item['paper'] : $item['description']}} <button type="button" onclick="edit_date('{{$item['type']}}', '{{$item['id']}}', '{{$item['date']}}')" class="btn btn-xs btn-primary btn-icon"><i class="fa fa-calendar-check"></i></button></td>
@@ -102,6 +102,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                            @actionStart('sp','read')
                             <?php
                             $sum = array();
                             $paid = array();
@@ -140,8 +141,10 @@
                                     @endfor
                                 </tr>
                             @endforeach
+                            @actionEnd
                             </tbody>
                             <tfoot>
+                            @actionStart('sp','read')
                                 <tr>
                                     @for($i = 1; $i <= date('t', strtotime($data['y']."-".$data['m'])); $i++)
                                         <th class="text-center">
@@ -156,17 +159,18 @@
                                         <th class="text-center">
                                             @if(isset($sum[$i]))
                                                 @if(array_sum($paid[$i]) == count($paid[$i]))
-                                                    <a href='' class='btn btn-primary btn-xs font-size-sm mt-2'><i class='fa fa-history'></i> History</a>
+                                                    <button onclick="viewHistory('{{$data['y']."-".$data['m']."-".$i}}')" class='btn btn-primary btn-xs font-size-sm mt-2'><i class='fa fa-history'></i> History</button>
                                                 @else
                                                     <a href='{{URL::route('sp.pay', $data['y']."-".$data['m']."-".$i)}}' class='btn btn-success btn-xs font-size-sm'><i class='fa fa-check'></i> Pay</a>
                                                     @if(array_sum($paid[$i]) > 0)
-                                                        <a href='' class='btn btn-primary btn-xs font-size-sm mt-2'><i class='fa fa-history'></i> History</a>
+                                                        <button onclick="viewHistory('{{$data['y']."-".$data['m']."-".$i}}')" class='btn btn-primary btn-xs font-size-sm mt-2'><i class='fa fa-history'></i> History</button>
                                                     @endif
                                                 @endif
                                             @endif
                                         </th>
                                     @endfor
                                 </tr>
+                            @actionEnd
                             </tfoot>
                         </table>
                     </div>
@@ -203,6 +207,48 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="modalHistory" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">History Payment <span id="history-date"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <i aria-hidden="true" class="ki ki-close"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-responsive-xl" id="table-history">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Date</th>
+                                        <th class="text-center">Description</th>
+                                        <th class="text-center">Executed By</th>
+                                        <th class="text-center">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th class="text-right" colspan="3">Total :</th>
+                                        <th align="right">
+                                            <span id="total-history"></span>
+                                        </th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('custom_script')
@@ -213,6 +259,62 @@
             $("#type").val(type)
             $("#id_item").val(id)
         }
+
+        function viewHistory(x){
+            $("#modalHistory").modal('show')
+            var d = new Date(x)
+            var month = d.getUTCMonth() + 1; //months from 1-12
+            var day = d.getUTCDate();
+            var year = d.getUTCFullYear();
+
+            newdate = year + "/" + month + "/" + day;
+            $("#history-date").text(newdate)
+            $("#table-history").DataTable().destroy()
+            $("#table-history").DataTable({
+                ordering: false,
+                fixedHeader: true,
+                fixedHeader: {
+                    headerOffset: 90,
+                    heeader: true
+                },
+                bInfo: false,
+                searching: false,
+                ajax: {
+                    url: "{{route('sp.history')}}",
+                    type: "post",
+                    data: {
+                        "_token" : "{{csrf_token()}}",
+                        "date" : x
+                    },
+                },
+                columns: [
+                    { "data" : "date" },
+                    { "data" : "desc" },
+                    { "data" : "exec" },
+                    { "data" : "amount" },
+                ],
+                columnDefs: [
+                    { targets: '_all', className: "text-center" }
+                ],
+                "footerCallback": function ( row, data, start, end, display ) {
+                    var api = this.api(), data;
+                    total = api
+                        .column( 3 )
+                        .data()
+                        .reduce( function (a, b) {
+                            return a + b.replace(/[,]/g, '')*1;
+                        }, 0 );
+
+                    total = $.fn.dataTable.render.number(',', '.', 2, '').display( total );
+
+                    // Update footer
+                    $( api.column( 3 ).footer() ).html(
+                        total
+                    );
+                }
+            })
+        }
+
         $(document).ready(function(){
             $("#btn-submit").click(function () {
                 $.ajax({
@@ -298,6 +400,20 @@
 
         })
 
+        function formatDate(date) {
+            var d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2)
+                month = '0' + month;
+            if (day.length < 2)
+                day = '0' + day;
+
+            return [year, month, day].join('-');
+        }
+
         function init_table() {
             $("#table-payroll table.display").DataTable().destroy()
             var t = $("#table-payroll table.display").DataTable({
@@ -326,8 +442,10 @@
                             .data()
                             .pluck(5)
 
+                        var date = formatDate(group)
+
                         var isPaid = []
-                        var btnHistory = "<br><a href='' class='btn btn-primary btn-xs font-size-sm mt-2'><i class='fa fa-history'></i> History</a>"
+                        var btnHistory = "<br><button type='button' onclick=\"viewHistory('"+date+"')\" class='btn btn-primary btn-xs font-size-sm mt-2'><i class='fa fa-history'></i> History</button>"
 
                         for (let i = 0; i < tes.length; i++) {
                             if (tes[i] != null && tes[i] != ""){
@@ -346,12 +464,12 @@
 
                         if (paid == isPaid.length){
                             var btnPay = ""
-                            var btnHistory = "<br><a href='' class='btn btn-primary btn-xs font-size-sm mt-2'><i class='fa fa-history'></i> History</a>"
+                            var btnHistory = "<br><button type='button' onclick=\"viewHistory('"+date+"')\" class='btn btn-primary btn-xs font-size-sm mt-2'><i class='fa fa-history'></i> History</button>"
                         } else if(paid < isPaid.length){
-                            var btnPay = "<a href='{{URL::route('sp.pay')}}/"+date+"' class='btn btn-success btn-xs font-size-sm'><i class='fa fa-check'></i> Pay</a>"
+                            var btnPay = "@actionStart('sp','create')<a href='{{URL::route('sp.pay')}}/"+date+"' class='btn btn-success btn-xs font-size-sm'><i class='fa fa-check'></i> Pay</a> @actionEnd"
                             var btnHistory = ""
                         } else {
-                            var btnPay = "<a href='{{URL::route('sp.pay')}}/"+date+"' class='btn btn-success btn-xs font-size-sm'><i class='fa fa-check'></i> Pay</a>"
+                            var btnPay = "@actionStart('sp','create')<a href='{{URL::route('sp.pay')}}/"+date+"' class='btn btn-success btn-xs font-size-sm'><i class='fa fa-check'></i> Pay</a> @actionEnd"
                             var btnHistory = ""
                         }
 

@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityConfig;
 use App\Models\Asset_item;
 use App\Models\Asset_po;
 use App\Models\Asset_po_detail;
 use App\Models\Asset_pre_detail;
+use App\Models\ConfigCompany;
 use App\Models\Pref_tax_config;
 use App\Models\Procurement_vendor;
+use App\Rms\RolesManagement;
 use Illuminate\Http\Request;
 use App\Models\Asset_pre;
 use App\Models\Marketing_project;
@@ -18,9 +21,160 @@ use Illuminate\Support\Facades\Auth;
 
 class AssetPreController extends Controller
 {
-    public function indexFr(){
-        $projects = Marketing_project::where('company_id',\Session::get('company_id'))
+    public function getFrReject(){
+        $id_companies = array();
+        if (Session::get('company_child') != null){
+            foreach (Session::get('company_child') as $item) {
+                $id_companies[] = $item->id;
+            }
+            array_push($id_companies, Session::get('company_id'));
+        } else {
+            array_push($id_companies, Session::get('company_id'));
+        }
+        $frreject = DB::table('asset_pre')
+            ->join('marketing_projects as projects','projects.id','=','asset_pre.project')
+            ->select('asset_pre.*','projects.prj_name as prj_name',
+                DB::raw('(SELECT COUNT(asset_pre_detail.id) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS items'),
+                DB::raw('(SELECT SUM(asset_pre_detail.qty) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS qty'),
+                DB::raw('(SELECT SUM(asset_pre_detail.delivered) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS delivered'))
+            ->whereNotNull('asset_pre.fr_rejected_at')
+            ->whereNull('asset_pre.deleted_at')
+            ->whereIn('asset_pre.company_id', $id_companies)
+            ->orWhereNotNull('asset_pre.fr_division_rejected_at')
+            ->orderBy('asset_pre.id','DESC')
             ->get();
+        $row = [];
+        $fr_waiting = [];
+
+        $view_company = [];
+        $comp = ConfigCompany::all();
+        foreach ($comp as $key1 => $val){
+            $view_company[$val->id] = $val->tag;
+        }
+        foreach ($frreject as $key => $value){
+            $fr_waiting['no'] = ($key+1);
+            $fr_waiting['req_date'] = date('d F Y',strtotime($value->request_at));
+            $fr_waiting['id_code'] = "<a href='".route('fr.view',['id'=>$value->id])."' class='btn btn-xs btn-link'><i class='fa fa-search'></i>".$value->fr_num."</a>";
+            $fr_waiting['req_by'] = $value->request_by;
+            $fr_waiting['division'] = $value->division;
+            $fr_waiting['project'] = $value->prj_name;
+            $fr_waiting['company'] = $view_company[$value->company_id];
+            $fr_waiting['items'] = ($value->qty != null)?$value->qty:'-';
+            if ($value->fr_division_rejected_by != null || ($value->fr_division_rejected_at != null)){
+                $fr_waiting['div_appr'] = date('d F Y', strtotime($value->fr_division_rejected_at))." by ".$value->fr_division_rejected_by;
+            } else {
+                $fr_waiting['div_appr'] = "-";
+            }
+
+            if (($value->fr_rejected_by != null) || ( $value->fr_rejected_at != null)){
+                $fr_waiting['asset_appr'] = date('d F Y', strtotime( $value->fr_rejected_at))." by ".$value->fr_rejected_by;
+            } else {
+               $fr_waiting['asset_appr'] = '-';
+            }
+
+            if (RolesManagement::actionStart('frwaiting','delete')){
+                $fr_waiting['action'] = "<a href='".route('fr.pr.delete',['id'=>$value->id,'code' =>'fr'])."' class='btn btn-danger btn-xs' title='Delete' onclick='return confirm(\"Are you sure you want to delete?\")'><i class='fa fa-trash'></i></a>";
+            } else {
+                $fr_waiting['action'] = '';
+            }
+            if (RolesManagement::actionStart('fr','read')) {
+                $row[] = $fr_waiting;
+            } else {
+                $row[] = [];
+            }
+
+        }
+        $data = [
+            'data' => $row,
+        ];
+//        dd($data);
+        return json_encode($data);
+    }
+
+    public function getFrBank(){
+        $id_companies = array();
+        if (Session::get('company_child') != null){
+            foreach (Session::get('company_child') as $item) {
+                $id_companies[] = $item->id;
+            }
+            array_push($id_companies, Session::get('company_id'));
+        } else {
+            array_push($id_companies, Session::get('company_id'));
+        }
+        $frbank = DB::table('asset_pre')
+            ->join('marketing_projects as projects','projects.id','=','asset_pre.project')
+            ->select('asset_pre.*','projects.prj_name as prj_name',
+                DB::raw('(SELECT COUNT(asset_pre_detail.id) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS items'),
+                DB::raw('(SELECT SUM(asset_pre_detail.qty) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS qty'),
+                DB::raw('(SELECT SUM(asset_pre_detail.delivered) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS delivered'))
+            ->whereNotNull('asset_pre.pre_num')
+            ->whereNotNull('asset_pre.fr_approved_at')
+            ->whereNotNull('asset_pre.fr_division_approved_at')
+            ->whereNull('asset_pre.deleted_at')
+            ->whereIn('asset_pre.company_id', $id_companies)
+            ->orderBy('asset_pre.id','DESC')
+            ->get();
+
+        $row = [];
+        $fr_waiting = [];
+
+        $view_company = [];
+        $comp = ConfigCompany::all();
+        foreach ($comp as $key1 => $val){
+            $view_company[$val->id] = $val->tag;
+        }
+        foreach ($frbank as $key => $value){
+            $fr_waiting['no'] = ($key+1);
+            $fr_waiting['req_date'] = date('d F Y',strtotime($value->request_at));
+            $fr_waiting['id_code'] = "<a href='".route('fr.view',['id'=>$value->id])."' class='btn btn-xs btn-link'><i class='fa fa-search'></i>".$value->fr_num."</a>";
+            $fr_waiting['req_by'] = $value->request_by;
+            $fr_waiting['division'] = $value->division;
+            $fr_waiting['project'] = $value->prj_name;
+            $fr_waiting['company'] = $view_company[$value->company_id];
+            $fr_waiting['items'] = ($value->qty != null)?$value->qty:'-';
+            if (($value->fr_division_approved_by != null) && ($value->fr_division_approved_at != null)){
+                $fr_waiting['div_appr'] = date('d F Y', strtotime( $value->fr_division_approved_at));
+            } else {
+                $fr_waiting['div_appr'] = "<a href='".route('fr.view',['id'=>$value->id,'code'=>base64_encode('div_appr')])."' class='btn btn-link btn-xs'><i class='fa fa-clock'></i>waiting</a>";
+            }
+
+            if (($value->fr_approved_by != null) && ( $value->fr_approved_at != null)){
+                $fr_waiting['asset_appr'] = date('d F Y', strtotime( $value->fr_approved_at));
+            } else {
+                if (($value->fr_division_approved_by != null) && ( $value->fr_division_approved_at != null)){
+                    $fr_waiting['asset_appr'] = "<a href='".route('fr.view',['id'=>$value->id,'code'=>base64_encode('asset_appr')])."' class='btn btn-link btn-xs'><i class='fa fa-clock'></i>waiting</a>";
+                } else {
+                    $fr_waiting['asset_appr'] = "waiting";
+                }
+            }
+            if (( $value->qty == $value->delivered) && ( $value->qty > 0)){
+                $fr_waiting['deliv_status'] = "Delivered";
+            } else {
+                if (($value->fr_division_approved_by != null) && ( $value->fr_division_approved_at != null)){
+                    $fr_waiting['deliv_status'] = "<a href='".route('fr.view',['id'=>$value->id,'code'=>base64_encode('deliver')])."' class='btn btn-link btn-xs'><i class='fa fa-clock'></i>waiting</a>";
+                } else {
+                    $fr_waiting['deliv_status'] = "waiting";
+                }
+            }
+            if (RolesManagement::actionStart('frwaiting','delete')){
+                $fr_waiting['action'] = "<a href='".route('fr.pr.delete',['id'=>$value->id,'code' =>'fr'])."' class='btn btn-danger btn-xs' title='Delete' onclick='return confirm(\"Are you sure you want to delete?\")'><i class='fa fa-trash'></i></a>";
+            } else {
+                $fr_waiting['action'] = '';
+            }
+            if (RolesManagement::actionStart('fr','read')) {
+                $row[] = $fr_waiting;
+            } else {
+                $row[] = [];
+            }
+        }
+        $data = [
+            'data' => $row,
+        ];
+//        dd($data);
+        return json_encode($data);
+    }
+
+    public function getFrWaiting(){
         $id_companies = array();
         if (Session::get('company_child') != null){
             foreach (Session::get('company_child') as $item) {
@@ -36,44 +190,78 @@ class AssetPreController extends Controller
                 DB::raw('(SELECT COUNT(asset_pre_detail.id) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS items'),
                 DB::raw('(SELECT SUM(asset_pre_detail.qty) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS qty'),
                 DB::raw('(SELECT SUM(asset_pre_detail.delivered) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS delivered'))
-            ->whereNull('asset_pre.fr_delivers')
-            ->whereNull('asset_pre.fr_rejected_at')
-            ->WhereNull('asset_pre.fr_division_rejected_at')
+
+            ->WhereNull('asset_pre.fr_approved_at')
             ->whereNull('asset_pre.deleted_at')
             ->whereIn('asset_pre.company_id', $id_companies)
             ->orderBy('asset_pre.id','DESC')
             ->get();
-        $frbank = DB::table('asset_pre')
-            ->join('marketing_projects as projects','projects.id','=','asset_pre.project')
-            ->select('asset_pre.*','projects.prj_name as prj_name',
-                DB::raw('(SELECT COUNT(asset_pre_detail.id) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS items'),
-                DB::raw('(SELECT SUM(asset_pre_detail.qty) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS qty'),
-                DB::raw('(SELECT SUM(asset_pre_detail.delivered) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS delivered'))
-            ->whereNotNull('asset_pre.fr_delivers')
-            ->whereNotNull('asset_pre.fr_approved_at')
-            ->WhereNotNull('asset_pre.fr_division_approved_at')
-            ->whereNull('asset_pre.deleted_at')
-            ->whereIn('asset_pre.company_id', $id_companies)
-            ->orderBy('asset_pre.id','DESC')
+
+        $row = [];
+        $fr_waiting = [];
+
+        $view_company = [];
+        $comp = ConfigCompany::all();
+        foreach ($comp as $key1 => $val){
+            $view_company[$val->id] = $val->tag;
+        }
+        foreach ($frwaiting as $key => $value){
+            $fr_waiting['no'] = ($key+1);
+            $fr_waiting['req_date'] = date('d F Y',strtotime($value->request_at));
+            $fr_waiting['id_code'] = "<a href='".route('fr.view',['id'=>$value->id])."' class='btn btn-xs btn-link'><i class='fa fa-search'></i>".$value->fr_num."</a>";
+            $fr_waiting['req_by'] = $value->request_by;
+            $fr_waiting['division'] = $value->division;
+            $fr_waiting['project'] = $value->prj_name;
+            $fr_waiting['company'] = $view_company[$value->company_id];
+            $fr_waiting['items'] = ($value->qty != null)?$value->qty:'-';
+            if (($value->fr_division_approved_by != null) && ($value->fr_division_approved_at != null)){
+                $fr_waiting['div_appr'] = date('d F Y', strtotime( $value->fr_division_approved_at));
+            } else {
+                $fr_waiting['div_appr'] = "<a href='".route('fr.view',['id'=>$value->id,'code'=>base64_encode('div_appr')])."' class='btn btn-link btn-xs'><i class='fa fa-clock'></i>waiting</a>";
+            }
+
+            if (($value->fr_approved_by != null) && ( $value->fr_approved_at != null)){
+                $fr_waiting['asset_appr'] = date('d F Y', strtotime( $value->fr_approved_at));
+            } else {
+                if (($value->fr_division_approved_by != null) && ( $value->fr_division_approved_at != null)){
+                    $fr_waiting['asset_appr'] = "<a href='".route('fr.view',['id'=>$value->id,'code'=>base64_encode('asset_appr')])."' class='btn btn-link btn-xs'><i class='fa fa-clock'></i>waiting</a>";
+                } else {
+                    $fr_waiting['asset_appr'] = "waiting";
+                }
+            }
+            if (( $value->qty == $value->delivered) && ( $value->qty > 0)){
+                $fr_waiting['deliv_status'] = "Delivered";
+            } else {
+                if (($value->fr_division_approved_by != null) && ( $value->fr_division_approved_at != null)){
+                    $fr_waiting['deliv_status'] = "<a href='".route('fr.view',['id'=>$value->id,'code'=>base64_encode('deliver')])."' class='btn btn-link btn-xs'><i class='fa fa-clock'></i>waiting</a>";
+                } else {
+                    $fr_waiting['deliv_status'] = "waiting";
+                }
+            }
+            if (RolesManagement::actionStart('frwaiting','delete')){
+                $fr_waiting['action'] = "<a href='".route('fr.pr.delete',['id'=>$value->id,'code' =>'fr'])."' class='btn btn-danger btn-xs' title='Delete' onclick='return confirm(\"Are you sure you want to delete?\")'><i class='fa fa-trash'></i></a>";
+            } else {
+                $fr_waiting['action'] = '';
+            }
+            if (RolesManagement::actionStart('fr','read')) {
+                $row[] = $fr_waiting;
+            } else {
+                $row[] = [];
+            }
+        }
+        $data = [
+            'data' => $row,
+        ];
+//        dd($data);
+        return json_encode($data);
+
+    }
+
+    public function indexFr(){
+        $projects = Marketing_project::where('company_id',\Session::get('company_id'))
             ->get();
-        $frreject = DB::table('asset_pre')
-            ->join('marketing_projects as projects','projects.id','=','asset_pre.project')
-            ->select('asset_pre.*','projects.prj_name as prj_name',
-                DB::raw('(SELECT COUNT(asset_pre_detail.id) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS items'),
-                DB::raw('(SELECT SUM(asset_pre_detail.qty) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS qty'),
-                DB::raw('(SELECT SUM(asset_pre_detail.delivered) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS delivered'))
-            ->whereNotNull('asset_pre.fr_rejected_at')
-            ->whereNull('asset_pre.deleted_at')
-            ->whereIn('asset_pre.company_id', $id_companies)
-            ->orWhereNotNull('asset_pre.fr_division_rejected_at')
-            ->orderBy('asset_pre.id','DESC')
-            ->get();
-//        dd($fr);
-//        dd($frwaiting);
+
         return view('fr.index',[
-            'waitings' => $frwaiting,
-            'banks' => $frbank,
-            'rejects' => $frreject,
             'projects' => $projects,
         ]);
     }
@@ -149,6 +337,7 @@ class AssetPreController extends Controller
     }
 
     public function addFr(Request $request){
+        ActivityConfig::store_point('fr', 'create');
         $iRequest = new Asset_pre();
 
         $arrRomawi	= array(1=>"I","II","III", "IV", "V","VI","VII","VIII","IX","X", "XI","XII");
@@ -233,9 +422,13 @@ class AssetPreController extends Controller
     }
 
     public function apprDiv(Request $request){
+//        dd($request);
+        ActivityConfig::store_point('fr', 'approve_div');
         if ($request['submit'] == 'Approve'){
             Asset_pre::where('id', $request['fr_id'])
                 ->update([
+//                    'fr_approved_by' => Auth::user()->username,
+//                    'fr_approved_at' => date('Y-m-d H:i:s'),
                     'fr_division_approved_by' => Auth::user()->username,
                     'fr_division_approved_at' => date('Y-m-d H:i:s'),
                     'fr_approved_notes' => $request['notes']
@@ -284,15 +477,17 @@ class AssetPreController extends Controller
                 ]);
         }
 
-        return redirect()->route('pr.index');
+        return redirect()->route('fr.index');
     }
 
     public function apprAsset(Request $request){
+        ActivityConfig::store_point('fr', 'approve_asset');
         if ($request['submit'] == 'Approve'){
             $frnum = $request['fr_num'];
             $pre_num = str_replace("FR","PRE",$frnum);
             Asset_pre::where('id', $request['fr_id'])
                 ->update([
+                    'fr_delivers' =>'deliver',
                     'fr_approved_by' => Auth::user()->username,
                     'fr_approved_at' => date('Y-m-d H:i:s'),
                     'fr_approved_notes' => $request['notes'],
@@ -328,7 +523,7 @@ class AssetPreController extends Controller
                 ]);
         }
 
-        return redirect()->route('fr.index');
+        return redirect()->route('pr.index');
     }
 
     public function apprDeliver(Request $request){
@@ -373,10 +568,9 @@ class AssetPreController extends Controller
                 DB::raw('(SELECT SUM(asset_pre_detail.delivered) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS delivered'))
             ->where('asset_pre.request_at','like','%'.date('Y').'%')
             ->whereNotNull('asset_pre.fr_approved_at')
-            ->whereNotNull('asset_pre.fr_approved_by')
-            ->whereNull('asset_pre.pre_approved_at')
-            ->whereNull('asset_pre.pre_rejected_at')
+            ->whereNotNull('asset_pre.fr_division_approved_at')
             ->whereNull('asset_pre.deleted_at')
+            ->whereNull('asset_pre.pre_approved_by')
             ->whereIn('asset_pre.company_id', $id_companies)
             ->orderBy('asset_pre.id','DESC')
             ->get();
@@ -388,9 +582,9 @@ class AssetPreController extends Controller
                 DB::raw('(SELECT SUM(asset_pre_detail.delivered) FROM asset_pre_detail WHERE asset_pre_detail.fr_id = asset_pre.id) AS delivered'))
             ->where('asset_pre.request_at','like','%'.date('Y').'%')
             ->whereNotNull('asset_pre.fr_approved_at')
-            ->whereNotNull('asset_pre.fr_approved_by')
-            ->whereNotNull('asset_pre.pre_approved_at')
-            ->whereNull('asset_pre.pre_rejected_at')
+            ->whereNotNull('asset_pre.fr_division_approved_at')
+            ->whereNotNull('asset_pre.pre_approved_by')
+
             ->whereNull('asset_pre.deleted_at')
             ->whereIn('asset_pre.company_id', $id_companies)
             ->orderBy('asset_pre.id','DESC')
@@ -422,7 +616,7 @@ class AssetPreController extends Controller
         if ($code == 'fr'){
             return redirect()->route('fr.index');
         } else {
-            return redirect()->route('pr.index');
+            return redirect()->route('fr.index');
         }
     }
 

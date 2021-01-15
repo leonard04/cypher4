@@ -48,7 +48,7 @@
             </div>
             <div class="separator separator-dashed separator-border-2 separator-primary"></div>
             @if($act != "view")
-            <div class="row m-5">
+            <!-- <div class="row m-5">
                 <div class="col-md-4 mx-auto">
                     <form action="" method="POST">
                         @csrf
@@ -66,7 +66,7 @@
                         </div>
                     </form>
                 </div>
-            </div>
+            </div> -->
             @endif
             <div class="separator separator-dashed separator-border-2 separator-primary"></div>
             <div class="row mt-5">
@@ -122,6 +122,9 @@
                                     <td colspan="4" align="right"><label for="" class="col-form-label">{{$tax_name[$tax]}}</label></td>
                                     <td align="right">
                                         <label id="tax{{$tax}}" class="col-form-label">{{number_format(0, 2)}}</label>
+                                        @if($inv_detail->wapu == "on" && $isWapu[$tax] == 1)
+                                            <input type="hidden" name="isWapu" id="isWapu">
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -278,6 +281,9 @@
             var taxformula = JSON.parse(jsontaxformula)
             var _jsontax = "{{$inv_detail->taxes}}".replaceAll("&quot;", "\"")
             var _tax = JSON.parse(_jsontax)
+            var jsonwapu = "{{json_encode($isWapu)}}".replaceAll("&quot;", "\"")
+            var wapu = JSON.parse(jsonwapu)
+            var act = "{{$inv_detail->fin_approved_date}}"
 
             var amount = $(".amount").toArray()
             var sub = 0;
@@ -293,16 +299,33 @@
             am = sub - disc
 
             $("#total-net").text(am.toFixed(2))
+            console.log(act)
 
 
             for (let i = 0; i < _tax.length; i++) {
-                var tx = document.getElementById("tax"+_tax[i])
-                var $sum = am
-                var tax_val = eval(taxformula[_tax[i]])
-                tx.innerHTML = tax_val.toFixed(2)
-                am += tax_val
+                if (act == "" || act == undefined) {
+                    var tx = document.getElementById("tax"+_tax[i])
+                    var $sum = am
+                    var tax_val = eval(taxformula[_tax[i]])
+                    tx.innerHTML = tax_val.toFixed(2)
+                    am += tax_val
+                } else {
+                    if (wapu[_tax[i]] == 1) {
+                        var tx = document.getElementById("tax"+_tax[i])
+                        var $sum = am
+                        var tax_val = eval(taxformula[_tax[i]])
+                        tx.innerHTML = tax_val.toFixed(2)
+                    } else {
+                        var tx = document.getElementById("tax"+_tax[i])
+                        var $sum = am
+                        var tax_val = eval(taxformula[_tax[i]])
+                        tx.innerHTML = tax_val.toFixed(2)
+                        am += tax_val
+                    }
+                    
+                }
             }
-            console.log(formatter.format(am))
+            // console.log(format.format(am))
             $("#payable").text(am.toFixed(2))
         }
     </script>

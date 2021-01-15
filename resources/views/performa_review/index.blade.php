@@ -22,6 +22,7 @@
                 </tr>
                 </thead>
                 <tbody>
+                @actionStart('performa', 'read')
                 @foreach($emp as $key => $item)
                     <tr>
                         <td align="center">{{$key + 1}}</td>
@@ -98,6 +99,7 @@
                         </td>
                     </tr>
                 @endforeach
+                @actionEnd
                 </tbody>
             </table>
         </div>
@@ -608,9 +610,11 @@
                     <div class="modal-footer">
                         <input type="hidden" name="id_emp" id="id-emp">
                         <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
+                        @actionStart('performa', 'create')
                         <button type="submit" id="btn-save-leads" class="btn btn-primary font-weight-bold">
                             <i class="fa fa-check"></i>
                             Save</button>
+                        @actionEnd
                     </div>
                 </form>
             </div>

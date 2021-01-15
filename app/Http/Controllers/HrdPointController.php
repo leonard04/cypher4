@@ -30,7 +30,9 @@ class HrdPointController extends Controller
             $emp_data[$item->id] = $item;
         }
 
-        $points = Hrd_point::whereIn('company_id', $id_companies)->get();
+        $points = Hrd_point::whereIn('company_id', $id_companies)
+            ->where('created_by', '!=', 'system')
+            ->get();
 
         return view('point.index', [
             'users' => $users,

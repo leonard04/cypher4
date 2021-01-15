@@ -64,7 +64,7 @@
                                         <td align="center">{{date('d F Y', strtotime($po_item->po_date))}}</td>
                                         <td align="center">{{$pro_name[$po_item->project]}}</td>
                                         <td align="center">{{$view_company[$po_item->company_id]->tag}}</td>
-                                        <td align="center">{{$vendor_name[$po_item->project]}}</td>
+                                        <td align="center">{{(isset($vendor_name[$po_item->project])) ? $vendor_name[$po_item->project] : ""}}</td>
                                         <td align="center">
                                             <?php
                                             $amount = 0;
@@ -98,7 +98,9 @@
                                             @endif
                                         </td>
                                         <td align="center">
+                                            @actionStart('gr', 'delete')
                                             <button class="btn btn-icon btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
@@ -140,7 +142,7 @@
                                         <td align="center">{{date('d F Y', strtotime($po_item->po_date))}}</td>
                                         <td align="center">{{$pro_name[$po_item->project]}}</td>
                                         <td align="center">{{$view_company[$po_item->company_id]->tag}}</td>
-                                        <td align="center">{{$vendor_name[$po_item->project]}}</td>
+                                        <td align="center">{{(isset($vendor_name[$po_item->project])) ? $vendor_name[$po_item->project] : ""}}</td>
                                         <td align="center">
                                             <?php
                                             $amount =0;

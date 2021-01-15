@@ -7,9 +7,11 @@
                 <h3>Purchase Order</h3><br>
             </div>
             <div class="card-toolbar">
+                @actionStart('po', 'create')
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addInstant"><i class="fa fa-plus"></i>Add PO Instant</button>
                 </div>
+                @actionEnd
                 <!--end::Button-->
             </div>
         </div>
@@ -68,6 +70,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                                @actionStart('po', 'read')
                                 @foreach($po as $key => $po_item)
                                     @if($po_item->rejected_by == null & $po_item->approved_by == null)
                                     <tr>
@@ -81,7 +84,7 @@
                                         <td align="center">{{date('d F Y', strtotime($po_item->po_date))}}</td>
                                         <td align="center">{{$pro_name[$po_item->project]}}</td>
                                         <td align="center">{{$view_company[$po_item->company_id]->tag}}</td>
-                                        <td align="center">{{$vendor_name[$po_item->project]}}</td>
+                                        <td align="center">{{isset($vendor_name[$po_item->project])?$vendor_name[$po_item->project] : ''}}</td>
                                         <td align="center">
                                             <?php
                                             $amount =0;
@@ -111,11 +114,14 @@
                                             @endif
                                         </td>
                                         <td align="center">
+                                            @actionStart('po', 'delete')
                                             <button class="btn btn-icon btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                     @endif
                                 @endforeach
+                                @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -140,6 +146,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                                @actionStart('po', 'read')
                             @foreach($po as $key => $po_item)
                                 @if($po_item->approved_by != null)
                                     <tr>
@@ -153,7 +160,7 @@
                                         <td align="center">{{date('d F Y', strtotime($po_item->po_date))}}</td>
                                         <td align="center">{{$pro_name[$po_item->project]}}</td>
                                         <td align="center">{{$view_company[$po_item->company_id]->tag}}</td>
-                                        <td align="center">{{$vendor_name[$po_item->project]}}</td>
+                                        <td align="center">{{isset($vendor_name[$po_item->project]) ? $vendor_name[$po_item->project]:''}}</td>
                                         <td align="center">
                                             <?php
                                             $amount =0;
@@ -183,11 +190,14 @@
                                             @endif
                                         </td>
                                         <td align="center">
+                                            @actionStart('po', 'delete')
                                             <button class="btn btn-icon btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -212,6 +222,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                                @actionStart('po', 'read')
                             @foreach($po as $key => $po_item)
                                 @if($po_item->rejected_by != null )
                                     <tr>
@@ -250,11 +261,14 @@
                                             rejected at {{$po_item->rejected_time}} by {{$po_item->rejected_by}}
                                         </td>
                                         <td align="center">
+                                            @actionStart('po', 'read')
                                             <button class="btn btn-icon btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>

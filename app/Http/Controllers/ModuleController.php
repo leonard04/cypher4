@@ -23,7 +23,7 @@ class ModuleController extends Controller
 		$module->desc = $request->desc;
 		$module->save();
 
-		return redirect()->route('company.detail', $request->coid);
+		return redirect()->back();
 	}
 
 	public function update($id, Request $request)
@@ -33,13 +33,13 @@ class ModuleController extends Controller
 		$module->desc = $request->desc;
 		$module->save();
 
-		return redirect()->route('company.detail', $request->coid);
+		return redirect()->back();
 	}
 
 	public function delete($id, Request $request)
 	{
 		Module::find($id)->delete();
 		
-		return redirect()->route('company.detail', $request->coid);
+		return redirect()->back();
 	}
 }

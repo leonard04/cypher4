@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Hrd_config;
 use App\Models\Preference_config;
+use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\ConfigCompany;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Session;
 
 class LoginController extends Controller
@@ -194,6 +196,18 @@ class LoginController extends Controller
                     }
                 }
             }
+
+            $arr = array();
+
+            $users = User::where('username', Auth::user()->username)->get();
+//            dd($users);
+
+            foreach ($users as $k => $val){
+                array_push( $arr ,$val->company_id);
+            }
+
+            Session::put('comp_user', $arr);
+//            dd($_SESSION['comp_user']);
 
             return $this->sendLoginResponse($request);
         }

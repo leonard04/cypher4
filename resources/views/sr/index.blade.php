@@ -62,6 +62,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                                @actionStart('sr', 'read')
                             @foreach($sr as $i => $item)
                                 @if($item->rfq_rejected_by == null && $item->rfq_approved_by == null)
                                     <tr>
@@ -83,11 +84,14 @@
                                             @endif
                                         </td>
                                         <td align="center">
+                                            @actionStart('sr', 'delete')
                                             <button class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -110,6 +114,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                                @actionStart('sr', 'read')
                             @foreach($sr as $i => $item)
                                 @if($item->rfq_approved_by != null)
                                     <tr>
@@ -131,11 +136,14 @@
                                             @endif
                                         </td>
                                         <td align="center">
+                                            @actionStart('sr', 'delete')
                                             <button class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -158,6 +166,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                                @actionStart('sr', 'read')
                             @foreach($sr as $i => $item)
                                 @if($item->rfq_rejected_by != null)
                                     <tr>
@@ -175,11 +184,14 @@
                                             rejected at {{date('Y-m-d', strtotime($item->rfq_so_approved_at))}} by <b>{{$item->rfq_so_approved_by}}</b>
                                         </td>
                                         <td align="center">
+                                            @actionStart('sr', 'read')
                                             <button class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>

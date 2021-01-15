@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityConfig;
+use App\Models\Pref_work_environment;
 use Illuminate\Http\Request;
 use App\Models\General_travel_order;
 use App\Models\Hrd_employee;
@@ -52,11 +54,13 @@ class GeneralTravelOrderController extends Controller
     public function addFirst(Request $request){
         $emp_detail = Hrd_employee::where('id', $request['emp'])->first();
         $prj_detail = Marketing_project::where('id', $request['project'])->first();
+        $we = Pref_work_environment::where('company_id', Session::get('company_id'))->get();
 
         return view('to.add_detail',[
             'emp' => $emp_detail,
             'prj' => $prj_detail,
             'type' => $request['type_travel'],
+            'we' => $we
         ]);
     }
     public function nextDocNumber($code,$year){
@@ -89,7 +93,7 @@ class GeneralTravelOrderController extends Controller
     }
 
     public function store(Request $request){
-
+        ActivityConfig::store_point('to', 'create');
         $arrRomawi	= array(1=>"I","II","III", "IV", "V","VI","VII","VIII","IX","X", "XI","XII");
         $to_num = $this->nextDocNumber(strtoupper(\Session::get('company_tag'))."/TO",date('Y-m-d H:i:s'));
         $tag = strtoupper(\Session::get('company_tag'));
@@ -362,6 +366,7 @@ class GeneralTravelOrderController extends Controller
     }
 
     public function doPayAppr(Request $request){
+        ActivityConfig::store_point('reimburse', 'approve');
         General_travel_order::where('id',$request['id'])
             ->update([
                 'paid_by'=> Auth::user()->username,

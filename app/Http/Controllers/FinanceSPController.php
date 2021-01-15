@@ -463,7 +463,7 @@ class FinanceSPController extends Controller
                     $amount[$i] = $inv_pay->amount * -1;
                     $type = $type_paper;
                     $subject[$i] = $paper['paper_num'][$type_paper][$id_paper];
-                    $desc[$i] = "[SP] Schedule Payment for " . $paper['paper_num'][$type_paper][$id_paper];
+                    $desc[$i] = "[SP] Schedule Payment for " . $paper['paper_num'][$type_paper][$id_paper]." - ".$uInv->description;
 
                     $uInv->save();
                     $inv->save();
@@ -519,6 +519,7 @@ class FinanceSPController extends Controller
                 $tre_his->description = $desc[$i];
                 $tre_his->IDR = $amount[$i];
                 $tre_his->PIC = Auth::user()->username;
+                $tre_his->company_id = Session::get('company_id');
                 $tre_his->save();
 
                 $tre = Finance_treasury::find($source[$i]);
@@ -532,6 +533,7 @@ class FinanceSPController extends Controller
                 $sp->description = $subject[$i];
                 $sp->IDR = $amount[$i];
                 $sp->PIC = Auth::user()->username;
+                $sp->company_id = Session::get('company_id');
                 $sp->save();
             }
         }
@@ -574,6 +576,32 @@ class FinanceSPController extends Controller
         return view('finance.salary_financing.stat',[
             'salaryfinstats' => $salaryfinstat
         ]);
+    }
+
+    function history(Request $request){
+//        dd($request);
+        $hist = Finance_schedule_payment::where('sp_date', $request->date)
+            ->where('company_id', Session::get('company_id'))
+            ->where('IDR', '!=', 0)
+            ->get();
+
+        $sum = 0;
+        foreach ($hist as $item){
+            $list['date'] = $item->sp_date;
+            $list['desc'] = ucwords($item->payment_type)." - ".$item->description;
+            $list['exec'] = $item->PIC;
+            $list['amount'] = number_format($item->IDR, 2);
+            $sum += $item->IDR;
+            $data[] = $list;
+        }
+
+        $val = array(
+            'error' => 0,
+            'sum' => $sum,
+            'data' => $data
+        );
+
+        return json_encode($val);
     }
 
 }

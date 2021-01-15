@@ -7,9 +7,11 @@
                 <h3>Work Order</h3><br>
             </div>
             <div class="card-toolbar">
+                @actionStart('wo', 'create')
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addInstant"><i class="fa fa-plus"></i>Add WO Instant</button>
                 </div>
+                @actionEnd
                 <!--end::Button-->
             </div>
         </div>
@@ -68,6 +70,7 @@
                             </thead>
                             <tbody>
                             <?php $i1 = 0; ?>
+                            @actionStart('wo', 'read')
                             @foreach($po as $key => $po_item)
                                 @if($po_item->rejected_by == null & $po_item->approved_by == null)
                                     <tr>
@@ -91,11 +94,14 @@
                                             @endif
                                         </td>
                                         <td align="center">
+                                            @actionStart('wo', 'delete')
                                             <button class="btn btn-icon btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -121,6 +127,7 @@
                             </thead>
                             <tbody>
                             <?php $i2 = 0; ?>
+                            @actionStart('wo', 'read')
                             @foreach($po as $key => $po_item)
                                 @if($po_item->approved_by != null)
                                     <tr>
@@ -144,11 +151,14 @@
                                             @endif
                                         </td>
                                         <td align="center">
+                                            @actionStart('wo', 'delete')
                                             <button class="btn btn-icon btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -174,6 +184,7 @@
                             </thead>
                             <tbody>
                             <?php $i3 = 0; ?>
+                            @actionStart('wo', 'read')
                             @foreach($po as $key => $po_item)
                                 @if($po_item->rejected_by != null )
                                     <tr>
@@ -193,11 +204,14 @@
                                             rejected at {{date('Y-m-d', strtotime($po_item->approved_time))}}
                                         </td>
                                         <td align="center">
+                                            @actionStart('wo', 'delete')
                                             <button class="btn btn-icon btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>

@@ -326,52 +326,95 @@
                         </div>
                         <div class="modal fade" id="add" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
                             <div class="modal-dialog">
-                                <form class="form" action="{{URL::route('user.add')}}" method="POST">
-                                    @csrf
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel">Add New User</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                X
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="form-group">
-                                                <label>Name</label>
-                                                <input type="text" class="form-control" name="name">
+
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Add New User</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            X
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <ul class="nav nav-tabs" id="inputUser{{$company->id}}" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="input{{$company->id}}" data-toggle="tab" href="#manual{{$company->id}}">
+                                                        <span class="nav-icon">
+                                                            <i class="flaticon-list-1"></i>
+                                                        </span>
+                                                    <span class="nav-text">Manual Input</span>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="input2{{$company->id}}" data-toggle="tab" href="#export{{$company->id}}" aria-controls="profile">
+                                                        <span class="nav-icon">
+                                                            <i class="flaticon-user-add"></i>
+                                                        </span>
+                                                    <span class="nav-text">Import User</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content mt-5" id="all{{$company->id}}">
+                                            <div class="tab-pane fade show active" id="manual{{$company->id}}" role="tabpanel" aria-labelledby="home-tab">
+                                                <form class="form" action="{{URL::route('user.add')}}" method="POST">
+                                                    @csrf
+                                                    <div class="form-group">
+                                                        <label>Name</label>
+                                                        <input type="text" class="form-control" name="name">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Email</label>
+                                                        <input type="text" class="form-control" name="email">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Username</label>
+                                                        <input type="text" class="form-control" name="username">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Password</label>
+                                                        <input type="password" class="form-control" name="password">
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label>Position</label>
+                                                        <select name="userRoleAdd" class="form-control">
+                                                            @foreach($roleDivsList as $key => $value)
+                                                                <option value="{{$value->id}}">{{$value->roleName}}&nbsp;{{$value->divName}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                        <button type="submit" class="btn btn-primary" name="saveAdd">Save</button>
+                                                    </div>
+                                                </form>
                                             </div>
-                                            <div class="form-group">
-                                                <label>Email</label>
-                                                <input type="text" class="form-control" name="email">
+                                            <div class="tab-pane fade" id="export{{$company->id}}" role="tabpanel" aria-labelledby="profile-tab">
+                                                <form class="form" action="{{URL::route('user.add')}}" method="POST">
+                                                    @csrf
+                                                    <div class="form-group">
+                                                        <label>From Company</label>
+                                                        <select name="company" id="company" class="form-control select2">
+
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group" id="opt2">
+                                                        <label>Choose User</label>
+                                                        <select name="user_company" id="user_company" class="form-control select2">
+
+                                                        </select>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <input type="hidden" name="export" value="1">
+                                                        <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                        <button type="submit" class="btn btn-primary" name="saveAdd">Save</button>
+                                                    </div>
+                                                </form>
                                             </div>
-                                            <div class="form-group">
-                                                <label>Username</label>
-                                                <input type="text" class="form-control" name="username">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Password</label>
-                                                <input type="password" class="form-control" name="password">
-                                            </div>
-                                            {{-- <div class="form-group">
-                                                <label>Position</label>
-                                                <input type="text" class="form-control" name="position">
-                                            </div> --}}
-                                            <div class="form-group">
-                                                <label>Position</label>
-                                                <select name="userRoleAdd" class="form-control">
-                                                    @foreach($roleDivsList as $key => $value)
-                                                        <option value="{{$value->id}}">{{$value->roleName}}&nbsp;{{$value->divName}}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary" name="saveAdd">Save</button>
                                         </div>
                                     </div>
-                                </form>
+                                </div>
                             </div>
                         </div>
 
@@ -387,76 +430,76 @@
                                 </thead>
                                 <tbody>
                                 @foreach($users as $key => $user)
-                                <tr>
-                                    <td>{{$key+1}}</td>
-                                    <td nowrap="nowrap">{{$user->username}}</td>
-                                    {{-- <td nowrap="nowrap" align="center">{{($user->position == null) ? "SYSTEM" : $user->position}}</td> --}}
-                                    <td nowrap="nowrap" align="center">{{$user->roleName}}&nbsp;{{$user->divName}}</td>
-                                    <td nowrap="nowrap" align="center">
-                                        <a href="{{route('user.privilege',['id'=>$user->id])}}" class="btn btn-sm btn-warning btn-icon btn-icon-md" title="Privilege"><i class="la la-key"></i></a>
-                                        <a href="#edit{{$user->id}}" data-toggle="modal" class="btn btn-sm btn-primary btn-icon btn-icon-md" title="Edit"><i class="la la-edit"></i></a>
-                                        @if($user->id > 1)
-                                            <button type="button" id="btnDel{{$key}}" class="btn btn-sm btn-danger btn-icon"><i class="fa fa-trash"></i></button>
-                                        @endif
-                                    </td>
-                                    <div class="modal fade" id="edit{{$user->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                                        <div class="modal-dialog">
-                                            <form class="form" action="{{URL::route('user.edit')}}" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="id_u" id="id_u{{$key}}" value="{{$user->id}}">
-                                                <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Edit User</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            X
-                                                        </button>
+                                    <tr>
+                                        <td>{{$key+1}}</td>
+                                        <td nowrap="nowrap">{{$user->username}}</td>
+                                        {{-- <td nowrap="nowrap" align="center">{{($user->position == null) ? "SYSTEM" : $user->position}}</td> --}}
+                                        <td nowrap="nowrap" align="center">{{$user->roleName}}&nbsp;{{$user->divName}}</td>
+                                        <td nowrap="nowrap" align="center">
+                                            <a href="{{route('user.privilege',['id'=>$user->id])}}" class="btn btn-sm btn-warning btn-icon btn-icon-md" title="Privilege"><i class="la la-key"></i></a>
+                                            <a href="#edit{{$user->id}}" data-toggle="modal" class="btn btn-sm btn-primary btn-icon btn-icon-md" title="Edit"><i class="la la-edit"></i></a>
+                                            @if($user->id > 1)
+                                                <button type="button" id="btnDel{{$key}}" class="btn btn-sm btn-danger btn-icon"><i class="fa fa-trash"></i></button>
+                                            @endif
+                                        </td>
+                                        <div class="modal fade" id="edit{{$user->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                                            <div class="modal-dialog">
+                                                <form class="form" action="{{URL::route('user.edit')}}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="id_u" id="id_u{{$key}}" value="{{$user->id}}">
+                                                    <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="exampleModalLabel">Edit User</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                X
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <input type="hidden" name="old_password" value="{{$user->password}}">
+                                                            <div class="form-group">
+                                                                <label>Name</label>
+                                                                <input type="text" class="form-control" name="name" value="{{$user->name}}">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Email</label>
+                                                                <input type="text" class="form-control" name="email" value="{{$user->email}}">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Username</label>
+                                                                <input type="text" class="form-control" name="username" value="{{$user->username}}">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Password</label>
+                                                                <input type="password" class="form-control" name="password" placeholder="New Password">
+                                                            </div>
+                                                            {{-- <div class="form-group">
+                                                                <label>Position</label>
+                                                                <input type="text" class="form-control" name="position" value="{{($user->position != null) ? $user->position : 'SYSTEM'}}">
+                                                            </div> --}}
+                                                            <div class="form-group">
+                                                                <label>Position</label>
+                                                                <select name="userRoleEdit" class="form-control">
+                                                                    @foreach($roleDivsList as $key => $value)
+                                                                        @if($value->id == $user->userRoleDivId)
+                                                                            <option value="{{$value->id}}" selected="selected">{{$value->roleName}}&nbsp;{{$value->divName}}</option>
+                                                                        @else
+                                                                            <option value="{{$value->id}}">{{$value->roleName}}&nbsp;{{$value->divName}}</option>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </select>
+                                                                <input type="hidden" class="form-control" name="userRoleEditOld" value="{{$user->userRoleDivId}}">
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-primary" name="saveEdit">Save</button>
+                                                        </div>
                                                     </div>
-                                                    <div class="modal-body">
-                                                        <input type="hidden" name="old_password" value="{{$user->password}}">
-                                                        <div class="form-group">
-                                                            <label>Name</label>
-                                                            <input type="text" class="form-control" name="name" value="{{$user->name}}">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label>Email</label>
-                                                            <input type="text" class="form-control" name="email" value="{{$user->email}}">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label>Username</label>
-                                                            <input type="text" class="form-control" name="username" value="{{$user->username}}">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label>Password</label>
-                                                            <input type="password" class="form-control" name="password" placeholder="New Password">
-                                                        </div>
-                                                        {{-- <div class="form-group">
-                                                            <label>Position</label>
-                                                            <input type="text" class="form-control" name="position" value="{{($user->position != null) ? $user->position : 'SYSTEM'}}">
-                                                        </div> --}}
-                                                        <div class="form-group">
-                                                            <label>Position</label>
-                                                            <select name="userRoleEdit" class="form-control">
-                                                                @foreach($roleDivsList as $key => $value)
-                                                                    @if($value->id == $user->userRoleDivId)
-                                                                        <option value="{{$value->id}}" selected="selected">{{$value->roleName}}&nbsp;{{$value->divName}}</option>
-                                                                    @else
-                                                                        <option value="{{$value->id}}">{{$value->roleName}}&nbsp;{{$value->divName}}</option>
-                                                                    @endif
-                                                                @endforeach
-                                                            </select>
-                                                            <input type="hidden" class="form-control" name="userRoleEditOld" value="{{$user->userRoleDivId}}">
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                        <button type="submit" class="btn btn-primary" name="saveEdit">Save</button>
-                                                    </div>
-                                                </div>
-                                            </form>
+                                                </form>
+                                            </div>
                                         </div>
-                                    </div>
-                                </tr>
+                                    </tr>
                                 @endforeach
                                 </tbody>
                             </table>
@@ -489,7 +532,7 @@
                                             </button>
                                         </div>
                                         <div class="modal-body">
-                                           <div class="form-group">
+                                            <div class="form-group">
                                                 <label>Parent Position</label>
                                                 <select name="id_rms_roles_divisions_parent" class="form-control">
                                                     <option value=""></option>
@@ -736,81 +779,81 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($roles as $role)
-                                        <tr>
-                                            <td>{{$numberRole++}}</td>
-                                            <td>{{$role->name}}</td>
-                                            <td>{!!$role->desc!!}</td>
-                                            <td>
-                                                {{-- @actionStart('position', 'edit') --}}
-                                                <a href="#editRole{{$role->id}}" data-toggle="modal" class="btn btn-sm btn-primary btn-icon btn-icon-md" title="Edit"><i class="la la-edit"></i></a>
-                                                {{-- @actionEnd --}}
+                                @foreach($roles as $role)
+                                    <tr>
+                                        <td>{{$numberRole++}}</td>
+                                        <td>{{$role->name}}</td>
+                                        <td>{!!$role->desc!!}</td>
+                                        <td>
+                                            {{-- @actionStart('position', 'edit') --}}
+                                            <a href="#editRole{{$role->id}}" data-toggle="modal" class="btn btn-sm btn-primary btn-icon btn-icon-md" title="Edit"><i class="la la-edit"></i></a>
+                                            {{-- @actionEnd --}}
 
-                                                {{-- @actionStart('position', 'delete') --}}
-                                                <a href="#deleteRole{{$role->id}}" class="btn btn-sm btn-google btn-icon btn-icon-md" title="Delete" data-toggle="modal">
-                                                    <i class="la la-trash-o"></i>
-                                                </a>
-                                                {{-- @actionEnd --}}
-                                            </td>
-                                        </tr>
+                                            {{-- @actionStart('position', 'delete') --}}
+                                            <a href="#deleteRole{{$role->id}}" class="btn btn-sm btn-google btn-icon btn-icon-md" title="Delete" data-toggle="modal">
+                                                <i class="la la-trash-o"></i>
+                                            </a>
+                                            {{-- @actionEnd --}}
+                                        </td>
+                                    </tr>
 
-                                        {{-- BEGIN MODAL EDIT --}}
-                                        <div class="modal fade" id="editRole{{$role->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                                            <div class="modal-dialog">
-                                                {!! Form::open(array('route' => ['role.update', $role->id], 'method' => 'POST'))!!}
-                                                {{ csrf_field() }}
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Edit Role</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        </button>
+                                    {{-- BEGIN MODAL EDIT --}}
+                                    <div class="modal fade" id="editRole{{$role->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                                        <div class="modal-dialog">
+                                            {!! Form::open(array('route' => ['role.update', $role->id], 'method' => 'POST'))!!}
+                                            {{ csrf_field() }}
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Edit Role</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label>Name</label>
+                                                        <input type="text" name="name" class="form-control" value="{{$role->name}}">
                                                     </div>
-                                                    <div class="modal-body">
-                                                        <div class="form-group">
-                                                            <label>Name</label>
-                                                            <input type="text" name="name" class="form-control" value="{{$role->name}}">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label>Description</label>
-                                                            <textarea name="desc" class="form-control">{!!$role->desc!!}</textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                        <button type="submit" class="btn btn-primary">Save</button>
+                                                    <div class="form-group">
+                                                        <label>Description</label>
+                                                        <textarea name="desc" class="form-control">{!!$role->desc!!}</textarea>
                                                     </div>
                                                 </div>
-                                                {!! Form::close() !!}
-                                            </div>
-                                        </div>
-                                        {{-- END MODAL EDIT --}}
-
-                                        {{-- BEGIN MODAL DELETE --}}
-                                        <div class="modal fade" id="deleteRole{{$role->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                                            <div class="modal-dialog">
-                                                {!! Form::open(array('route' => ['role.delete', $role->id], 'method' => 'delete'))!!}
-                                                {{ csrf_field() }}
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Delete Data</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        Are you sure want to delete this data?
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                                                        <button type="submit" class="btn btn-primary">Yes</button>
-                                                    </div>
+                                                <div class="modal-footer">
+                                                    <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save</button>
                                                 </div>
-                                                {!! Form::close() !!}
                                             </div>
+                                            {!! Form::close() !!}
                                         </div>
-                                        {{-- END MODAL DELETE --}}
-                                    @endforeach
+                                    </div>
+                                    {{-- END MODAL EDIT --}}
+
+                                    {{-- BEGIN MODAL DELETE --}}
+                                    <div class="modal fade" id="deleteRole{{$role->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                                        <div class="modal-dialog">
+                                            {!! Form::open(array('route' => ['role.delete', $role->id], 'method' => 'delete'))!!}
+                                            {{ csrf_field() }}
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Delete Data</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure want to delete this data?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                                    <button type="submit" class="btn btn-primary">Yes</button>
+                                                </div>
+                                            </div>
+                                            {!! Form::close() !!}
+                                        </div>
+                                    </div>
+                                    {{-- END MODAL DELETE --}}
+                                @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -873,81 +916,81 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($divisions as $division)
-                                        <tr>
-                                            <td>{{$numberDivision++}}</td>
-                                            <td>{{$division->name}}</td>
-                                            <td>{!!$division->desc!!}</td>
-                                            <td>
-                                                {{-- @actionStart('position', 'edit') --}}
-                                                <a href="#editDivision{{$division->id}}" data-toggle="modal" class="btn btn-sm btn-primary btn-icon btn-icon-md" title="Edit"><i class="la la-edit"></i></a>
-                                                {{-- @actionEnd --}}
+                                @foreach($divisions as $division)
+                                    <tr>
+                                        <td>{{$numberDivision++}}</td>
+                                        <td>{{$division->name}}</td>
+                                        <td>{!!$division->desc!!}</td>
+                                        <td>
+                                            {{-- @actionStart('position', 'edit') --}}
+                                            <a href="#editDivision{{$division->id}}" data-toggle="modal" class="btn btn-sm btn-primary btn-icon btn-icon-md" title="Edit"><i class="la la-edit"></i></a>
+                                            {{-- @actionEnd --}}
 
-                                                {{-- @actionStart('position', 'delete') --}}
-                                                <a href="#deleteDivision{{$division->id}}" class="btn btn-sm btn-google btn-icon btn-icon-md" title="Delete" data-toggle="modal">
-                                                    <i class="la la-trash-o"></i>
-                                                </a>
-                                                {{-- @actionEnd --}}
-                                            </td>
-                                        </tr>
+                                            {{-- @actionStart('position', 'delete') --}}
+                                            <a href="#deleteDivision{{$division->id}}" class="btn btn-sm btn-google btn-icon btn-icon-md" title="Delete" data-toggle="modal">
+                                                <i class="la la-trash-o"></i>
+                                            </a>
+                                            {{-- @actionEnd --}}
+                                        </td>
+                                    </tr>
 
-                                        {{-- BEGIN MODAL EDIT --}}
-                                        <div class="modal fade" id="editDivision{{$division->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                                            <div class="modal-dialog">
-                                                {!! Form::open(array('route' => ['division.update', $division->id], 'method' => 'POST'))!!}
-                                                {{ csrf_field() }}
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Edit Division</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        </button>
+                                    {{-- BEGIN MODAL EDIT --}}
+                                    <div class="modal fade" id="editDivision{{$division->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                                        <div class="modal-dialog">
+                                            {!! Form::open(array('route' => ['division.update', $division->id], 'method' => 'POST'))!!}
+                                            {{ csrf_field() }}
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Edit Division</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label>Name</label>
+                                                        <input type="text" name="name" class="form-control" value="{{$division->name}}">
                                                     </div>
-                                                    <div class="modal-body">
-                                                        <div class="form-group">
-                                                            <label>Name</label>
-                                                            <input type="text" name="name" class="form-control" value="{{$division->name}}">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label>Description</label>
-                                                            <textarea name="desc" class="form-control">{!!$division->desc!!}</textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                        <button type="submit" class="btn btn-primary">Save</button>
+                                                    <div class="form-group">
+                                                        <label>Description</label>
+                                                        <textarea name="desc" class="form-control">{!!$division->desc!!}</textarea>
                                                     </div>
                                                 </div>
-                                                {!! Form::close() !!}
-                                            </div>
-                                        </div>
-                                        {{-- END MODAL EDIT --}}
-
-                                        {{-- BEGIN MODAL DELETE --}}
-                                        <div class="modal fade" id="deleteDivision{{$division->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                                            <div class="modal-dialog">
-                                                {!! Form::open(array('route' => ['division.delete', $division->id], 'method' => 'delete'))!!}
-                                                {{ csrf_field() }}
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Delete Data</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        Are you sure want to delete this data?
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                                                        <button type="submit" class="btn btn-primary">Yes</button>
-                                                    </div>
+                                                <div class="modal-footer">
+                                                    <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save</button>
                                                 </div>
-                                                {!! Form::close() !!}
                                             </div>
+                                            {!! Form::close() !!}
                                         </div>
-                                        {{-- END MODAL DELETE --}}
-                                    @endforeach
+                                    </div>
+                                    {{-- END MODAL EDIT --}}
+
+                                    {{-- BEGIN MODAL DELETE --}}
+                                    <div class="modal fade" id="deleteDivision{{$division->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                                        <div class="modal-dialog">
+                                            {!! Form::open(array('route' => ['division.delete', $division->id], 'method' => 'delete'))!!}
+                                            {{ csrf_field() }}
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Delete Data</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure want to delete this data?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                                    <button type="submit" class="btn btn-primary">Yes</button>
+                                                </div>
+                                            </div>
+                                            {!! Form::close() !!}
+                                        </div>
+                                    </div>
+                                    {{-- END MODAL DELETE --}}
+                                @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -1010,81 +1053,81 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($modules as $module)
-                                        <tr>
-                                            <td>{{$numberModule++}}</td>
-                                            <td>{{$module->name}}</td>
-                                            <td>{!!$module->desc!!}</td>
-                                            <td>
-                                                {{-- @actionStart('position', 'edit') --}}
-                                                <a href="#editModule{{$module->id}}" data-toggle="modal" class="btn btn-sm btn-primary btn-icon btn-icon-md" title="Edit"><i class="la la-edit"></i></a>
-                                                {{-- @actionEnd --}}
+                                @foreach($modules as $module)
+                                    <tr>
+                                        <td>{{$numberModule++}}</td>
+                                        <td>{{$module->name}}</td>
+                                        <td>{!!$module->desc!!}</td>
+                                        <td>
+                                            {{-- @actionStart('position', 'edit') --}}
+                                            <a href="#editModule{{$module->id}}" data-toggle="modal" class="btn btn-sm btn-primary btn-icon btn-icon-md" title="Edit"><i class="la la-edit"></i></a>
+                                            {{-- @actionEnd --}}
 
-                                                {{-- @actionStart('position', 'delete') --}}
-                                                <a href="#deleteModule{{$module->id}}" class="btn btn-sm btn-google btn-icon btn-icon-md" title="Delete" data-toggle="modal">
-                                                    <i class="la la-trash-o"></i>
-                                                </a>
-                                                {{-- @actionEnd --}}
-                                            </td>
-                                        </tr>
+                                            {{-- @actionStart('position', 'delete') --}}
+                                            <a href="#deleteModule{{$module->id}}" class="btn btn-sm btn-google btn-icon btn-icon-md" title="Delete" data-toggle="modal">
+                                                <i class="la la-trash-o"></i>
+                                            </a>
+                                            {{-- @actionEnd --}}
+                                        </td>
+                                    </tr>
 
-                                        {{-- BEGIN MODAL EDIT --}}
-                                        <div class="modal fade" id="editModule{{$module->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                                            <div class="modal-dialog">
-                                                {!! Form::open(array('route' => ['module.update', $module->id], 'method' => 'POST'))!!}
-                                                {{ csrf_field() }}
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Edit Module</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        </button>
+                                    {{-- BEGIN MODAL EDIT --}}
+                                    <div class="modal fade" id="editModule{{$module->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                                        <div class="modal-dialog">
+                                            {!! Form::open(array('route' => ['module.update', $module->id], 'method' => 'POST'))!!}
+                                            {{ csrf_field() }}
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Edit Module</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label>Name</label>
+                                                        <input type="text" name="name" class="form-control" value="{{$module->name}}">
                                                     </div>
-                                                    <div class="modal-body">
-                                                        <div class="form-group">
-                                                            <label>Name</label>
-                                                            <input type="text" name="name" class="form-control" value="{{$module->name}}">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label>Description</label>
-                                                            <textarea name="desc" class="form-control">{!!$module->desc!!}</textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                        <button type="submit" class="btn btn-primary">Save</button>
+                                                    <div class="form-group">
+                                                        <label>Description</label>
+                                                        <textarea name="desc" class="form-control">{!!$module->desc!!}</textarea>
                                                     </div>
                                                 </div>
-                                                {!! Form::close() !!}
-                                            </div>
-                                        </div>
-                                        {{-- END MODAL EDIT --}}
-
-                                        {{-- BEGIN MODAL DELETE --}}
-                                        <div class="modal fade" id="deleteModule{{$module->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                                            <div class="modal-dialog">
-                                                {!! Form::open(array('route' => ['module.delete', $module->id], 'method' => 'delete'))!!}
-                                                {{ csrf_field() }}
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Delete Data</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        Are you sure want to delete this data?
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                                                        <button type="submit" class="btn btn-primary">Yes</button>
-                                                    </div>
+                                                <div class="modal-footer">
+                                                    <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save</button>
                                                 </div>
-                                                {!! Form::close() !!}
                                             </div>
+                                            {!! Form::close() !!}
                                         </div>
-                                        {{-- END MODAL DELETE --}}
-                                    @endforeach
+                                    </div>
+                                    {{-- END MODAL EDIT --}}
+
+                                    {{-- BEGIN MODAL DELETE --}}
+                                    <div class="modal fade" id="deleteModule{{$module->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                                        <div class="modal-dialog">
+                                            {!! Form::open(array('route' => ['module.delete', $module->id], 'method' => 'delete'))!!}
+                                            {{ csrf_field() }}
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Delete Data</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure want to delete this data?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                                    <button type="submit" class="btn btn-primary">Yes</button>
+                                                </div>
+                                            </div>
+                                            {!! Form::close() !!}
+                                        </div>
+                                    </div>
+                                    {{-- END MODAL DELETE --}}
+                                @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -1147,81 +1190,81 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($actions as $action)
-                                        <tr>
-                                            <td>{{$numberAction++}}</td>
-                                            <td>{{$action->name}}</td>
-                                            <td>{!!$action->desc!!}</td>
-                                            <td>
-                                                {{-- @actionStart('position', 'edit') --}}
-                                                <a href="#editAction{{$action->id}}" data-toggle="modal" class="btn btn-sm btn-primary btn-icon btn-icon-md" title="Edit"><i class="la la-edit"></i></a>
-                                                {{-- @actionEnd --}}
+                                @foreach($actions as $action)
+                                    <tr>
+                                        <td>{{$numberAction++}}</td>
+                                        <td>{{$action->name}}</td>
+                                        <td>{!!$action->desc!!}</td>
+                                        <td>
+                                            {{-- @actionStart('position', 'edit') --}}
+                                            <a href="#editAction{{$action->id}}" data-toggle="modal" class="btn btn-sm btn-primary btn-icon btn-icon-md" title="Edit"><i class="la la-edit"></i></a>
+                                            {{-- @actionEnd --}}
 
-                                                {{-- @actionStart('position', 'delete') --}}
-                                                <a href="#deleteAction{{$action->id}}" class="btn btn-sm btn-google btn-icon btn-icon-md" title="Delete" data-toggle="modal">
-                                                    <i class="la la-trash-o"></i>
-                                                </a>
-                                                {{-- @actionEnd --}}
-                                            </td>
-                                        </tr>
+                                            {{-- @actionStart('position', 'delete') --}}
+                                            <a href="#deleteAction{{$action->id}}" class="btn btn-sm btn-google btn-icon btn-icon-md" title="Delete" data-toggle="modal">
+                                                <i class="la la-trash-o"></i>
+                                            </a>
+                                            {{-- @actionEnd --}}
+                                        </td>
+                                    </tr>
 
-                                        {{-- BEGIN MODAL EDIT --}}
-                                        <div class="modal fade" id="editAction{{$action->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                                            <div class="modal-dialog">
-                                                {!! Form::open(array('route' => ['action.update', $action->id], 'method' => 'POST'))!!}
-                                                {{ csrf_field() }}
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Edit Action</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        </button>
+                                    {{-- BEGIN MODAL EDIT --}}
+                                    <div class="modal fade" id="editAction{{$action->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                                        <div class="modal-dialog">
+                                            {!! Form::open(array('route' => ['action.update', $action->id], 'method' => 'POST'))!!}
+                                            {{ csrf_field() }}
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Edit Action</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label>Name</label>
+                                                        <input type="text" name="name" class="form-control" value="{{$action->name}}">
                                                     </div>
-                                                    <div class="modal-body">
-                                                        <div class="form-group">
-                                                            <label>Name</label>
-                                                            <input type="text" name="name" class="form-control" value="{{$action->name}}">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label>Description</label>
-                                                            <textarea name="desc" class="form-control">{!!$action->desc!!}</textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                        <button type="submit" class="btn btn-primary">Save</button>
+                                                    <div class="form-group">
+                                                        <label>Description</label>
+                                                        <textarea name="desc" class="form-control">{!!$action->desc!!}</textarea>
                                                     </div>
                                                 </div>
-                                                {!! Form::close() !!}
-                                            </div>
-                                        </div>
-                                        {{-- END MODAL EDIT --}}
-
-                                        {{-- BEGIN MODAL DELETE --}}
-                                        <div class="modal fade" id="deleteAction{{$action->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                                            <div class="modal-dialog">
-                                                {!! Form::open(array('route' => ['action.delete', $action->id], 'method' => 'delete'))!!}
-                                                {{ csrf_field() }}
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Delete Data</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        Are you sure want to delete this data?
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                                                        <button type="submit" class="btn btn-primary">Yes</button>
-                                                    </div>
+                                                <div class="modal-footer">
+                                                    <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save</button>
                                                 </div>
-                                                {!! Form::close() !!}
                                             </div>
+                                            {!! Form::close() !!}
                                         </div>
-                                        {{-- END MODAL DELETE --}}
-                                    @endforeach
+                                    </div>
+                                    {{-- END MODAL EDIT --}}
+
+                                    {{-- BEGIN MODAL DELETE --}}
+                                    <div class="modal fade" id="deleteAction{{$action->id}}" tabindex="-1" role="basic" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                                        <div class="modal-dialog">
+                                            {!! Form::open(array('route' => ['action.delete', $action->id], 'method' => 'delete'))!!}
+                                            {{ csrf_field() }}
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Delete Data</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure want to delete this data?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <input type="hidden" name="coid" value="{{base64_encode($company->id)}}">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                                    <button type="submit" class="btn btn-primary">Yes</button>
+                                                </div>
+                                            </div>
+                                            {!! Form::close() !!}
+                                        </div>
+                                    </div>
+                                    {{-- END MODAL DELETE --}}
+                                @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -1233,53 +1276,120 @@
 @endsection
 @section('custom_script')
     <script>
+        var dataCompany,dataUser;
         $(document).ready(function(){
+            $('#opt2').hide();
             $("table.display").DataTable({
                 fixedHeader: true,
                 fixedHeader: {
                     headerOffset: 90
                 }
             })
+            $("select.select2").select2({
+                width: "100%"
+            })
+            function getURLUser(){
+                var url = "{{URL::route('user.getUsers',['id_company' => ':id1'])}}";
+                url = url.replace(':id1', dataCompany);
+                return url;
+            }
 
-            @if(count($users) > 0)
-                for (let i = 0; i < {{count($users)}}; i++) {
-                    $("#btnDel" + i).click(function(){
-                        Swal.fire({
-                            title: "Delete",
-                            text: "Delete this user?",
-                            icon: "error",
-                            showCancelButton: true,
-                            confirmButtonText: "Delete",
-                            cancelButtonText: "Cancel",
-                            reverseButtons: true,
-                        }).then(function(result){
-                            if(result.value){
-                                var id = $("#id_u"+i).val()
-                                $.ajax({
-                                    url: '{{URL::route('user.delete')}}',
-                                    data: {
-                                        '_token': '{{csrf_token()}}',
-                                        'id': id
-                                    },
-                                    type: "POST",
-                                    cache: false,
-                                    dataType: 'json',
-                                    success : function(response){
-                                        if (response.del = 1){
-                                            location.reload()
-                                        } else {
-                                            Swal.fire({
-                                                title: "Delete",
-                                                text: "Error",
-                                                icon: "error"
-                                            })
-                                        }
+            $("#company").select2({
+                ajax: {
+                    url: "{{ URL::route('user.getCompany') }}",
+                    type: "GET",
+                    placeholder: 'Choose Company',
+                    allowClear: true,
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            searchTerm: params.term,
+                            "_token": "{{ csrf_token() }}",
+                        };
+                    },
+                    processResults: function (response) {
+                        // alert(dataCustomer);
+                        dataCompany = $('#company').val();
+                        return {
+                            results: response
+                        };
+                    },
+                    cache: false
+                },
+                width:"100%"
+            }).on('select2:select',function () {
+                dataCompany = $('#company').val();
+                $('#opt2').show();
+            })
+
+            $('#user_company').select2({
+                ajax: {
+                    url: function (params) {
+                        return getURLUser()
+                    },
+                    type: "GET",
+                    placeholder: 'Choose User',
+                    allowClear: true,
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            searchTerm: params.term,
+                            "_token": "{{ csrf_token() }}",
+                        };
+                    },
+                    processResults: function (response) {
+                        return {
+                            results: response
+                        };
+                    },
+                    cache: false
+                },
+                width:"100%"
+            }).on('select2:select',function () {
+                dataUser = $('#user_company').val();
+                // $('#opt4').show();
+                // alert(dataUser)
+            });
+
+                @if(count($users) > 0)
+            for (let i = 0; i < {{count($users)}}; i++) {
+                $("#btnDel" + i).click(function(){
+                    Swal.fire({
+                        title: "Delete",
+                        text: "Delete this user?",
+                        icon: "error",
+                        showCancelButton: true,
+                        confirmButtonText: "Delete",
+                        cancelButtonText: "Cancel",
+                        reverseButtons: true,
+                    }).then(function(result){
+                        if(result.value){
+                            var id = $("#id_u"+i).val()
+                            $.ajax({
+                                url: '{{URL::route('user.delete')}}',
+                                data: {
+                                    '_token': '{{csrf_token()}}',
+                                    'id': id
+                                },
+                                type: "POST",
+                                cache: false,
+                                dataType: 'json',
+                                success : function(response){
+                                    if (response.del = 1){
+                                        location.reload()
+                                    } else {
+                                        Swal.fire({
+                                            title: "Delete",
+                                            text: "Error",
+                                            icon: "error"
+                                        })
                                     }
-                                })
-                            }
-                        })
+                                }
+                            })
+                        }
                     })
-                }
+                })
+            }
             @endif
 
         })

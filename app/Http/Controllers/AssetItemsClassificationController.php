@@ -12,8 +12,10 @@ use DB;
 class AssetItemsClassificationController extends Controller
 {
 
-    public function getClassification($id){
-        $class = Asset_item_classification::where('id_category', $id)->get();
+    public function getClassification($id,$class_id){
+        $class = Asset_item_classification::where('id_category', $id)
+            ->where('id', $class_id)
+            ->get();
         $data = [];
         foreach ($class as $value){
             $data[] = array(
@@ -72,7 +74,7 @@ class AssetItemsClassificationController extends Controller
         $classification->updated_at = date('Y-m-d H:i:s');
         $classification->save();
 
-        return redirect()->route('item_class.index');
+        return redirect()->back();
     }
 
     public function delete($id){

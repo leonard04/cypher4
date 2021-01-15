@@ -5,12 +5,14 @@
             <div class="card-title">
                 Item Category
             </div>
+            @actionStart('item_database', 'create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addEmployee"><i class="fa fa-plus"></i>Add Category</button>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
@@ -25,11 +27,12 @@
                     </tr>
                     </thead>
                     <tbody>
+                    @actionStart('item_database', 'read')
                     @foreach($categories as $key => $value)
                         <tr>
                             <td>{{($key+1)}}</td>
                             <td>
-                                <a href="{{route('items.index', $value->id)}}">
+                                <a href="{{route('items.class.index', $value->id)}}">
                                     <span class="label label-inline label-primary">
                                         {{$value->name}}
                                     </span>
@@ -95,6 +98,7 @@
                             </td>
                         </tr>
                     @endforeach
+                    @actionEnd
                     </tbody>
                 </table>
             </div>

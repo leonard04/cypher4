@@ -5,12 +5,14 @@
             <div class="card-title">
                 Client List
             </div>
+            @actionStart('client','create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addEmployee"><i class="fa fa-plus"></i>Add Client</button>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
@@ -26,6 +28,7 @@
                     </tr>
                     </thead>
                     <tbody>
+                    @actionStart('client','read')
                     @foreach($clients as $key => $value)
                         <tr>
                             <td>{{($key+1)}}</td>
@@ -94,9 +97,11 @@
 
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Close</button>
+                                                @actionStart('client','update')
                                                 <button type="submit" name="submit" class="btn btn-primary font-weight-bold">
                                                     <i class="fa fa-check"></i>
                                                     Update</button>
+                                                @actionEnd
                                             </div>
                                         </form>
                                     </div>
@@ -104,10 +109,13 @@
                             </div>
                             <td class="text-center">
                                 <a href="#edit{{$value->id}}" data-toggle="modal" class="btn btn-sm btn-primary btn-icon btn-icon-md" title="Edit"><i class="fa fa-edit"></i></a>
+                                @actionStart('client','create')
                                 <a href="{{route('marketing.client.delete',['id' => $value->id])}}" title="Delete" class="btn btn-sm btn-danger btn-icon btn-icon-md" onclick="return confirm('Delete client?')"><i class="fa fa-trash"></i></a>
+                                @actionEnd
                             </td>
                         </tr>
                     @endforeach
+                    @actionEnd
                     </tbody>
                 </table>
             </div>

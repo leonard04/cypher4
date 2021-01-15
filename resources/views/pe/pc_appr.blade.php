@@ -108,15 +108,12 @@
                                 <th class="text-center" colspan="2">
                                     Alternative: {{$i + 1}}
                                     <div>
-                                        <select name="vendor[{{$i}}]" class="form-control select2" id="vendor{{$i}}" {{($i == 0 && $pev->pev_date != null) ? "required" : ""}}>
+                                        <select name="vendor[{{$i}}]" class="form-control select2" id="" {{($i == 0 && $pev->pev_date != null) ? "required" : ""}}>
                                             <option value="">Select Vendor</option>
                                             <?php $SELECTED = "" ?>
                                             @foreach($vendors as $vendor)
                                                 @if($pev->suppliers != null || $pev->suppliers != "")
-                                                    <?php /** @var TYPE_NAME $pev */
-                                                    $valSup = json_decode($pev->suppliers);
-                                                    /** @var TYPE_NAME $vendor */
-                                                    /** @var TYPE_NAME $i */
+                                                    <?php $valSup = json_decode($pev->suppliers);
                                                     if($valSup[$i] == $vendor->id){
                                                         $SELECTED = "SELECTED";
                                                     } else {
@@ -177,7 +174,6 @@
                                         <td class="text-center">
                                             <?php
                                             $sum = 0;
-                                            /** @var TYPE_NAME $item */
                                             $price = (!empty(json_decode($item->price)[$i])) ? json_decode($item->price)[$i] * $item->qty_appr : 0;
                                             $sumprice[$i][$item->id] = $price;
                                             ?>
@@ -228,7 +224,6 @@
                                                 $PPN = "";
                                                     if (!empty(json_decode($pev->ppns)[$i])){
                                                         foreach (json_decode($pev->ppns)[$i] as $valPpn){
-                                                            /** @var TYPE_NAME $value */
                                                             if ($value->id == $valPpn){
                                                                 $PPN = "CHECKED";
                                                             }

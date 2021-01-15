@@ -34,7 +34,7 @@
                     isRTL: KTUtil.isRTL(),
                     selectable: true,
                     dateClick : function (info){
-                        window.location.href = "meetingscheduler/"+btoa(info.dateStr)
+                        window.location.href = "meeting-scheduler/"+btoa(info.dateStr)
                     },
 
                     header: {

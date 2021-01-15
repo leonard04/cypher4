@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\File_Management;
+use App\Models\Finance_coa_history;
 use App\Models\Marketing_clients;
 use App\Models\Marketing_lead_contracts;
 use App\Models\Marketing_lead_files;
@@ -27,18 +28,17 @@ class MarketingLeadsController extends Controller
     private $step = array(
         'nda' => array(
             'title' => 'Non-Disclosure Agreement',
-            'durations' => '7',
             'route' => 'nda',
         ),
         'drl' => array(
             'title' => 'Document Request Letter',
-            'durations' => '14',
+            'durations' => '7',
             'route' => 'drl',
             'isDocument' => true,
         ),
         'meeting' => array(
             'title' => 'Meeting',
-            'durations' => '7',
+            'durations' => '14',
             'route' => 'meeting',
             'isMeeting' => true,
         ),
@@ -51,7 +51,7 @@ class MarketingLeadsController extends Controller
         'agreement' => array(
             'title' => 'Arrangement',
             'type' => array('PKS (Perjanjian Kerjasama)', 'PJH (Perjanjian Jasa Hukum)'),
-            'durations' => '0',
+            'durations' => '7',
             'route' => 'agreement',
         )
     );
@@ -583,6 +583,7 @@ class MarketingLeadsController extends Controller
                 $associates->resi = $request->resi;
                 $associates->amount = $request->amount;
                 $associates->resi_date = date('Y-m-d H:i:s');
+                $this->addToGJ($hashFile, date('Y-m-d'), 'Receipt of paper delivery ['.$request->resi.'] amount ' . number_format($request->amount));
                 $point = 5;
             } else {
                 $file = $request->file('file');
@@ -595,6 +596,7 @@ class MarketingLeadsController extends Controller
                 $hashFile = str_replace("/", "", $hashFile);
                 $upload = FileManagement::save_file_management($hashFile, $file, $newFile, "media\lead");
                 $associates->file = $hashFile;
+                $associates->file_date = date("Y-m-d H:i:s");
                 $point = 10;
                 if (isset($this->step[$type]['isDocument'])){
                     //store to client
@@ -730,5 +732,23 @@ class MarketingLeadsController extends Controller
             'data_client' => $data,
             'progress' => $progress
         ]);
+    }
+
+    function addToGJ($hashFile, $date, $description){
+        $last = Finance_coa_history::where('company_id', Session::get('company_id'))
+            ->orderBy('md5', "desc")
+            ->first();
+        $hash = $last->md5 + 1;
+
+        $iCoa = new Finance_coa_history();
+        $iCoa->md5 = $hash;
+//        $iCoa->no_coa = $coa_code;
+        $iCoa->coa_date = $date;
+//        $iCoa->debit = $de_amount[$key];
+        $iCoa->file_hash = $hashFile;
+        $iCoa->description = $description;
+        $iCoa->created_by = Auth::user()->username;
+        $iCoa->company_id = Session::get('company_id');
+        $iCoa->save();
     }
 }

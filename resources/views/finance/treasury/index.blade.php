@@ -7,6 +7,7 @@
                 <h3>Treasury</h3><br>
 
             </div>
+            @actionStart('treasury','create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#addDeposit"><i class="fa fa-money-bill"></i>Add Deposit</button>
@@ -14,6 +15,7 @@
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             {{--            <h5><span class="span">This page contains a list of Travel Order which has been formed.</span></h5>--}}
@@ -30,6 +32,7 @@
                 </tr>
                 </thead>
                 <tbody>
+                @actionStart('treasury','read')
                     @foreach($treasuries as $key => $treasure)
                         <tr>
                             <td align="center">{{$key + 1}}</td>
@@ -69,6 +72,7 @@
                             </td>
                         </tr>
                     @endforeach
+                @actionEnd
                 </tbody>
             </table>
         </div>
@@ -175,7 +179,7 @@
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label text-right">Project</label>
                             <div class="col-md-9">
-                                <select name="project" class="form-control select2" required>
+                                <select name="project" class="form-control select2">
                                     <option value="">Select Project</option>
                                     @if(count($projects) > 0)
                                         @foreach($projects as $project)

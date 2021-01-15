@@ -21,6 +21,8 @@ class ActivityConfig
             ->where('action', $action)
             ->first();
 
+            $tes = null;
+
         if (!empty($iPoint)){
             // save to point
             $point = new Hrd_point();

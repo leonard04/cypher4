@@ -65,6 +65,7 @@
                             </thead>
                             <tbody>
                             <?php $i1 = 0 ?>
+                            @actionStart('se', 'read')
                             @foreach($sr as $i => $item)
                                 @if($item->rfq_approved_by != null && $item->se_approved_by == null && $item->se_rejected_by == null)
                                     <tr>
@@ -94,11 +95,14 @@
                                             @endif
                                         </td>
                                         <td align="center">
+                                            @actionStart('se', 'delete')
                                             <button class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -124,6 +128,7 @@
                             </thead>
                             <tbody>
                             <?php $i2 = 0 ?>
+                            @actionStart('se', 'read')
                             @foreach($sr as $i => $item)
                                 @if($item->se_approved_by != null)
                                     <tr>
@@ -150,11 +155,14 @@
                                             @endif
                                         </td>
                                         <td align="center">
+                                            @actionStart('se', 'delete')
                                             <button class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -180,6 +188,7 @@
                             </thead>
                             <tbody>
                             <?php $i3 = 0 ?>
+                            @actionStart('se', 'read')
                             @foreach($sr as $i => $item)
                                 @if($item->se_rejected_by != null)
                                     <tr>
@@ -206,11 +215,14 @@
                                             @endif
                                         </td>
                                         <td align="center">
+                                            @actionStart('se', 'delete')
                                             <button class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
+                                            @actionEnd
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>

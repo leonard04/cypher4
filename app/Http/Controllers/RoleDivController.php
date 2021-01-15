@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\UserPrivilege;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -29,10 +31,10 @@ class RoleDivController extends Controller
 	// 	->join('rms_roles', 'rms_roles.id', '=', 'rms_roles_divisions.id_rms_roles')
 	// 	->join('rms_divisions', 'rms_divisions.id', '=', 'rms_roles_divisions.id_rms_divisions')
 	// 	->get();
-		
+
 	// 	$parentPosition = [];
 
-	// 	foreach ($roleDivsList as $key => $roleDivList) 
+	// 	foreach ($roleDivsList as $key => $roleDivList)
 	// 	{
 	// 		$parentPosition [$roleDivList->id] = RoleDivision::find($roleDivList->id_rms_roles_divisions_parent);
 	// 	}
@@ -67,7 +69,7 @@ class RoleDivController extends Controller
 		$roleDiv->name = $roleDivName;
 		$roleDiv->save();
 
-		return redirect()->route('company.detail', $request->coid);
+		return redirect()->back();
 	}
 
 	public function update($id, Request $request)
@@ -89,14 +91,14 @@ class RoleDivController extends Controller
 		$roleDiv->name = $roleDivName;
 		$roleDiv->save();
 
-		return redirect()->route('company.detail', $request->coid);
+		return redirect()->back();
 	}
 
 	public function delete($id, Request $request)
 	{
 		RoleDivision::find($id)->delete();
-		
-		return redirect()->route('company.detail', $request->coid);
+
+		return redirect()->back();
 	}
 
 	public function editPrivilege($id)
@@ -114,14 +116,14 @@ class RoleDivController extends Controller
 		$actionList = Action::pluck('name', 'id');
 
 		$getModules = Module::all();
-		foreach ($getModules as $keyModule => $getModule) 
+		foreach ($getModules as $keyModule => $getModule)
 		{
 			$moduleName [$getModule->id] = $getModule->name;
 			$moduleDesc [$getModule->id] = $getModule->desc;
 		}
 
 		$getActions = Action::all();
-		foreach ($getActions as $keyAction => $getAction) 
+		foreach ($getActions as $keyAction => $getAction)
 		{
 			$actionName [$getAction->id] = $getAction->name;
 			$actionDesc [$getAction->id] = $getAction->desc;
@@ -132,6 +134,7 @@ class RoleDivController extends Controller
 
 	public function updatePrivilege($id, Request $request)
 	{
+//	    dd($request);
 		if($request->privilege)
 		{
 			RolePrivilege::where('id_rms_roles_divisions', $id)->forceDelete();
@@ -151,6 +154,41 @@ class RoleDivController extends Controller
 		{
 			RolePrivilege::where('id_rms_roles_divisions', $id)->forceDelete();
 		}
+
+        if (isset($request->to_child) && $request->to_child == "on"){
+//			    $parent = RoleDivision::where('id', $id)->first();
+            $childs = RoleDivision::where('id_rms_roles_divisions_parent', $id)->get();
+            foreach ($childs as $child){
+                RolePrivilege::where('id_rms_roles_divisions', $child->id)->forceDelete();
+                foreach ($request->privilege as $moduleId => $actionList){
+                    foreach($actionList as $actionId => $value)
+                    {
+                        $rolePrivilegeChild = new RolePrivilege;
+                        $rolePrivilegeChild->id_rms_roles_divisions = $child->id;
+                        $rolePrivilegeChild->id_rms_modules = $moduleId;
+                        $rolePrivilegeChild->id_rms_actions = $actionId;
+                        $rolePrivilegeChild->save();
+                    }
+                }
+            }
+        }
+
+        if (isset($request->to_user) && $request->to_user == "on"){
+            $users = User::where('id_rms_roles_divisions', $id)->get();
+            foreach ($users as $user){
+                UserPrivilege::where('id_users', $user->id)->forceDelete();
+                foreach ($request->privilege as $moduleId => $actionList){
+                    foreach($actionList as $actionId => $value)
+                    {
+                        $userPrivilage = new UserPrivilege();
+                        $userPrivilage->id_users = $user->id;
+                        $userPrivilage->id_rms_modules = $moduleId;
+                        $userPrivilage->id_rms_actions = $actionId;
+                        $userPrivilage->save();
+                    }
+                }
+            }
+        }
 
 		return redirect()->route('rprivilege.edit', $id);
 	}

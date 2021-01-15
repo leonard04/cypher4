@@ -7,12 +7,14 @@
                 <h3>Invoice In</h3><br>
 
             </div>
+            @actionStart('inv_in','create')
             <div class="card-toolbar">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addItem"><i class="fa fa-plus"></i>Add Invoice</button>
                 </div>
                 <!--end::Button-->
             </div>
+            @actionEnd
         </div>
         <div class="card-body">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -62,12 +64,13 @@
                         </tr>
                         </thead>
                         <tbody>
+                        @actionStart('inv_in','read')
                             @foreach($inv_in as $key => $value)
                                 <tr>
                                     <td align="center">{{$key + 1}}</td>
                                     <td>{{$paper['paper_num'][$value->paper_type][$value->paper_id]}}</td>
-                                    <td align="center">{{$supplier['name'][$paper['supplier'][$value->paper_id]]}}</td>
-                                    <td align="center">{{$supplier['bank_acct'][$paper['supplier'][$value->paper_id]]}}</td>
+                                    <td align="center">{{(isset($supplier[$paper['supplier'][$value->paper_id]])) ? $supplier[$paper['supplier'][$value->paper_id]]['name'] : ""}}</td>
+                                    <td align="center">{{(isset($supplier[$paper['supplier'][$value->paper_id]])) ? $supplier[$paper['supplier'][$value->paper_id]]['bank_acct'] : ""}}</td>
                                     <td align="center">{{$paper['currency'][$value->paper_id]}}</td>
                                     <td align="right">{{number_format($value->amount, 2)}}</td>
                                     <td align="center">{{date("d F Y", strtotime($value->app_date))}}</td>
@@ -102,10 +105,13 @@
                                         @endif
                                     </td>
                                     <td align="center">
+                                        @actionStart('inv_in','delete')
                                         <button type="button" onclick="button_delete({{$value->id}})" class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
+                                        @actionEnd
                                     </td>
                                 </tr>
                             @endforeach
+                        @actionEnd
                         </tbody>
                     </table>
                 </div>
@@ -131,13 +137,14 @@
                         </thead>
                         <tbody>
                             <?php $i1 = 0; ?>
+                            @actionStart('inv_in','read')
                             @foreach($inv_in as $key => $value)
                                 @if($value->paper_type == "PO")
                                     <tr>
                                     <td align="center">{{$i1 + 1}} <?php $i1++; ?></td>
                                     <td>{{$paper['paper_num'][$value->paper_type][$value->paper_id]}}</td>
-                                    <td align="center">{{$supplier['name'][$paper['supplier'][$value->paper_id]]}}</td>
-                                    <td align="center">{{$supplier['bank_acct'][$paper['supplier'][$value->paper_id]]}}</td>
+                                    <td align="center">{{(isset($supplier[$paper['supplier'][$value->paper_id]])) ? $supplier[$paper['supplier'][$value->paper_id]]['name'] : ""}}</td>
+                                    <td align="center">{{(isset($supplier[$paper['supplier'][$value->paper_id]])) ? $supplier[$paper['supplier'][$value->paper_id]]['bank_acct'] : ""}}</td>
                                     <td align="center">{{$paper['currency'][$value->paper_id]}}</td>
                                     <td align="right">{{number_format($value->amount, 2)}}</td>
                                     <td align="center">{{date("d F Y", strtotime($value->app_date))}}</td>
@@ -172,11 +179,14 @@
                                         @endif
                                     </td>
                                     <td align="center">
+                                        @actionStart('inv_in','delete')
                                         <button type="button" onclick="button_delete({{$value->id}})" class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
+                                        @actionEnd
                                     </td>
                                 </tr>
                                 @endif
                             @endforeach
+                            @actionEnd
                         </tbody>
                     </table>
                 </div>
@@ -202,13 +212,14 @@
                         </thead>
                         <tbody>
                         <?php $i2 = 0; ?>
+                        @actionStart('inv_in','read')
                         @foreach($inv_in as $key => $value)
                             @if($value->paper_type == "WO")
                                 <tr>
                                     <td align="center">{{$i2 + 1}} <?php $i2++; ?></td>
                                     <td>{{$paper['paper_num'][$value->paper_type][$value->paper_id]}}</td>
-                                    <td align="center">{{$supplier['name'][$paper['supplier'][$value->paper_id]]}}</td>
-                                    <td align="center">{{$supplier['bank_acct'][$paper['supplier'][$value->paper_id]]}}</td>
+                                    <td align="center">{{(isset($supplier[$paper['supplier'][$value->paper_id]])) ? $supplier[$paper['supplier'][$value->paper_id]]['name'] : ""}}</td>
+                                    <td align="center">{{(isset($supplier[$paper['supplier'][$value->paper_id]])) ? $supplier[$paper['supplier'][$value->paper_id]]['bank_acct'] : ""}}</td>
                                     <td align="center">{{$paper['currency'][$value->paper_id]}}</td>
                                     <td align="right">{{number_format($value->amount, 2)}}</td>
                                     <td align="center">{{date("d F Y", strtotime($value->app_date))}}</td>
@@ -243,11 +254,14 @@
                                         @endif
                                     </td>
                                     <td align="center">
+                                        @actionStart('inv_in','delete')
                                         <button type="button" onclick="button_delete({{$value->id}})" class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
+                                        @actionEnd
                                     </td>
                                 </tr>
                             @endif
                         @endforeach
+                        @actionEnd
                         </tbody>
                     </table>
                 </div>
@@ -405,6 +419,8 @@
             </div>
         </div>
     </div>
+    <input type="hidden" id="jsvendor" value="{{json_encode($jsonvendor)}}">
+    <input type="hidden" id="jsprjname" value="{{json_encode($jsonprjname)}}">
 @endsection
 
 @section('custom_script')
@@ -445,11 +461,10 @@
             })
         }
         $(document).ready(function(){
-            var jsonvendor = "{{$jsonvendor}}".replaceAll("&quot;", "\"")
-            var jsonprj = "{{$jsonprjname}}".replaceAll("&quot;", "\"")
+            var jsonvendor = JSON.parse($("#jsvendor").val())
+            var jsonprj = JSON.parse($("#jsprjname").val())
             var prjname = JSON.parse(jsonprj)
             var vendordata = JSON.parse(jsonvendor)
-            console.log(vendordata)
             $("#btn-search").click(function(){
                 $.ajax({
                     url: "{{URL::route('inv_in.search')}}",

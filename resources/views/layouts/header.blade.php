@@ -119,30 +119,47 @@
                                     <div class="scroll pr-7 mr-n7" data-scroll="true" data-height="300" data-mobile-height="200">
                                         <h5>Company Selector</h5><br />
                                         <!--begin::Item-->
-                                        @foreach($comp as $value)
-                                            <div class="d-flex align-items-center mb-6">
-                                            <!--begin::Symbol-->
 
-                                                <div class="symbol symbol-40 symbol-light-primary mr-5">
-                                                    <span class="symbol-label">
-                                                        <span class="svg-icon svg-icon-lg svg-icon-primary">
-                                                            <!--begin::Svg Icon | path:assets/media/svg/icons/Home/Library.svg-->
-                                                            <img src='{{str_replace("public", "public_html", asset('images/'.$value->app_logo))}}' height='30px' alt="Company Logo"/>
-                                                            <!--end::Svg Icon-->
-                                                        </span>
-                                                    </span>
+                                        @if(Auth::user()->username != 'cypher')<!--c4only-->
+                                            @foreach(Session::get('comp_user') as $k => $valK)
+                                                @foreach($comp as $value)
+                                                    @if($value->id == $valK)
+                                                        <div class="d-flex align-items-center mb-6">
+                                                            <div class="symbol symbol-40 symbol-light-primary mr-5">
+                                                                <span class="symbol-label">
+                                                                    <span class="svg-icon svg-icon-lg svg-icon-primary">
+                                                                        <img src='{{str_replace("public", "public_html", asset('images/'.$value->app_logo))}}' height='30px' alt="Company Logo"/>
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                            <div class="d-flex flex-column font-weight-bold">
+                                                                <a href="{{URL::route('company.switch')."?id=".$value->id}}" class="text-dark text-hover-primary mb-1 font-size-lg">
+                                                                    {{$value->company_name}}
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                            @endforeach
+                                        @else
+                                            @foreach($comp as $value)
+                                                <div class="d-flex align-items-center mb-6">
+                                                    <div class="symbol symbol-40 symbol-light-primary mr-5">
+                                                                <span class="symbol-label">
+                                                                    <span class="svg-icon svg-icon-lg svg-icon-primary">
+                                                                        <img src='{{str_replace("public", "public_html", asset('images/'.$value->app_logo))}}' height='30px' alt="Company Logo"/>
+                                                                    </span>
+                                                                </span>
+                                                    </div>
+                                                    <div class="d-flex flex-column font-weight-bold">
+                                                        <a href="{{URL::route('company.switch')."?id=".$value->id}}" class="text-dark text-hover-primary mb-1 font-size-lg">
+                                                            {{$value->company_name}}
+                                                        </a>
+                                                    </div>
                                                 </div>
-                                                <div class="d-flex flex-column font-weight-bold">
-                                                    <a href="{{URL::route('company.switch')."?id=".$value->id}}" class="text-dark text-hover-primary mb-1 font-size-lg">
-                                                        {{$value->company_name}}
-                                                    </a>
-                                                </div>
-                                            <!--end::Symbol-->
-                                            <!--begin::Text-->
 
-                                            <!--end::Text-->
-                                            </div>
-                                        @endforeach
+                                            @endforeach
+                                        @endif
 
                                     <!--end::Item-->
                                     </div>
@@ -162,6 +179,7 @@
                 </div>
                 <!--end::Notifications-->
                 <!--begin::Quick panel-->
+                @actionStart('preferences', 'access')
                 <div class="topbar-item">
                     <div class="btn btn-icon btn-hover-transparent-white btn-lg mr-1" id="kt_server_config">
                         <a href='{{URL::route('company.index')}}'>
@@ -173,6 +191,7 @@
                         </a>
                     </div>
                 </div>
+                @actionEnd
                 <!--end::Quick panel-->
                 <!--begin::User-->
             <!-- <div class="topbar-item">
@@ -224,7 +243,7 @@
                                         <span class="menu-text">Dashboard</span>
                                     </a>
                                 </li>
-
+                                @actionStart('general', 'access')
                                 <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click" aria-haspopup="true">
                                     <a href="javascript:;" class="menu-link menu-toggle">
                                         <span class="menu-text">General</span>
@@ -234,7 +253,7 @@
                                     </a>
                                     <div class="menu-submenu menu-submenu-classic menu-submenu-left">
                                         <ul class="menu-subnav">
-
+                                            @actionStart('fr', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('fr.index')}}" class="menu-link">
 														<span class="svg-icon menu-icon">
@@ -247,6 +266,8 @@
 
                                                 </a>
                                             </li>
+                                            @actionEnd
+                                            @actionStart('so', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('general.so')}}" class="menu-link">
 														<span class="svg-icon menu-icon">
@@ -259,6 +280,8 @@
 
                                                 </a>
                                             </li>
+                                            @actionEnd
+                                            @actionStart('cashbond', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('cashbond.index')}}" class="menu-link">
                                                     <span class="svg-icon menu-icon">
@@ -266,11 +289,13 @@
 
                                                         <!--end::Svg Icon-->
                                                     </span>
-                                                    <span class="menu-text">Cashbond</span>
+                                                    <span class="menu-text">{{($accounting_mode == 1) ? "Petty Cash" : "Cashbond"}}</span>
 
 
                                                 </a>
                                             </li>
+                                            @actionEnd
+                                            @actionStart('reimburse', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('reimburse.index')}}" class="menu-link">
                                                     <span class="svg-icon menu-icon">
@@ -279,23 +304,21 @@
                                                         <!--end::Svg Icon-->
                                                     </span>
                                                     <span class="menu-text">Reimburse</span>
-
-
                                                 </a>
                                             </li>
-
+                                            @actionEnd
+                                            @actionStart('leave_request', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{URL::route('leave.request')}}" class="menu-link">
 														<span class="svg-icon menu-icon">
 															<!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Add-user.svg-->
-
                                                             <!--end::Svg Icon-->
 														</span>
                                                     <span class="menu-text">Leave Request</span>
-
-
                                                 </a>
                                             </li>
+                                            @actionEnd
+                                            @actionStart('to', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('to.index')}}" class="menu-link">
 														<span class="svg-icon menu-icon">
@@ -304,10 +327,10 @@
                                                             <!--end::Svg Icon-->
 														</span>
                                                     <span class="menu-text">Travel Order</span>
-
-
                                                 </a>
                                             </li>
+                                            @actionEnd
+                                            @actionStart('crewloc', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('crewloc.index')}}" class="menu-link">
 														<span class="svg-icon menu-icon">
@@ -320,6 +343,7 @@
 
                                                 </a>
                                             </li>
+                                            @actionEnd
                                             {{--<li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('rf.index')}}" class="menu-link">
 														<span class="svg-icon menu-icon">
@@ -330,6 +354,7 @@
                                                     <span class="menu-text">Request File</span>
                                                 </a>
                                             </li>--}}
+                                            @actionStart('meeting_scheduler', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('ms.index')}}" class="menu-link">
 														<span class="svg-icon menu-icon">
@@ -342,6 +367,8 @@
 
                                                 </a>
                                             </li>
+                                            @actionEnd
+                                            @actionStart('performa', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('general.pr.index')}}" class="menu-link">
 														<span class="svg-icon menu-icon">
@@ -354,6 +381,8 @@
 
                                                 </a>
                                             </li>
+                                            @actionEnd
+                                            @actionStart('forum', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('forum.index')}}" class="menu-link">
 														<span class="svg-icon menu-icon">
@@ -366,6 +395,8 @@
 
                                                 </a>
                                             </li>
+                                            @actionEnd
+                                            @actionStart('mom', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('mom.index')}}" class="menu-link">
 														<span class="svg-icon menu-icon">
@@ -378,9 +409,12 @@
 
                                                 </a>
                                             </li>
+                                            @actionEnd
                                         </ul>
                                     </div>
                                 </li>
+                                @actionEnd
+                                @actionStart('asset', 'access')
                                 <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click" aria-haspopup="true">
                                     <a href="javascript:;" class="menu-link menu-toggle">
                                         <span class="menu-text">Asset</span>
@@ -453,6 +487,8 @@
                                         </ul>
                                     </div>
                                 </li>
+                                @actionEnd
+                                @actionStart('procurement', 'access')
                                 <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click" aria-haspopup="true">
                                     <a href="javascript:;" class="menu-link menu-toggle">
                                         <span class="menu-text">Procurement</span>
@@ -488,6 +524,8 @@
                                         </ul>
                                     </div>
                                 </li>
+                                @actionEnd
+                                @actionStart('po_wo', 'access')
                                 <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click" aria-haspopup="true">
                                     <a href="javascript:;" class="menu-link menu-toggle">
                                         <span class="menu-text">PO & WO</span>
@@ -572,16 +610,17 @@
                                         </ul>
                                     </div>
                                 </li>
+                                @actionEnd
+                                @actionStart('marketing', 'access')
                                 <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click" aria-haspopup="true">
                                     <a href="javascript:;" class="menu-link menu-toggle">
                                         <span class="menu-text">Marketing</span>
                                         <span class="menu-desc"></span>
-
-
                                     </a>
                                     <div class="menu-submenu menu-submenu-classic menu-submenu-left">
                                         <ul class="menu-subnav">
                                             @if($accounting_mode == 1)
+                                                @actionStart('leads', 'access')
                                                 <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                     <a href="{{route('leads.index')}}" class="menu-link">
                                                     <span class="svg-icon menu-icon">
@@ -594,21 +633,23 @@
 
                                                     </a>
                                                 </li>
-                                                @if(\Illuminate\Support\Facades\Auth::user()->username == "cypher" || \Illuminate\Support\Facades\Auth::user()->username == "denisa")
-                                                    <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
-                                                        <a href="{{route('leads.index_management')}}" class="menu-link">
-                                                    <span class="svg-icon menu-icon">
-															<!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Add-user.svg-->
+                                                @actionEnd
+                                                @actionStart('leadsmanagement', 'access')
+                                                <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
+                                                    <a href="{{route('leads.index_management')}}" class="menu-link">
+                                                <span class="svg-icon menu-icon">
+                                                        <!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Add-user.svg-->
 
-                                                        <!--end::Svg Icon-->
-														</span>
-                                                            <span class="menu-text">Leads Management</span>
+                                                    <!--end::Svg Icon-->
+                                                    </span>
+                                                        <span class="menu-text">Leads Management</span>
 
 
-                                                        </a>
-                                                    </li>
-                                                @endif
+                                                    </a>
+                                                </li>
+                                                @actionEnd
                                             @endif
+                                            @actionStart('project', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('marketing.project')}}" class="menu-link">
                                                     <span class="svg-icon menu-icon">
@@ -621,6 +662,8 @@
 
                                                 </a>
                                             </li>
+                                            @actionEnd
+                                            @actionStart('client', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('marketing.client.index')}}" class="menu-link">
                                                     <span class="svg-icon menu-icon">
@@ -633,6 +676,8 @@
 
                                                 </a>
                                             </li>
+                                            @actionEnd
+                                            @actionStart('subcost', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('subcost.index')}}" class="menu-link">
                                                     <span class="svg-icon menu-icon">
@@ -645,6 +690,8 @@
 
                                                 </a>
                                             </li>
+                                            @actionEnd
+                                            @actionStart('b_p', 'access')
                                             <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
                                                 <a href="{{route('bp.index')}}" class="menu-link">
                                                     <span class="svg-icon menu-icon">
@@ -657,10 +704,12 @@
 
                                                 </a>
                                             </li>
+                                            @actionEnd
                                         </ul>
                                     </div>
                                 </li>
-
+                                @actionEnd
+                                @actionStart('hrd', 'access')
                                 <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click" aria-haspopup="true">
                                     <a href="javascript:;" class="menu-link menu-toggle">
                                         <span class="menu-text">HRD</span>
@@ -726,18 +775,6 @@
                                                             <!--end::Svg Icon-->
 														</span>
                                                     <span class="menu-text">Bonus</span>
-
-
-                                                </a>
-                                            </li>
-                                            <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
-                                                <a href="{{route('sanction.index')}}" class="menu-link">
-														<span class="svg-icon menu-icon">
-															<!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Add-user.svg-->
-
-                                                            <!--end::Svg Icon-->
-														</span>
-                                                    <span class="menu-text">Deduction</span>
 
 
                                                 </a>
@@ -828,7 +865,8 @@
                                         </ul>
                                     </div>
                                 </li>
-
+                                @actionEnd
+                                @actionStart('finance', 'access')
                                 <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click" aria-haspopup="true">
                                     <a href="javascript:;" class="menu-link menu-toggle">
                                         <span class="menu-text">Finance</span>
@@ -920,6 +958,15 @@
                                                     <span class="menu-text">Tax</span>
                                                 </a>
                                             </li>
+                                            @if($accounting_mode != 1)
+                                                <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
+                                                    <a href="{{route('business.index')}}" class="menu-link">
+                                                    <span class="svg-icon menu-icon">
+														</span>
+                                                        <span class="menu-text">Business</span>
+                                                    </a>
+                                                </li>
+                                            @endif
                                             @if($accounting_mode == 1)
                                                 <li class="menu-item menu-item-submenu" data-menu-toggle="click" aria-haspopup="true">
                                                     <a href="javascript:;" class="menu-link menu-toggle">
@@ -953,6 +1000,12 @@
                                                                     <span class="menu-text">Balance Sheet</span>
                                                                 </a>
                                                             </li>
+                                                            <li class="menu-item" aria-haspopup="true">
+                                                                <a href="{{route('gl.index')}}" class="menu-link">
+                                                                    <span class="svg-icon menu-icon"></span>
+                                                                    <span class="menu-text">General Ledger</span>
+                                                                </a>
+                                                            </li>
                                                         </ul>
                                                     </div>
                                                 </li>
@@ -960,6 +1013,69 @@
                                         </ul>
                                     </div>
                                 </li>
+                                @actionEnd
+                                @if($accounting_mode == 1)
+                                    @actionStart('trading', 'access')
+                                    <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click" aria-haspopup="true">
+                                        <a href="javascript:;" class="menu-link menu-toggle">
+                                            <span class="menu-text">Trading</span>
+                                            <span class="menu-desc"></span>
+                                        </a>
+                                        <div class="menu-submenu menu-submenu-classic menu-submenu-left">
+                                            <ul class="menu-subnav">
+                                                <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
+                                                    <a href="{{route('trading.orders.index')}}" class="menu-link">
+                                                    <span class="svg-icon menu-icon">
+															<!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Add-user.svg-->
+
+                                                        <!--end::Svg Icon-->
+														</span>
+                                                        <span class="menu-text">Orders</span>
+                                                        <!--client-->
+
+                                                    </a>
+                                                </li>
+                                                <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
+                                                    <a href="{{route('trading.products.index')}}" class="menu-link">
+                                                    <span class="svg-icon menu-icon">
+															<!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Add-user.svg-->
+
+                                                        <!--end::Svg Icon-->
+														</span>
+                                                        <span class="menu-text">Products</span>
+                                                        <!--client-->
+
+                                                    </a>
+                                                </li>
+                                                <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
+                                                    <a href="{{route('trading.supplier.index')}}" class="menu-link">
+                                                    <span class="svg-icon menu-icon">
+															<!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Add-user.svg-->
+
+                                                        <!--end::Svg Icon-->
+														</span>
+                                                        <span class="menu-text">Suppliers</span>
+                                                        <!--vendor-->
+
+                                                    </a>
+                                                </li>
+                                                <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
+                                                    <a href="{{route('trading.market.index')}}" class="menu-link">
+                                                    <span class="svg-icon menu-icon">
+															<!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Add-user.svg-->
+
+                                                        <!--end::Svg Icon-->
+														</span>
+                                                        <span class="menu-text">Markets</span>
+                                                        <!--client-->
+
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    @actionEnd
+                                @endif
 
                                 @if($accounting_mode != 1)
                                     <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click" aria-haspopup="true">
@@ -1045,6 +1161,7 @@
                                         </div>
                                     </li>
                                 @endif
+                                @actionStart('h_a', 'access')
                                 <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click" aria-haspopup="true">
                                     <a href="javascript:;" class="menu-link menu-toggle">
                                         <span class="menu-text">Higher Authority</span>
@@ -1089,6 +1206,8 @@
                                         </ul>
                                     </div>
                                 </li>
+                                @actionEnd
+                                @actionStart('qhse', 'access')
                                 <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click" aria-haspopup="true">
                                     <a href="javascript:;" class="menu-link menu-toggle">
                                         <span class="menu-text">QHSE</span>
@@ -1112,6 +1231,34 @@
                                         </ul>
                                     </div>
                                 </li>
+                                @actionEnd
+                                @if($accounting_mode != 1)
+                                @actionStart('charts', 'access')
+                                <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click" aria-haspopup="true">
+                                    <a href="javascript:;" class="menu-link menu-toggle">
+                                        <span class="menu-text">Charts</span>
+                                        <span class="menu-desc"></span>
+
+
+                                    </a>
+                                    <div class="menu-submenu menu-submenu-classic menu-submenu-left">
+                                        <ul class="menu-subnav">
+
+                                            <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
+                                                <a href="{{route('chart.custom.index')}}" class="menu-link">
+                                                    <span class="svg-icon menu-icon">
+															<!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Add-user.svg-->
+
+                                                        <!--end::Svg Icon-->
+														</span>
+                                                    <span class="menu-text">Custom Charts</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                @actionEnd
+                                @endif
                             </ul>
                             <!--end::Nav-->
                         </div>

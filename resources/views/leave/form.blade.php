@@ -2,6 +2,7 @@
 
 @section('content')
     <div class="card card-custom gutter-b">
+        @actionStart('leave_request', 'read')
         <div class="card-header">
             <div class="card-title">
                 Leave Request Form
@@ -48,15 +49,18 @@
                             <textarea name="reason" id="" cols="50" rows="10"></textarea>
                         </div>
                     </div>
+                    @actionStart('leave_request', 'create')
                     <div class="form-group row">
                         <label class="col-md-2 col-form-label text-right"></label>
                         <div class="col-md-4">
                             <button type="button" id="btnsubmit" class="btn btn-primary"> Submit</button>
                         </div>
                     </div>
+                    @actionEnd
                 </div>
             </form>
         </div>
+        @actionEnd
     </div>
 @endsection
 

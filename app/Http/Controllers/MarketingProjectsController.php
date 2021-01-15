@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Marketing_c_prognosis;
 use Illuminate\Http\Request;
 use App\Models\Marketing_project;
 use App\Models\Marketing_clients;
@@ -70,6 +71,12 @@ class MarketingProjectsController extends Controller
         }
         $cd_max = Marketing_project::max('id');
 
+        $dataPrognosis = Marketing_c_prognosis::whereIn('company_id', $id_companies)->get();
+        $prognosis = array();
+        foreach ($dataPrognosis as $item){
+            $prognosis[$item->id_project] = $item;
+        }
+
 
         return view('projects.index',[
             'projectsall' => $projects,
@@ -79,6 +86,7 @@ class MarketingProjectsController extends Controller
             'arrCurrency' => $arrCurrency,
             'cd_max' => $cd_max,
             'view' => $view,
+            'prognosis' => $prognosis
         ]);
     }
 

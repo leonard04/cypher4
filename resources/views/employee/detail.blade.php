@@ -536,7 +536,7 @@
                             <div class="card-body">
                                 <div class="form-group row">
                                     <label class="col-sm-3 control-label text-right">Join Date</label>
-                                    <label class="col-sm-9 control-label font-weight-bolder">{{date('d F Y', strtotime($emp_detail_history->act_date))}}</label>
+                                    <label class="col-sm-9 control-label font-weight-bolder">{{(isset($emp_detail_history->act_date))? date('d F Y', strtotime($emp_detail_history->act_date)) : ''}}</label>
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-sm-3 control-label text-right">New Join Date</label>

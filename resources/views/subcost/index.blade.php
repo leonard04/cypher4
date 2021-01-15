@@ -44,6 +44,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('subcost','read')
                             @foreach($subcost as $key => $data)
                                 <tr>
                                     <td class="text-center">{{($key+1)}}</td>
@@ -60,6 +61,7 @@
                                     </td>
                                 </tr>
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>
@@ -80,6 +82,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @actionStart('subcost','read')
                             @foreach($subcost_bank as $key => $data)
                                 <tr>
                                     <td class="text-center">{{($key+1)}}</td>
@@ -96,6 +99,7 @@
                                     </td>
                                 </tr>
                             @endforeach
+                            @actionEnd
                             </tbody>
                         </table>
                     </div>

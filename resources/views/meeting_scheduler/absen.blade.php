@@ -32,6 +32,7 @@
                     </tr>
                     </thead>
                     <tbody>
+                    @actionStart('meeting_scheduler', 'read')
                     @foreach($absensi as $key => $value)
                         @if($value->divisi != '')
                         <tr>
@@ -45,6 +46,7 @@
                             <td class="text-center"></td>
                         </tr>
                         @endif
+                        @actionEnd
                     @endforeach
                     </tbody>
                 </table>
@@ -67,6 +69,7 @@
                     </tr>
                     </thead>
                     <tbody>
+                    @actionStart('meeting_scheduler', 'read')
                     @php
                     $no = 0;
                     @endphp
@@ -88,6 +91,7 @@
                             </tr>
                         @endif
                     @endforeach
+                    @actionEnd
                     </tbody>
                 </table>
             </div>

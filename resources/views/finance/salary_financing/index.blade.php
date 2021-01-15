@@ -24,6 +24,7 @@
                     </tr>
                     </thead>
                     <tbody>
+                    @actionStart('salary_financing','read')
                     @foreach($salaryfins as $key => $value)
                         <tr>
                             <td class="text-center" class="text-center">{{($key+1)}}</td>
@@ -62,6 +63,7 @@
                             </td>
                         </tr>
                     @endforeach
+                    @actionEnd
                     </tbody>
                 </table>
             </div>

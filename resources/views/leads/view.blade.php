@@ -301,9 +301,76 @@
                     <div class="card card-custom gutter-b">
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-6 mx-auto">
+                                <div class="col-md-8 mx-auto">
                                     @if($lead->progress < 100)
                                         <div class="col-md-12 alert alert-primary">
+                                            <i class="fa fa-info-circle text-white"></i>
+                                            <?php
+                                            $prevKey = null;
+                                            /** @var TYPE_NAME $step */
+                                            if (!empty($associates) && count($step) == count($associates)){
+                                                foreach ($step as $keyStep => $itemStep){
+                                                    if ($associates[$keyStep]->file != null){
+                                                        $prevKey = $keyStep;
+                                                    }
+                                                }
+                                            }
+                                            ?>
+                                            @if(!empty($associates) && count($step) == count($associates))
+                                                @foreach($step as $keyStep => $itemStep)
+                                                    @if(!isset($itemStep['isMeeting']))
+                                                        @if($associates[$keyStep]->file_draft == null)
+                                                            @if(isset($itemStep['durations']))
+                                                                <?php
+                                                                $date1 = date_create(date('Y-m-d', strtotime("+".$itemStep['durations']." day", strtotime($associates[$prevKey]->file_date))));
+                                                                $date2 = date_create(date('Y-m-d'));
+                                                                $diff=date_diff($date1,$date2);
+                                                                $n = $diff->format("%a");
+                                                                if ($n != 0){
+                                                                    echo $itemStep['title']." must be uploaded before ".date('Y-m-d', strtotime("+".$itemStep['durations']." day", strtotime($associates[$prevKey]->file_date)))."(".$diff->format("%a days remaining").")";
+                                                                } else {
+                                                                    echo $itemStep['title']." must be uploaded to the server today!";
+                                                                }
+                                                                ?>
+                                                            @else
+                                                                Please upload {{$itemStep['title']}} draft
+                                                            @endif
+                                                            @break
+                                                        @elseif($associates[$keyStep]->resi == null)
+                                                            {{$itemStep['title']}} draft has been uploaded
+                                                            @break
+                                                        @elseif($associates[$keyStep]->file == null)
+                                                            {{$itemStep['title']}} receipt has been uploaded
+                                                            @break
+                                                        @endif
+                                                    @else
+                                                        @if($associates[$keyStep]->id_meeting_internal == null)
+                                                            @if(isset($itemStep['durations']))
+                                                                {{$itemStep['title']}} must be created before {{date('Y-m-d', strtotime("+".$itemStep['durations']." day", strtotime($associates[$prevKey]->file_date)))}}
+                                                            @else
+                                                                Please upload {{$itemStep['title']}} draft
+                                                            @endif
+                                                            @break
+                                                        @elseif($associates[$keyStep]->file_draft == null)
+                                                            {{$itemStep['title']}} internal created
+                                                            @break
+                                                        @elseif($associates[$keyStep]->id_meeting_eksternal == null)
+                                                            {{$itemStep['title']}} internal MOM file uploaded
+                                                            @break
+                                                        @elseif($associates[$keyStep]->file == null)
+                                                            {{$itemStep['title']}} external created
+                                                            @break
+                                                        @else
+                                                            {{$itemStep['title']}} external MOM file uploaded
+                                                            @break
+                                                        @endif
+                                                    @endif
+                                                @endforeach
+                                            @else
+                                                Please assign Associate for each step
+                                            @endif
+                                        </div>
+                                        <div class="col-md-12 alert alert-info">
                                             <i class="fa fa-info-circle text-white"></i>
                                             @if(!empty($associates) && count($step) == count($associates))
                                                 @foreach($step as $keyStep => $itemStep)

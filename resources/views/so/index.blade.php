@@ -48,7 +48,7 @@
             <div class="tab-content mt-5" id="myTabContent">
                 <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="home-tab">
                     <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-                        <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 100%;">
+                        <table class="table table-bordered table-hover display font-size-sm sowaiting" style="margin-top: 13px !important; width: 100%;">
                             <thead>
                             <tr>
                                 <th>#</th>
@@ -62,46 +62,16 @@
                                 <th nowrap="nowrap" class="text-center">Item(s)</th>
                                 <th nowrap="nowrap" class="text-left">Notes</th>
                                 <th nowrap="nowrap" class="text-center">Div. Manager Approval</th>
-                                <th nowrap="nowrap" data-priority=1></th>
+                                <th nowrap="nowrap" class="text-center"></th>
                             </tr>
                             </thead>
-                            <tbody>
-                            <?php $i1 = 0; ?>
-                                @foreach($so as $i => $item)
-                                    @if($item->so_rejected_by == null && $item->so_approved_by == null)
-                                        <tr>
-                                            <td align="center">{{$i1 + 1}}<?php $i++ ?></td>
-                                            <td align="center">
-                                                <a href="{{URL::route('so.view', $item->id)}}" class="text-hover-danger">{{$item->so_num}}</a>
-                                            </td>
-                                            <td align="center">{{date('d F Y', strtotime($item->so_date))}}</td>
-                                            <td align="center">{{$item->so_type}}</td>
-                                            <td align="center">{{$item->created_by}}</td>
-                                            <td align="center">{{$item->division}}</td>
-                                            <td align="center">{{$pro_name[$item->project]}}</td>
-                                            <td align="center">{{$view_company[$item->company_id]->tag}}</td>
-                                            <td align="center">{{count($det[$item->id])}}</td>
-                                            <td align="justify">{{strip_tags($item->so_notes)}}</td>
-                                            <td align="center">
-                                                @if($item->so_approved_by == null)
-                                                    <a href="{{URL::route('so.appr', $item->id)}}" class="text-hover-danger">waiting <i class="fa fa-clock"></i></a>
-                                                @else
-                                                    approved at {{date('Y-m-d', strtotime($item->so_approved_at))}} by <b>{{$item->so_approved_by}}</b>
-                                                @endif
-                                            </td>
-                                            <td align="center">
-                                                <button class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
-                                            </td>
-                                        </tr>
-                                    @endif
-                                @endforeach
-                            </tbody>
+
                         </table>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="sales" role="tabpanel" aria-labelledby="profile-tab">
                     <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-                        <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 100%;">
+                        <table class="table table-bordered table-hover display font-size-sm sobank" style="margin-top: 13px !important; width: 100%;">
                             <thead class="table-success">
                             <tr>
                                 <th>#</th>
@@ -115,46 +85,15 @@
                                 <th nowrap="nowrap" class="text-center">Item(s)</th>
                                 <th nowrap="nowrap" class="text-center">Notes</th>
                                 <th nowrap="nowrap" class="text-center">Div. Manager Approval</th>
-                                <th nowrap="nowrap" data-priority=1></th>
+                                <th nowrap="nowrap" class="text-center"></th>
                             </tr>
                             </thead>
-                            <tbody>
-                            <?php $i2 = 0; ?>
-                            @foreach($so as $i => $item)
-                                @if($item->so_approved_by != null)
-                                    <tr>
-                                        <td align="center">{{$i2 + 1}}<?php $i++ ?></td>
-                                        <td align="center">
-                                            <a href="{{URL::route('so.view', $item->id)}}" class="text-hover-danger">{{$item->so_num}}</a>
-                                        </td>
-                                        <td align="center">{{date('d F Y', strtotime($item->so_date))}}</td>
-                                        <td align="center">{{$item->so_type}}</td>
-                                        <td align="center">{{$item->created_by}}</td>
-                                        <td align="center">{{$item->division}}</td>
-                                        <td align="center">{{$pro_name[$item->project]}}</td>
-                                        <td align="center">{{$view_company[$item->company_id]->tag}}</td>
-                                        <td align="center">{{count($det[$item->id])}}</td>
-                                        <td align="justify">{{strip_tags($item->so_notes)}}</td>
-                                        <td align="center">
-                                            @if($item->so_approved_by == null)
-                                                <a href="{{URL::route('so.appr', $item->id)}}" class="text-hover-danger">waiting <i class="fa fa-clock"></i></a>
-                                            @else
-                                                approved at {{date('Y-m-d', strtotime($item->so_approved_at))}} by <b>{{$item->so_approved_by}}</b>
-                                            @endif
-                                        </td>
-                                        <td align="center">
-                                            <button class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                @endif
-                            @endforeach
-                            </tbody>
                         </table>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="cost" role="tabpanel" aria-labelledby="contact-tab">
                     <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-                        <table class="table table-bordered table-hover display font-size-sm" style="margin-top: 13px !important; width: 100%;">
+                        <table class="table table-bordered table-hover display font-size-sm soreject" style="margin-top: 13px !important; width: 100%;">
                             <thead class="table-danger">
                             <tr>
                                 <th>#</th>
@@ -168,36 +107,10 @@
                                 <th nowrap="nowrap" class="text-center">Item(s)</th>
                                 <th nowrap="nowrap" class="text-center">Notes</th>
                                 <th nowrap="nowrap" class="text-center">Div. Manager Approval</th>
-                                <th nowrap="nowrap" data-priority=1></th>
+                                <th nowrap="nowrap" class="text-center"></th>
                             </tr>
                             </thead>
-                            <tbody>
-                            <?php $i3 = 0; ?>
-                            @foreach($so as $i => $item)
-                                @if($item->so_rejected_by != null)
-                                    <tr>
-                                        <<td align="center">{{$i3 + 1}}<?php $i++ ?></td>
-                                        <td align="center">
-                                            <a href="{{URL::route('so.view', $item->id)}}" class="text-hover-danger">{{$item->so_num}}</a>
-                                        </td>
-                                        <td align="center">{{date('d F Y', strtotime($item->so_date))}}</td>
-                                        <td align="center">{{$item->so_type}}</td>
-                                        <td align="center">{{$item->created_by}}</td>
-                                        <td align="center">{{$item->division}}</td>
-                                        <td align="center">{{$pro_name[$item->project]}}</td>
-                                        <td align="center">{{$view_company[$item->company_id]->tag}}</td>
-                                        <td align="center">{{count($det[$item->id])}}</td>
-                                        <td align="justify">{{strip_tags($item->so_notes)}}</td>
-                                        <td align="center">
-                                            rejected at {{date('Y-m-d', strtotime($item->so_rejected_at))}} by <b>{{$item->so_rejected_by}}</b>
-                                        </td>
-                                        <td align="center">
-                                            <button class="btn btn-xs btn-icon btn-danger"><i class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                @endif
-                            @endforeach
-                            </tbody>
+
                         </table>
                     </div>
                 </div>
@@ -414,11 +327,203 @@
         }
 
         $(document).ready(function(){
-            $("table.display").DataTable({
+            $("table.sowaiting").DataTable({
                 fixedHeader: true,
                 fixedHeader: {
                     headerOffset: 90
-                }
+                },
+                'ajax': '{{route('so.waiting')}}',
+                'type': 'GET',
+                dataSrc: 'responseData',
+                'columns' :[
+                    { "data": "no" },
+                    { "data": "so_num" },
+                    { "data": "so_date" },
+                    { "data": "so_type" },
+                    { "data": "created_by" },
+                    { "data": "division" },
+                    { "data": "project" },
+                    { "data": "company" },
+                    { "data": "items" },
+                    { "data": "notes" },
+                    { "data": "appr" },
+                    { "data": "action" },
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 1,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 2,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 3,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 4,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 5,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 6,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 7,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 8,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 10,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 11,
+                        "className": "text-center",
+                    },
+
+                ],
+            });
+            $("table.sobank").DataTable({
+                fixedHeader: true,
+                fixedHeader: {
+                    headerOffset: 90
+                },
+                'ajax': '{{route('so.bank')}}',
+                'type': 'GET',
+                dataSrc: 'responseData',
+                'columns' :[
+                    { "data": "no" },
+                    { "data": "so_num" },
+                    { "data": "so_date" },
+                    { "data": "so_type" },
+                    { "data": "created_by" },
+                    { "data": "division" },
+                    { "data": "project" },
+                    { "data": "company" },
+                    { "data": "items" },
+                    { "data": "notes" },
+                    { "data": "appr" },
+                    { "data": "action" },
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 1,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 2,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 3,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 4,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 5,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 6,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 7,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 8,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 10,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 11,
+                        "className": "text-center",
+                    },
+
+                ],
+            });
+            $("table.soreject").DataTable({
+                fixedHeader: true,
+                fixedHeader: {
+                    headerOffset: 90
+                },
+                'ajax': '{{route('so.rejected')}}',
+                'type': 'GET',
+                dataSrc: 'responseData',
+                'columns' :[
+                    { "data": "no" },
+                    { "data": "so_num" },
+                    { "data": "so_date" },
+                    { "data": "so_type" },
+                    { "data": "created_by" },
+                    { "data": "division" },
+                    { "data": "project" },
+                    { "data": "company" },
+                    { "data": "items" },
+                    { "data": "notes" },
+                    { "data": "appr" },
+                    { "data": "action" },
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 1,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 2,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 3,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 4,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 5,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 6,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 7,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 8,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 10,
+                        "className": "text-center",
+                    },
+                    {
+                        "targets": 11,
+                        "className": "text-center",
+                    },
+
+                ],
             });
         });
 
